@@ -50,8 +50,8 @@ namespace CSharpTestBedAdapter
                 _appName = appName;
 
                 // Create the system producers
-                _heartbeatProducer = new Producer<EDXLDistribution, Heartbeat>(Configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Heartbeat>());
-                _logProducer = new Producer<EDXLDistribution, Log>(Configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
+                _heartbeatProducer = new Producer<EDXLDistribution, Heartbeat>(Configuration.Instance.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Heartbeat>());
+                _logProducer = new Producer<EDXLDistribution, Log>(Configuration.Instance.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
 
                 // TODO: Fully specify and fill in configuration message
                 //SendConfiguration();
@@ -72,7 +72,7 @@ namespace CSharpTestBedAdapter
         private void SendConfiguration()
         {
             // Create the one time configuration producer
-            Producer<EDXLDistribution, eu.driver.model.core.Configuration> configProducer = new Producer<EDXLDistribution, eu.driver.model.core.Configuration>(Configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<eu.driver.model.core.Configuration>());
+            Producer<EDXLDistribution, eu.driver.model.core.Configuration> configProducer = new Producer<EDXLDistribution, eu.driver.model.core.Configuration>(Configuration.Instance.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<eu.driver.model.core.Configuration>());
             if (configProducer != null)
             {
                 try
@@ -91,12 +91,12 @@ namespace CSharpTestBedAdapter
                     eu.driver.model.core.Configuration config = new eu.driver.model.core.Configuration()
                     {
                         clientId = _appName,
-                        heartbeatInterval = Configuration.HeartbeatEpoch,
+                        heartbeatInterval = Configuration.Instance.Settings.heartbeatInterval,
                     };
 
                     // Send the configuration message
                     // TODO: Check the result and send error if the message couldn't be sent
-                    configProducer.ProduceAsync(Configuration.ConfigurationSystemTopic, key, config);
+                    configProducer.ProduceAsync(Configuration.Instance.ConfigurationSystemTopic, key, config);
                 }
                 catch (Exception e)
                 {
@@ -122,7 +122,7 @@ namespace CSharpTestBedAdapter
             while (true)
             {
                 // Wait for the specified amount of milliseconds
-                Task wait = Task.Delay(Configuration.HeartbeatEpoch);
+                Task wait = Task.Delay(Configuration.Instance.Settings.heartbeatInterval);
                 wait.Wait();
 
                 // Send out the heart beat that this connector is still alive
@@ -137,7 +137,7 @@ namespace CSharpTestBedAdapter
                 };
                 Heartbeat beat = new Heartbeat { id = _appName, alive = DateTime.UtcNow.ToString("o") };
                 // TODO: Check the result and send error if the message couldn't be sent
-                _heartbeatProducer.ProduceAsync(Configuration.HeartbeatSystemTopic, key, beat);
+                _heartbeatProducer.ProduceAsync(Configuration.Instance.HeartbeatSystemTopic, key, beat);
             }
         }
 
@@ -163,7 +163,7 @@ namespace CSharpTestBedAdapter
                 };
                 Log log = new Log() { id = _appName, log = level + " : " + msg };
                 // TODO: Check the result and send error if the message couldn't be sent
-                _logProducer.ProduceAsync(Configuration.LogSystemTopic, key, log);
+                _logProducer.ProduceAsync(Configuration.Instance.LogSystemTopic, key, log);
             }
             else throw new NullReferenceException($"Could not create the log producer that should send the following log:\n{msg}");
         }

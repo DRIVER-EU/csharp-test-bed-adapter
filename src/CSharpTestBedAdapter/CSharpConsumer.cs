@@ -60,7 +60,7 @@ namespace CSharpTestBedAdapter
             {
                 _topic = topic;
                 // Create a new Confluent.Kafka.Consumer with a generic key (containing envelope information) and as value the specified Avro record
-                _consumer = new Consumer<EDXLDistribution, T>(Configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<T>());
+                _consumer = new Consumer<EDXLDistribution, T>(Configuration.Instance.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<T>());
                 // Configure the consumer so it will start at the specified topic and offset
                 // TODO: Maybe open up the partition as well for the user to set?
                 _consumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(_topic, 0, offset) });
