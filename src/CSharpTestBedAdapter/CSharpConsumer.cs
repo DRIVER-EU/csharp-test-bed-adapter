@@ -6,7 +6,7 @@
  * This file is part of "DRIVER+ WP923 Test-bed infrastructure" project.
  * 
  * This file is licensed under the MIT license : 
- *   https://github.com/DRIVER-EU/test-bed/blob/master/LICENSE
+ *   https://github.com/DRIVER-EU/csharp-test-bed-adapter/blob/master/LICENSE
  *
  *************************************************************/
 
