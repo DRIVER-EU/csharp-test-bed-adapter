@@ -92,6 +92,8 @@ namespace CSharpTestBedAdapter
                     {
                         clientId = _appName,
                         heartbeatInterval = Configuration.Instance.Settings.heartbeatInterval,
+                        kafkaHost = Configuration.Instance.Settings.brokerUrl,
+                        schemaRegistry = Configuration.Instance.Settings.schemaUrl,
                     };
 
                     // Send the configuration message
