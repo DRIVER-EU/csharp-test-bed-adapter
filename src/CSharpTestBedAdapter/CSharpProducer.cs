@@ -48,7 +48,7 @@ namespace CSharpTestBedAdapter
             {
                 _topic = topic;
                 // Create a new Confluent.Kafka.Producer with a generic key (containing envelope information) and as value the specified Avro record
-                _producer = new Producer<EDXLDistribution, T>(Configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
+                _producer = new Producer<EDXLDistribution, T>(Configuration.Instance.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
             }
             catch (Exception e)
             {

@@ -84,6 +84,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CSharpConnector.cs" />
+    <Compile Include="data\Settings.cs">
+      <DependentUpon>settings.xsd</DependentUpon>
+    </Compile>
     <Compile Include="schemas\eu\driver\model\core\OffsetFetchRequest.cs" />
     <Compile Include="schemas\eu\driver\model\edxl\DistributionKind.cs" />
     <Compile Include="schemas\eu\driver\model\edxl\DistributionStatus.cs" />
@@ -100,9 +103,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="data\settings.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="data\settings.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
