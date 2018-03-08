@@ -241,19 +241,50 @@ namespace CSharpTestBedAdapter
         #region Producer
 
         /// <summary>
-        /// Method for sending a custom message over the given topic
+        /// Method for sending out a standard message
         /// </summary>
-        /// <typeparam name="T">Type of <see cref="Avro.Specific.ISpecificRecord"/> that the message must be of</typeparam>
+        /// <typeparam name="T">The type of the standard message, inherited from <see cref="Avro.Specific.ISpecificRecord"/></typeparam>
+        /// <param name="message">The standard message to be send</param>
+        public void SendMessage<T>(T message)
+            where T : Avro.Specific.ISpecificRecord
+        {
+            // Check if this message is actually a standard message
+            if (Configuration.StandardTopics.ContainsKey(typeof(T)))
+            {
+                // Send over the message
+                DoSendMessage<T>(message, Configuration.StandardTopics[typeof(T)]);
+            }
+            else throw new CommunicationException($"message of type {typeof(T)} does not belong to any supported standard topics");
+        }
+
+        /// <summary>
+        /// Method for sending a custom message over a custom topic
+        /// </summary>
+        /// <typeparam name="T">The type of the message, inherited from <see cref="Avro.Specific.ISpecificRecord"/></typeparam>
         /// <param name="message">The message to be send</param>
         /// <param name="topic">The topic name to send the message over</param>
         public void SendMessage<T>(T message, string topic)
             where T : Avro.Specific.ISpecificRecord
         {
-            // Make sure we are not sending out messages to core or standard topics via this method
+            // Make sure we are not sending out messages to standard topics via this method
+            if (Configuration.StandardTopics.ContainsValue(topic))
+                throw new CommunicationException($"topic ({topic}) is already part of the standard test-bed topics! Choose another topic name");
+
+            DoSendMessage<T>(message, topic);
+        }
+
+        /// <summary>
+        /// Method for sending a custom message over the given topic
+        /// </summary>
+        /// <typeparam name="T">The type of the message, inherited from <see cref="Avro.Specific.ISpecificRecord"/></typeparam>
+        /// <param name="message">The message to be send</param>
+        /// <param name="topic">The topic name to send the message over</param>
+        private void DoSendMessage<T>(T message, string topic)
+            where T : Avro.Specific.ISpecificRecord
+        {
+            // Make sure we are not sending out messages to core topics via this method
             if (Configuration.CoreTopics.ContainsKey(topic))
                 throw new CommunicationException($"topic ({topic}) is already part of the core test-bed topics! Choose another topic name");
-            if (Configuration.StandardTopics.ContainsKey(topic))
-                throw new CommunicationException($"topic ({topic}) is already part of the standard test-bed topics! Choose another topic name");
             
             if (_producers.ContainsKey(topic))
             {
@@ -269,6 +300,8 @@ namespace CSharpTestBedAdapter
             {
                 // Create a new producer for the given topic, sending out messages of the given message type
                 AbstractProducer<T> newProducer = new AbstractProducer<T>(_configuration);
+                newProducer.OnError += Adapter_Error;
+                newProducer.OnLog += Adapter_Log;
                 _producers.Add(topic, newProducer);
 
                 // Send the message

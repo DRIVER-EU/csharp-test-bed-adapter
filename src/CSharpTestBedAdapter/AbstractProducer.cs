@@ -30,6 +30,17 @@ namespace CSharpTestBedAdapter
         /// </summary>
         private string _sender;
 
+        /// <summary>
+        /// Event being triggered whenever an error occurred
+        /// <para>Raised on critical errors, e.g. connection failures or all brokers down</para>
+        /// </summary>
+        public event EventHandler<Error> OnError;
+        /// <summary>
+        /// Event being triggered whenever a log report occurred
+        /// <para>Raised when there is information that should be logged</para>
+        /// </summary>
+        public event EventHandler<LogMessage> OnLog;
+
         /// <summary><see cref="IAbstractProducer.MessageType"/></summary>
         public Type MessageType
         {
@@ -44,6 +55,17 @@ namespace CSharpTestBedAdapter
         {
             _producer = new Producer<EDXLDistribution, T>(configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
             _sender = configuration.Settings.clientId;
+
+            // Raised on critical errors, e.g. connection failures or all brokers down.
+            _producer.OnError += (sender, error) =>
+            {
+                OnError?.Invoke(sender, error);
+            };
+            // Raised when there is information that should be logged.
+            _producer.OnLog += (sender, log) =>
+            {
+                OnLog?.Invoke(sender, log);
+            };
         }
 
         /// <summary>
@@ -70,6 +92,8 @@ namespace CSharpTestBedAdapter
         /// <param name="topic">The name of the topic to send the message over</param>
         internal void SendMessage(T message, string topic)
         {
+            // TODO: implement waiting for response or not
+            // TODO: implement time out mechanism
             _producer.ProduceAsync(topic, CreateKey(), message);
         }
 

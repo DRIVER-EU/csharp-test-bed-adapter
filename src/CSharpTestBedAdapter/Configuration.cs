@@ -9,7 +9,7 @@
  *   https://github.com/DRIVER-EU/csharp-test-bed-adapter/blob/master/LICENSE
  *
  *************************************************************/
-
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -39,11 +39,11 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// The dictionary containing all standard message topics used inside the Common Information Space
         /// </summary>
-        internal static readonly Dictionary<string, string> StandardTopics = new Dictionary<string, string>()
+        internal static readonly Dictionary<Type, string> StandardTopics = new Dictionary<Type, string>()
         {
-            { "cap", "cap" },
-            { "geojson", "geojson" },
-            { "mlp", "mlp" },
+            { typeof(eu.driver.model.cap.Alert), "cap" },
+            { typeof(eu.driver.model.geojson.FeatureCollection), "geojson" },
+            { typeof(eu.driver.model.mlp.SlRep), "mlp" },
         };
 
         /// <summary>

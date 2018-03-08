@@ -12,18 +12,20 @@
 
 using System;
 
+using CSharpTestBedAdapter;
+
 using log4net.Core;
 
 using eu.driver.model.test;
 
-namespace CSharpExampleProducer
+namespace CSharpExampleProducerCustom
 {
     /// <summary>
-    /// Example class for setting up a simple DRIVER-EU test-bed producer
+    /// Example class for setting up a simple DRIVER-EU test-bed producer for sending over custom messages (in this case <see cref="Test"/>)
     /// </summary>
     class Program
     {
-        private static readonly string SenderName = "CSharpExampleProducer";
+        private static readonly string SenderName = "CSharpExampleProducerCustom";
         private static readonly string CustomTopicName = "csharp-test";
 
         /// <summary>
@@ -34,8 +36,8 @@ namespace CSharpExampleProducer
         {
             try
             {
-                CSharpTestBedAdapter.TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
-                CSharpTestBedAdapter.TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
+                TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
+                TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
 
                 Console.WriteLine($"Please type in any text to be send over topic '{CustomTopicName}'; q to exit");
                 string text;
@@ -49,7 +51,7 @@ namespace CSharpExampleProducer
                     };
 
                     // Send the message over our custom topic
-                    CSharpTestBedAdapter.TestBedAdapter.GetInstance().SendMessage<Test>(newMsg, CustomTopicName);
+                    TestBedAdapter.GetInstance().SendMessage<Test>(newMsg, CustomTopicName);
                 }
             }
             catch (Exception e)
