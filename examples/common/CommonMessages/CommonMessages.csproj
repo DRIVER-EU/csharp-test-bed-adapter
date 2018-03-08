@@ -87,25 +87,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="eu\driver\model\cap\Alert.cs" />
-    <Compile Include="eu\driver\model\cap\Area.cs" />
-    <Compile Include="eu\driver\model\cap\CapKey.cs" />
-    <Compile Include="eu\driver\model\cap\Category.cs" />
-    <Compile Include="eu\driver\model\cap\Certainty.cs" />
-    <Compile Include="eu\driver\model\cap\Info.cs" />
-    <Compile Include="eu\driver\model\cap\MsgType.cs" />
-    <Compile Include="eu\driver\model\cap\Resource.cs" />
-    <Compile Include="eu\driver\model\cap\ResponseType.cs" />
-    <Compile Include="eu\driver\model\cap\Scope.cs" />
-    <Compile Include="eu\driver\model\cap\Severity.cs" />
-    <Compile Include="eu\driver\model\cap\Status.cs" />
-    <Compile Include="eu\driver\model\cap\Urgency.cs" />
-    <Compile Include="eu\driver\model\cap\ValueNamePair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="schemas\eu\driver\model\test\Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="data\avro-schemas\other\cap\cap-value.avsc" />
+    <None Include="data\avro-schemas\test\test.avsc" />
     <None Include="data\avro-to-cs\convert.bat" />
     <None Include="data\README.md" />
     <None Include="packages.config" />

@@ -10,6 +10,7 @@
  *
  *************************************************************/
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Confluent.Kafka;
@@ -29,7 +30,11 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// Configuration class, including internal setup information and external settings
         /// </summary>
-        private Configuration _configuration = null;
+        private Configuration _configuration;
+        /// <summary>
+        /// The list of created producers, indexed by topic name
+        /// </summary>
+        private Dictionary<string, IAbstractProducer> _producers;
 
         /// <summary>
         /// The producer this connector is using to send heartbeats
@@ -55,6 +60,9 @@ namespace CSharpTestBedAdapter
             {
                 // Create a new configuration, including the read in external settings
                 _configuration = new Configuration();
+
+                // Initialize the empty producer dictionary
+                _producers = new Dictionary<string, IAbstractProducer>();
 
                 // Create the producers for the core topics
                 _heartbeatProducer = new Producer<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Heartbeat>());
@@ -230,11 +238,59 @@ namespace CSharpTestBedAdapter
 
         #endregion Log
 
+        #region Producer
+
+        /// <summary>
+        /// Method for sending a custom message over the given topic
+        /// </summary>
+        /// <typeparam name="T">Type of <see cref="Avro.Specific.ISpecificRecord"/> that the message must be of</typeparam>
+        /// <param name="message">The message to be send</param>
+        /// <param name="topic">The topic name to send the message over</param>
+        public void SendMessage<T>(T message, string topic)
+            where T : Avro.Specific.ISpecificRecord
+        {
+            // Make sure we are not sending out messages to core or standard topics via this method
+            if (Configuration.CoreTopics.ContainsKey(topic))
+                throw new CommunicationException($"topic ({topic}) is already part of the core test-bed topics! Choose another topic name");
+            if (Configuration.StandardTopics.ContainsKey(topic))
+                throw new CommunicationException($"topic ({topic}) is already part of the standard test-bed topics! Choose another topic name");
+            
+            if (_producers.ContainsKey(topic))
+            {
+                // Check if the types are matching and send the message if they are
+                IAbstractProducer producer = _producers[topic];
+                if (producer.MessageType == typeof(T))
+                {
+                    ((AbstractProducer<T>)producer).SendMessage(message, topic);
+                }
+                else throw new CommunicationException($"could not send message of type {typeof(T)}, since it is not conform the initial producer message type {producer.MessageType}");
+            }
+            else
+            {
+                // Create a new producer for the given topic, sending out messages of the given message type
+                AbstractProducer<T> newProducer = new AbstractProducer<T>(_configuration);
+                _producers.Add(topic, newProducer);
+
+                // Send the message
+                newProducer.SendMessage(message, topic);
+            }
+        }
+
+        #endregion Producer
+
         #region Destruction
 
         /// <summary><see cref="IDisposable.Dispose"/></summary>
         public void Dispose()
         {
+            // Dispose all created producers
+            foreach (IAbstractProducer producer in _producers.Values)
+            {
+                // TODO: unsubsribe from error and log events
+                ((IDisposable)producer).Dispose();
+            }
+
+            // Dispose all core producers
             if (_heartbeatProducer != null)
             {
                 _heartbeatProducer.OnError -= Adapter_Error;

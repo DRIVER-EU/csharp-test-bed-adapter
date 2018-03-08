@@ -14,6 +14,8 @@ using System;
 
 using log4net.Core;
 
+using eu.driver.model.test;
+
 namespace CSharpExampleProducer
 {
     /// <summary>
@@ -21,6 +23,9 @@ namespace CSharpExampleProducer
     /// </summary>
     class Program
     {
+        private static readonly string SenderName = "CSharpExampleProducer";
+        private static readonly string CustomTopicName = "csharp-test";
+
         /// <summary>
         /// Main call
         /// </summary>
@@ -31,102 +36,26 @@ namespace CSharpExampleProducer
             {
                 CSharpTestBedAdapter.TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
                 CSharpTestBedAdapter.TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
-                Console.Read();
+
+                Console.WriteLine($"Please type in any text to be send over topic '{CustomTopicName}'; q to exit");
+                string text;
+                // Whenever a new text has been entered by the user, create a new test message, or quit the application if the text is 'q'
+                while ((text = Console.ReadLine()) != "q")
+                {
+                    Test newMsg = new Test()
+                    {
+                        sender = SenderName,
+                        message = text,
+                    };
+
+                    // Send the message over our custom topic
+                    CSharpTestBedAdapter.TestBedAdapter.GetInstance().SendMessage<Test>(newMsg, CustomTopicName);
+                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-
-            //// Create a producer for this application, sending out Alert CAP messages on specified topic
-            //using (CSharpTestBedAdapter.CSharpProducer<Alert> producer = CSharpTestBedAdapter.TestBedAdapter.CreateProducer<Alert>(AppName, Topic))
-            //{
-            //    if (producer == null) return;
-
-            //    Console.WriteLine($"new producer for application {AppName} producing on {Topic}. q to exit.");
-
-            //    string text;
-            //    // Whenever a new text has been entered by the user, create a new Alert CAP message, or quit the application if the text is 'q'
-            //    while ((text = Console.ReadLine()) != "q")
-            //    {
-            //        // Create a new Alert message, with the given text as info[0].@event
-            //        Alert alert = new Alert
-            //        {
-            //            identifier = "test",
-            //            sender = AppName,
-            //            sent = DateTime.UtcNow.ToString("o"),
-            //            status = Status.Test,
-            //            msgType = MsgType.Alert,
-            //            source = "null",
-            //            scope = Scope.Public,
-            //            restriction = "null",
-            //            addresses = "null",
-            //            code = new string[] { "a", "b", "c" },
-            //            note = "null",
-            //            references = "null",
-            //            incidents = "null",
-            //            info = new Info[]
-            //            {
-            //            new Info {
-            //                language = "en-US",
-            //                category = new Category[] { Category.Env, Category.Transport },
-            //                @event = text,
-            //                responseType = new ResponseType[] { ResponseType.Assess, ResponseType.Execute },
-            //                urgency = Urgency.Unknown,
-            //                severity = Severity.Minor,
-            //                certainty = Certainty.Likely,
-            //                audience = "null",
-            //                eventCode = new ValueNamePair[]
-            //                {
-            //                    new ValueNamePair { valueName = "test", value = "OK" },
-            //                },
-            //                effective = "null",
-            //                onset = "null",
-            //                expires = "null",
-            //                senderName = "null",
-            //                headline = "null",
-            //                description = "null",
-            //                instruction = "null",
-            //                web = "null",
-            //                contact = "null",
-            //                parameter = new ValueNamePair[]
-            //                {
-            //                    new ValueNamePair { valueName = "test2", value = "OK2" },
-            //                },
-            //                resource = new Resource[]
-            //                {
-            //                    new Resource
-            //                    {
-            //                        resourceDesc = "testResource",
-            //                        //size = null,
-            //                        uri = "null",
-            //                        deferUri = "null",
-            //                        digest = "null",
-            //                    },
-            //                },
-            //                area = new Area
-            //                {
-            //                    areaDesc = "testArea",
-            //                    polygon = "null",
-            //                    circle = "null",
-            //                    geocode = null,
-            //                    //altitude = null,
-            //                    //ceiling = null,
-            //                },
-            //            },
-            //            },
-            //        };
-
-            //        // Send the message
-            //        Task<Message<eu.driver.model.edxl.EDXLDistribution, Alert>> task = producer.ProduceAsync(alert);
-            //        if (task != null)
-            //        {
-            //            // Wait for the message to be added to the Kafka topic, and report that to the user
-            //            Message<eu.driver.model.edxl.EDXLDistribution, Alert> deliveryReport = task.Result;
-            //            Console.WriteLine($"Message sent: Topic: {deliveryReport.Topic}, Partition: {deliveryReport.Partition}, Offset: {deliveryReport.Offset}");
-            //        }
-            //    }
-            //}
         }
 
         /// <summary>
