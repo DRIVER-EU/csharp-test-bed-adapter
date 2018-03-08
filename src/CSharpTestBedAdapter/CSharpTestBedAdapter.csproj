@@ -83,23 +83,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CSharpConnector.cs" />
     <Compile Include="data\Settings.cs">
       <DependentUpon>settings.xsd</DependentUpon>
     </Compile>
-    <Compile Include="schemas\eu\driver\model\core\OffsetFetchRequest.cs" />
-    <Compile Include="schemas\eu\driver\model\edxl\DistributionKind.cs" />
-    <Compile Include="schemas\eu\driver\model\edxl\DistributionStatus.cs" />
-    <Compile Include="schemas\eu\driver\model\edxl\EDXLDistribution.cs" />
     <Compile Include="TestBedAdapter.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="CSharpConsumer.cs" />
-    <Compile Include="CSharpProducer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="schemas\eu\driver\model\core\Configuration.cs" />
-    <Compile Include="schemas\eu\driver\model\core\Heartbeat.cs" />
-    <Compile Include="schemas\eu\driver\model\core\Log.cs" />
-    <Compile Include="schemas\eu\driver\model\core\LogSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

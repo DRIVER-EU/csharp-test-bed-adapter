@@ -27,9 +27,29 @@ namespace CSharpTestBedAdapter
         private static readonly string _settingsPath = @".\data\settings.xml";
 
         /// <summary>
+        /// The dictionary containing all core topics used inside this adapter
+        /// </summary>
+        internal static readonly Dictionary<string, string> CoreTopics = new Dictionary<string, string>()
+        {
+            { "heartbeat", "connect-status-heartbeat" },
+            { "log", "connect-status-log" },
+            { "configuration", "connect-status-configuration" },
+        };
+
+        /// <summary>
+        /// The dictionary containing all standard message topics used inside the Common Information Space
+        /// </summary>
+        internal static readonly Dictionary<string, string> StandardTopics = new Dictionary<string, string>()
+        {
+            { "cap", "cap" },
+            { "geojson", "geojson" },
+            { "mlp", "mlp" },
+        };
+
+        /// <summary>
         /// Private constructor, because this is a singleton class
         /// </summary>
-        private Configuration()
+        internal Configuration()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Schemas.settings));
             using (StreamReader reader = new StreamReader(_settingsPath))
@@ -66,22 +86,6 @@ namespace CSharpTestBedAdapter
         }
 
         /// <summary>
-        /// Property for retrieving the singleton instance of the configuration
-        /// </summary>
-        internal static Configuration Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new Configuration();
-                }
-                return _instance;
-            }
-        }
-        private static Configuration _instance = null;
-
-        /// <summary>
         /// The parsed user settings to be used inside the adapter
         /// </summary>
         internal Schemas.settings Settings
@@ -107,18 +111,5 @@ namespace CSharpTestBedAdapter
             get { return new Dictionary<string, object>(_consumerConfig); }
         }
         private Dictionary<string, object> _consumerConfig;
-
-        /// <summary>
-        /// The name of the system's heartbeat topic
-        /// </summary>
-        internal readonly string HeartbeatSystemTopic = "connect-status-heartbeat";
-        /// <summary>
-        /// The name of the system's log topic
-        /// </summary>
-        internal readonly string LogSystemTopic = "connect-status-log";
-        /// <summary>
-        /// The name of the system's configuration topic
-        /// </summary>
-        internal readonly string ConfigurationSystemTopic = "connect-status-configuration";
     }
 }
