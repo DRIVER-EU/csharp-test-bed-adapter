@@ -12,6 +12,8 @@
 
 using System;
 
+using log4net.Core;
+
 namespace CSharpExampleProducer
 {
     /// <summary>
@@ -27,7 +29,8 @@ namespace CSharpExampleProducer
         {
             try
             {
-                CSharpTestBedAdapter.TestBedAdapter.GetInstance();
+                CSharpTestBedAdapter.TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
+                CSharpTestBedAdapter.TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
                 Console.Read();
             }
             catch (Exception e)
@@ -124,6 +127,15 @@ namespace CSharpExampleProducer
             //        }
             //    }
             //}
+        }
+
+        /// <summary>
+        /// Delegate being called once the adapter has a log to report
+        /// </summary>
+        /// <param name="message">The log to report</param>
+        private static void Adapter_Log(string message)
+        {
+            Console.WriteLine(message);
         }
     }
 }

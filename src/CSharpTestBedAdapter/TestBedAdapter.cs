@@ -44,6 +44,8 @@ namespace CSharpTestBedAdapter
         /// </summary>
         private Producer<EDXLDistribution, eu.driver.model.core.Configuration> _configurationProducer;
 
+        #region Initialization
+
         /// <summary>
         /// Default constructor of the adapter
         /// </summary>
@@ -66,9 +68,6 @@ namespace CSharpTestBedAdapter
                 _configurationProducer.OnLog += Adapter_Log;
 
                 SendConfiguration();
-
-                // DEBUG: Send out a test log
-                Log(log4net.Core.Level.Debug, "Starting the heartbeat!");
 
                 // Start the heart beat to indicate the connector is still alive
                 // TODO: Add CancellationToken to stop on dispose
@@ -94,6 +93,27 @@ namespace CSharpTestBedAdapter
             return _instance;
         }
         private static TestBedAdapter _instance = null;
+
+        /// <summary>
+        /// Method for creating the key to be used within core messages
+        /// </summary>
+        /// <returns>An EDXL-DE key containing all information for adapters to understand where this message originates from</returns>
+        private EDXLDistribution CreateCoreKey()
+        {
+            return new EDXLDistribution()
+            {
+                senderID = _configuration.Settings.clientId,
+                distributionID = Guid.NewGuid().ToString(),
+                distributionKind = DistributionKind.Update,
+                distributionStatus = DistributionStatus.System,
+                dateTimeSent = DateTime.UtcNow.Ticks / 10000,
+                dateTimeExpires = (DateTime.UtcNow.Ticks + 600000000) / 10000,
+            };
+        }
+
+        #endregion Initialization
+
+        #region Configuration
 
         /// <summary>
         /// Method for sending the configuration to the core configuration topic
@@ -123,6 +143,10 @@ namespace CSharpTestBedAdapter
             }
         }
 
+        #endregion Configuration
+
+        #region Heartbeat
+
         /// <summary>
         /// Method for starting the heart beat of this adapter
         /// </summary>
@@ -142,6 +166,10 @@ namespace CSharpTestBedAdapter
             }
         }
 
+        #endregion Heartbeat
+
+        #region Log
+
         /// <summary>
         /// Method for logging a given message to the test bed core log
         /// </summary>
@@ -150,16 +178,34 @@ namespace CSharpTestBedAdapter
         // TODO: Think about creating own log levels and putting them into the schema
         public void Log(log4net.Core.Level level, string msg)
         {
+            // Send the message to the callback function
+            if (_logHandler != null)
+            {
+                _logHandler.Invoke(level + "::" + msg);
+            }
+
+            // Send out the log towards the core log topic
             if (_logProducer != null)
             {
-                // Send out the log towards the core log topic
                 EDXLDistribution key = CreateCoreKey();
                 Log log = new Log() { id = _configuration.Settings.clientId, log = msg };
-                // TODO: Check the result and send error if the message couldn't be sent
+
                 _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
             }
             else throw new NullReferenceException($"Could not create the log producer that should send the following log:\n{msg}");
         }
+
+        /// <summary>
+        /// Method for adding a callback function to the log event of this adapter
+        /// </summary>
+        /// <param name="handler">The function that will be called once a log message is sent</param>
+        public void AddLogCallback(LogHandler handler)
+        {
+            _logHandler = handler;
+        }
+        public delegate void LogHandler(string message);
+        private LogHandler _logHandler = null;
+
 
         /// <summary>
         /// Collective delegate to report all errors created by producers and consumers
@@ -182,22 +228,9 @@ namespace CSharpTestBedAdapter
             Log(log4net.Core.Level.Info, sender.GetType() + " " + log.Name + ": " + log.Message);
         }
 
-        /// <summary>
-        /// Method for creating the key to be used within core messages
-        /// </summary>
-        /// <returns>An EDXL-DE key containing all information for adapters to understand where this message originates from</returns>
-        private EDXLDistribution CreateCoreKey()
-        {
-            return new EDXLDistribution()
-            {
-                senderID = _configuration.Settings.clientId,
-                distributionID = Guid.NewGuid().ToString(),
-                distributionKind = DistributionKind.Update,
-                distributionStatus = DistributionStatus.System,
-                dateTimeSent = DateTime.UtcNow.Ticks / 10000,
-                dateTimeExpires = (DateTime.UtcNow.Ticks + 600000000) / 10000,
-            };
-        }
+        #endregion Log
+
+        #region Destruction
 
         /// <summary><see cref="IDisposable.Dispose"/></summary>
         public void Dispose()
@@ -222,6 +255,7 @@ namespace CSharpTestBedAdapter
             }
         }
 
+        #endregion Destruction
 
 
         ///// <summary>
