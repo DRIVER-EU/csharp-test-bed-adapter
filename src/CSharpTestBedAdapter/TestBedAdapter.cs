@@ -39,6 +39,10 @@ namespace CSharpTestBedAdapter
         /// The producer this connector is using to send logs
         /// </summary>
         private Producer<EDXLDistribution, Log> _logProducer;
+        /// <summary>
+        /// The producer this connector is using to send its current configuration
+        /// </summary>
+        private Producer<EDXLDistribution, eu.driver.model.core.Configuration> _configurationProducer;
 
         /// <summary>
         /// Default constructor of the adapter
@@ -57,8 +61,14 @@ namespace CSharpTestBedAdapter
                 _logProducer = new Producer<EDXLDistribution, Log>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
                 _logProducer.OnError += Adapter_Error;
                 _logProducer.OnLog += Adapter_Log;
+                _configurationProducer = new Producer<EDXLDistribution, eu.driver.model.core.Configuration>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<eu.driver.model.core.Configuration>());
+                _configurationProducer.OnError += Adapter_Error;
+                _configurationProducer.OnLog += Adapter_Log;
 
                 SendConfiguration();
+
+                // DEBUG: Send out a test log
+                Log(log4net.Core.Level.Debug, "Starting the heartbeat!");
 
                 // Start the heart beat to indicate the connector is still alive
                 // TODO: Add CancellationToken to stop on dispose
@@ -90,44 +100,26 @@ namespace CSharpTestBedAdapter
         /// </summary>
         private void SendConfiguration()
         {
-            // Create the one time configuration producer
-            Producer<EDXLDistribution, eu.driver.model.core.Configuration> configProducer = new Producer<EDXLDistribution, eu.driver.model.core.Configuration>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<eu.driver.model.core.Configuration>());
-            if (configProducer != null)
+            try
             {
-                configProducer.OnError += Adapter_Error;
-                configProducer.OnLog += Adapter_Log;
-                try
+                // Fill in the configuration message
+                EDXLDistribution key = CreateCoreKey();
+                eu.driver.model.core.Configuration config = new eu.driver.model.core.Configuration()
                 {
-                    // Fill in the configuration message
-                    EDXLDistribution key = CreateCoreKey();
-                    // TODO: Check with design if everything is necessary and fill this in properly
-                    eu.driver.model.core.Configuration config = new eu.driver.model.core.Configuration()
-                    {
-                        clientId = _configuration.Settings.clientId,
-                        heartbeatInterval = _configuration.Settings.heartbeatInterval,
-                        kafkaHost = _configuration.Settings.brokerUrl,
-                        schemaRegistry = _configuration.Settings.schemaUrl,
-                    };
+                    clientId = _configuration.Settings.clientId,
+                    heartbeatInterval = _configuration.Settings.heartbeatInterval,
+                    kafkaHost = _configuration.Settings.brokerUrl,
+                    schemaRegistry = _configuration.Settings.schemaUrl,
+                    logging = new LogSettings() { logToKafka = 2 },
+                    // TODO: set the topics this adapter is consuming and producing
+                };
 
-                    // Send the configuration message
-                    // TODO: Check the result and send error if the message couldn't be sent
-                    configProducer.ProduceAsync(Configuration.CoreTopics["configuration"], key, config);
-                }
-                catch (Exception e)
-                {
-                    Log(log4net.Core.Level.Error, e.ToString());
-                }
-                finally
-                {
-                    configProducer.OnError -= Adapter_Error;
-                    configProducer.OnLog -= Adapter_Log;
-                    configProducer.Dispose();
-                    configProducer = null;
-                }
+                // Send the configuration message
+                _configurationProducer.ProduceAsync(Configuration.CoreTopics["configuration"], key, config);
             }
-            else
+            catch (Exception e)
             {
-                Log(log4net.Core.Level.Alert, "Could not create a producer for sending this adapters configuration");
+                Log(log4net.Core.Level.Error, e.ToString());
             }
         }
 
@@ -141,7 +133,7 @@ namespace CSharpTestBedAdapter
                 // Send out the heart beat that this connector is still alive
                 EDXLDistribution key = CreateCoreKey();
                 Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientId, alive = DateTime.UtcNow.Ticks / 10000 };
-                // TODO: Check the result and send error if the message couldn't be sent
+
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
                 // Wait for the specified amount of milliseconds
@@ -162,7 +154,7 @@ namespace CSharpTestBedAdapter
             {
                 // Send out the log towards the core log topic
                 EDXLDistribution key = CreateCoreKey();
-                Log log = new Log() { id = _configuration.Settings.clientId, log = level + " : " + msg };
+                Log log = new Log() { id = _configuration.Settings.clientId, log = msg };
                 // TODO: Check the result and send error if the message couldn't be sent
                 _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
             }
@@ -221,6 +213,12 @@ namespace CSharpTestBedAdapter
                 _logProducer.OnError -= Adapter_Error;
                 _logProducer.OnLog -= Adapter_Log;
                 _logProducer.Dispose();
+            }
+            if (_configurationProducer != null)
+            {
+                _configurationProducer.OnError -= Adapter_Error;
+                _configurationProducer.OnLog -= Adapter_Log;
+                _configurationProducer.Dispose();
             }
         }
 
