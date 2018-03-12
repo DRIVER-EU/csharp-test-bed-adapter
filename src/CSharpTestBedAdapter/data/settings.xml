@@ -2,17 +2,17 @@
 	<!-- The name of the application -->
   <client.id>CSharpTestbedAdapter</client.id>
   <!-- The time (in ms) between sending a heartbeat -->
-	<heartbeat.interval>5000</heartbeat.interval>
+  <heartbeat.interval>5000</heartbeat.interval>
   <!-- The path of the authentication certificate -->
-	<certificate.path></certificate.path>
-	<!-- The URL of the Kafka broker -->
+  <certificate.path></certificate.path>
+  <!-- The URL of the Kafka broker -->
   <broker.url>localhost:3501</broker.url>
   <!-- The URL of the schema registry service -->
-	<schema.url>localhost:3502</schema.url>
-	<!-- Indication if the adapter needs to stall the application thread until the message is sent -->
+  <schema.url>localhost:3502</schema.url>
+  <!-- Indication if the adapter needs to stall the application thread until the message is sent -->
   <send.sync>false</send.sync>
   <!-- Amount of retries before timing out when sending messages -->
-	<retry.count>3</retry.count>
+  <retry.count>3</retry.count>
   <!-- The time (in ms) between the retries -->
-	<retry.time>1000</retry.time>
+  <retry.time>1000</retry.time>
 </settings>
