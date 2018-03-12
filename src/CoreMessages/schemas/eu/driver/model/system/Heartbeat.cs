@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace eu.driver.model.core
+namespace eu.driver.model.system
 {
 	using System;
 	using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace eu.driver.model.core
 	
 	public partial class Heartbeat : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Heartbeat"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""ID of the client"",""type"":""string""},{""name"":""alive"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Heartbeat"",""namespace"":""eu.driver.model.system"",""fields"":[{""name"":""id"",""doc"":""ID of the client"",""type"":""string""},{""name"":""alive"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""}]}");
 		/// <summary>
 		/// ID of the client
 		/// </summary>

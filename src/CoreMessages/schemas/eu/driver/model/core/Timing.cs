@@ -15,11 +15,7 @@ namespace eu.driver.model.core
 	
 	public partial class Timing : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Timing"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""sequence ID"",""type"":""long""},{""name"":""updatedAt"",""doc"":""The date and time the trialTime was updated as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTime"",""doc"":""The fictive date and time of the simulation / trial as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""timeElapsed"",""doc"":""The number of milliseconds from the start of the trial."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""Positive number, indicating how fast the simulation / trial time moves with respect to the actual time. A value of 0 means a pause, 1 is as fast as real-time."",""type"":""float""}]}");
-		/// <summary>
-		/// sequence ID
-		/// </summary>
-		private long _id;
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Timing"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""updatedAt"",""doc"":""The date and time the trialTime was updated as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTime"",""doc"":""The fictive date and time of the simulation / trial as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""timeElapsed"",""doc"":""The number of milliseconds from the start of the trial."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""Positive number, indicating how fast the simulation / trial time moves with respect to the actual time. A value of 0 means a pause, 1 is as fast as real-time."",""type"":""float""}]}");
 		/// <summary>
 		/// The date and time the trialTime was updated as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
 		/// </summary>
@@ -41,20 +37,6 @@ namespace eu.driver.model.core
 			get
 			{
 				return Timing._SCHEMA;
-			}
-		}
-		/// <summary>
-		/// sequence ID
-		/// </summary>
-		public long id
-		{
-			get
-			{
-				return this._id;
-			}
-			set
-			{
-				this._id = value;
 			}
 		}
 		/// <summary>
@@ -117,11 +99,10 @@ namespace eu.driver.model.core
 		{
 			switch (fieldPos)
 			{
-			case 0: return this.id;
-			case 1: return this.updatedAt;
-			case 2: return this.trialTime;
-			case 3: return this.timeElapsed;
-			case 4: return this.trialTimeSpeed;
+			case 0: return this.updatedAt;
+			case 1: return this.trialTime;
+			case 2: return this.timeElapsed;
+			case 3: return this.trialTimeSpeed;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -129,11 +110,10 @@ namespace eu.driver.model.core
 		{
 			switch (fieldPos)
 			{
-			case 0: this.id = (System.Int64)fieldValue; break;
-			case 1: this.updatedAt = (System.Int64)fieldValue; break;
-			case 2: this.trialTime = (System.Int64)fieldValue; break;
-			case 3: this.timeElapsed = (System.Int64)fieldValue; break;
-			case 4: this.trialTimeSpeed = (System.Single)fieldValue; break;
+			case 0: this.updatedAt = (System.Int64)fieldValue; break;
+			case 1: this.trialTime = (System.Int64)fieldValue; break;
+			case 2: this.timeElapsed = (System.Int64)fieldValue; break;
+			case 3: this.trialTimeSpeed = (System.Single)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

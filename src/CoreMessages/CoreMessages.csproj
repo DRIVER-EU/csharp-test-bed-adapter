@@ -88,7 +88,6 @@
     <Compile Include="schemas\eu\driver\model\cap\subscribeAllowed.cs" />
     <Compile Include="schemas\eu\driver\model\core\AdminHeartbeat.cs" />
     <Compile Include="schemas\eu\driver\model\core\Configuration.cs" />
-    <Compile Include="schemas\eu\driver\model\core\Heartbeat.cs" />
     <Compile Include="schemas\eu\driver\model\core\LogSettings.cs" />
     <Compile Include="schemas\eu\driver\model\core\OffsetFetchRequest.cs" />
     <Compile Include="schemas\eu\driver\model\core\Timing.cs" />
@@ -96,6 +95,8 @@
     <Compile Include="schemas\eu\driver\model\edxl\DistributionKind.cs" />
     <Compile Include="schemas\eu\driver\model\edxl\DistributionStatus.cs" />
     <Compile Include="schemas\eu\driver\model\edxl\EDXLDistribution.cs" />
+    <Compile Include="schemas\eu\driver\model\system\Command.cs" />
+    <Compile Include="schemas\eu\driver\model\system\Heartbeat.cs" />
     <Compile Include="schemas\eu\driver\model\system\Level.cs" />
     <Compile Include="schemas\eu\driver\model\system\Log.cs" />
     <Compile Include="schemas\eu\driver\model\system\TopicCreate.cs" />
