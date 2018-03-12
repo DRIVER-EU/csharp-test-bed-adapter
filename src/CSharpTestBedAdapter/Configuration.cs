@@ -19,7 +19,7 @@ namespace CSharpTestBedAdapter
     /// <summary>
     /// System configuration class that collects all general configuration parameters for the <see cref="CSharpConnector"/>s
     /// </summary>
-    internal class Configuration
+    public class Configuration
     {
         /// <summary>
         /// The path where the user settings are located
@@ -39,7 +39,7 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// The dictionary containing all standard message topics used inside the Common Information Space
         /// </summary>
-        internal static readonly Dictionary<Type, string> StandardTopics = new Dictionary<Type, string>()
+        public static readonly Dictionary<Type, string> StandardTopics = new Dictionary<Type, string>()
         {
             { typeof(eu.driver.model.cap.Alert), "cap" },
             { typeof(eu.driver.model.geojson.FeatureCollection), "geojson" },

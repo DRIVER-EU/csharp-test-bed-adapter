@@ -9,13 +9,13 @@
  *   https://github.com/DRIVER-EU/csharp-test-bed-adapter/blob/master/LICENSE
  *
  *************************************************************/
-
 using System;
 
-using CSharpTestBedAdapter;
-using eu.driver.model.cap;
-
 using log4net.Core;
+
+using CSharpTestBedAdapter;
+// Namespace from the StandardMessages project
+using eu.driver.model.cap;
 
 namespace CSharpExampleProducerStandard
 {

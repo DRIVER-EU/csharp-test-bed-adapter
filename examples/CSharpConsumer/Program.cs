@@ -9,64 +9,91 @@
  *   https://github.com/DRIVER-EU/csharp-test-bed-adapter/blob/master/LICENSE
  *
  *************************************************************/
+using System;
+using System.Collections.Generic;
 
+using Confluent.Kafka;
+using log4net.Core;
 
+using CSharpTestBedAdapter;
+// Namesapce from the CommonMessages project
+using eu.driver.model.test;
+// Namespace from the StandardMessages project
+using eu.driver.model.cap;
 
 namespace CSharpExampleConsumer
 {
     /// <summary>
-    /// Example class for setting up a simple DRIVER-EU test-bed consumer
+    /// Example class for setting up a simple DRIVER-EU test-bed consumer for receiving custom messages (in this case <see cref="Test"/>)
     /// </summary>
     class Program
     {
+        private static readonly string CustomTopicName = "csharp-test";
+
         /// <summary>
         /// Main call
         /// </summary>
         /// <param name="args">Additional method call parameters</param>
         static void Main(string[] args)
         {
-            //// Create a consumer for this application, listening to Alert CAP messages on specified topic
-            //using (CSharpTestBedAdapter.CSharpConsumer<Alert> consumer = CSharpTestBedAdapter.TestBedAdapter.CreateConsumer<Alert>(AppName, Topic, 0))
-            //{
-            //    if (consumer == null) return;
-            //    // Subscribe to connection error event channel
-            //    consumer.OnError += (sender, error) =>
-            //    {
-            //        Console.WriteLine($"Error: {error.Reason}");
-            //    };
-            //    // Subscribe to deserialization error event channel
-            //    consumer.OnConsumeError += (sender, msg) =>
-            //    {
-            //        Console.WriteLine($"ConsumeError: {msg.Error.Reason}");
-            //    };
+            try
+            {
+                TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
+                TestBedAdapter.GetInstance().AddCallback<Test>(Adapter_TestMessage, CustomTopicName, Offset.Beginning);
+                TestBedAdapter.GetInstance().AddCallback<Alert>(Adapter_AlertMessage, Configuration.StandardTopics[typeof(Alert)], Offset.Beginning);
+                TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to messages...");
+                while (true)
+                { }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
 
-            //    // Keep listening
-            //    while (true)
-            //    {
-            //        Message<eu.driver.model.edxl.EDXLDistribution, Alert> msg;
-            //        // Whenever a new message is received, report to console
-            //        if (consumer.Consume(out msg, TimeSpan.FromSeconds(1)))
-            //        {
-            //            string text = "<something went wrong>";
-            //            Alert alert = msg.Value;
-            //            if (alert.info is Info)
-            //            {
-            //                Info info = (Info)alert.info;
-            //                text = info.@event;
-            //            }
-            //            else if (alert.info is List<Info>)
-            //            {
-            //                List<Info> infos = (List<Info>)alert.info;
-            //                if (infos.Count > 0)
-            //                {
-            //                    text = infos[0].@event;
-            //                }
-            //            }
+        /// <summary>
+        /// Delegate being called once a new <see cref="Test"/> message is received
+        /// </summary>
+        /// <param name="senderID">The sender of the message</param>
+        /// <param name="topic">The topic this message was received from</param>
+        /// <param name="message">The actual message that was received</param>
+        private static void Adapter_TestMessage(string senderID, string topic, Test message)
+        {
+            Console.WriteLine($"Message received on topic ({topic}) from sender ({senderID}) :: ({message.sender}, {message.message})");
+        }
 
-            //            Console.WriteLine($"Topic: {msg.Topic} Partition: {msg.Partition} Offset: {msg.Offset} {msg.Key.senderID} :: {text}");
-            //        }
-            //    }
-            //}
+        /// <summary>
+        /// Delegate being called once a new standard <see cref="Alert"/> message is received
+        /// </summary>
+        /// <param name="senderID">The sender of the message</param>
+        /// <param name="topic">The topic this message was received from</param>
+        /// <param name="message">The actual message that was received</param>
+        private static void Adapter_AlertMessage(string senderID, string topic, Alert message)
+        {
+            string text = "<something went wrong>";
+            if (message.info is Info)
+            {
+                Info info = (Info)message.info;
+                text = info.@event;
+            }
+            else if (message.info is List<Info>)
+            {
+                List<Info> infos = (List<Info>)message.info;
+                if (infos.Count > 0)
+                {
+                    text = infos[0].@event;
+                }
+            }
+            Console.WriteLine($"Message received on topic ({topic}) from sender ({senderID}) :: ({message.sender}, {text})");
+        }
+
+        /// <summary>
+        /// Delegate being called once the adapter has a log to report
+        /// </summary>
+        /// <param name="message">The log to report</param>
+        private static void Adapter_Log(string message)
+        {
+            Console.WriteLine(message);
         }
     }
 }

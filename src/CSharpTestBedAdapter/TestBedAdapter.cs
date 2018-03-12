@@ -35,6 +35,10 @@ namespace CSharpTestBedAdapter
         /// The list of created producers, indexed by topic name
         /// </summary>
         private Dictionary<string, IAbstractProducer> _producers;
+        /// <summary>
+        /// The list of created consumers, indexed by topic name
+        /// </summary>
+        private Dictionary<string, List<IAbstractConsumer>> _consumers;
 
         /// <summary>
         /// The producer this connector is using to send heartbeats
@@ -61,8 +65,9 @@ namespace CSharpTestBedAdapter
                 // Create a new configuration, including the read in external settings
                 _configuration = new Configuration();
 
-                // Initialize the empty producer dictionary
+                // Initialize the empty producer and consumer dictionaries
                 _producers = new Dictionary<string, IAbstractProducer>();
+                _consumers = new Dictionary<string, List<IAbstractConsumer>>();
 
                 // Create the producers for the core topics
                 _heartbeatProducer = new Producer<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Heartbeat>());
@@ -285,7 +290,7 @@ namespace CSharpTestBedAdapter
             // Make sure we are not sending out messages to core topics via this method
             if (Configuration.CoreTopics.ContainsKey(topic))
                 throw new CommunicationException($"topic ({topic}) is already part of the core test-bed topics! Choose another topic name");
-            
+
             if (_producers.ContainsKey(topic))
             {
                 // Check if the types are matching and send the message if they are
@@ -311,6 +316,59 @@ namespace CSharpTestBedAdapter
 
         #endregion Producer
 
+        #region Consumer
+
+        /// <summary>
+        /// Method for adding a function to receive messages from the given topic
+        /// </summary>
+        /// <typeparam name="T">The type of the message, inherited from <see cref="Avro.Specific.ISpecificRecord"/></typeparam>
+        /// <param name="handler">Delegate function to be called once a message is received</param>
+        /// <param name="topic">The name of the topic to listen to</param>
+        /// <param name="offset">The <see cref="Confluent.Kafka.Offset"/> to indicate from where to start listening to new messages</param>
+        public void AddCallback<T>(ConsumerHandler<T> handler, string topic, Offset offset)
+            where T : Avro.Specific.ISpecificRecord
+        {
+            // Make sure we are not requested to listen to core topics via this method
+            if (Configuration.CoreTopics.ContainsKey(topic))
+                throw new CommunicationException($"you are not able to listen to ({topic}), since it is part of the core test-bed topics");
+
+            if (_consumers.ContainsKey(topic))
+            {
+                // Check if the types are matching and add a new consumer if they are
+                if (_consumers[topic][0].MessageType != typeof(T))
+                {
+                    throw new CommunicationException($"could not create consumer type {typeof(T)}, since it is not conform the initial consumer message type {_consumers[topic][0].MessageType}");
+                }
+            }
+            else
+            {
+                foreach (KeyValuePair<Type, string> kvp in Configuration.StandardTopics)
+                {
+                    if (kvp.Value == topic && kvp.Key != typeof(T))
+                    {
+                        throw new CommunicationException($"could not create consumer type {typeof(T)} for stadard topic ({topic}), since it is not conform the initial standard message type {kvp.Key}");
+                    }
+                }
+            }
+
+            // Create a new consumer listening to the given topic
+            AbstractConsumer<T> newConsumer = new AbstractConsumer<T>(_configuration, handler, topic, offset);
+            newConsumer.OnError += Adapter_Error;
+            newConsumer.OnLog += Adapter_Log;
+            if (_consumers.ContainsKey(topic))
+            {
+                _consumers[topic].Add(newConsumer);
+            }
+            else
+            {
+                _consumers.Add(topic, new List<IAbstractConsumer>() { newConsumer });
+            }
+        }
+        public delegate void ConsumerHandler<T>(string senderID, string topic, T message)
+            where T : Avro.Specific.ISpecificRecord;
+
+        #endregion Consumer
+
         #region Destruction
 
         /// <summary><see cref="IDisposable.Dispose"/></summary>
@@ -321,6 +379,12 @@ namespace CSharpTestBedAdapter
             {
                 // TODO: unsubsribe from error and log events
                 ((IDisposable)producer).Dispose();
+            }
+            // Dispose all created consumers
+            foreach (IAbstractConsumer consumer in _consumers.Values)
+            {
+                // TODO: unsubsribe from error and log events
+                ((IDisposable)consumer).Dispose();
             }
 
             // Dispose all core producers
@@ -345,63 +409,5 @@ namespace CSharpTestBedAdapter
         }
 
         #endregion Destruction
-
-
-        ///// <summary>
-        ///// Default constructor
-        ///// </summary>
-        ///// <param name="appName">The name of the application creating this consumer</param>
-        ///// <param name="topic">The name of the topic this consumer should receive its messages from</param>
-        ///// <param name="offset">The starting position of this consumer to receive messages from the given topic (0 all messages recorded on the topic; -1 for only the newly recorded messages on the topic)</param>
-        //public CSharpConsumer(string appName, string topic, long offset)
-        //    : base(appName)
-        //{
-        //    try
-        //    {
-        //        _topic = topic;
-        //        // Create a new Confluent.Kafka.Consumer with a generic key (containing envelope information) and as value the specified Avro record
-        //        _consumer = new Consumer<EDXLDistribution, T>(Configuration.Instance.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<T>());
-        //        // Configure the consumer so it will start at the specified topic and offset
-        //        // TODO: Maybe open up the partition as well for the user to set?
-        //        _consumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(_topic, 0, offset) });
-
-        //        // Raised on critical errors, e.g. connection failures or all brokers down.
-        //        _consumer.OnError += (sender, error) =>
-        //        {
-        //            OnError?.Invoke(sender, error);
-        //        };
-        //        // Raised on deserialization errors or when a consumed message has an error != NoError.
-        //        _consumer.OnConsumeError += (sender, error) =>
-        //        {
-        //            OnConsumeError?.Invoke(sender, error);
-        //        };
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        // Log error via connector
-        //        this.Log(log4net.Core.Level.Critical, e.ToString());
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Method for allowing the consumer to process a possible new message recorded on the topic
-        ///// </summary>
-        ///// <param name="message">The deserialized new message to be consumed</param>
-        ///// <param name="timeout">The amount of time the consumer is allowed to process</param>
-        ///// <returns>True if a new message is consumed, false otherwise</returns>
-        //public bool Consume(out Message<EDXLDistribution, T> message, TimeSpan timeout)
-        //{
-        //    try
-        //    {
-        //        return _consumer.Consume(out message, timeout);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        // Log error via connector
-        //        this.Log(log4net.Core.Level.Error, e.ToString());
-        //        message = null;
-        //        return false;
-        //    }
-        //}
     }
 }
