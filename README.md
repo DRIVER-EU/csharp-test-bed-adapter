@@ -2,7 +2,7 @@
 
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
-The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 1.0.0-ci-199)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
+The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.3-ci-255)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
 * Avro schema's and messages: Both producer and consumer use Avro schema's for their message key and value.
 * Logging via Kafka: Your application can log on several log levels (eg. error, debug, info) onto a specific test-bed topic.
@@ -13,25 +13,35 @@ The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka
 
 ## Project structure
 
-This project contains one `CSharpTestBedAdapter.sln` solution, which in its turn contains 4 C# projects:
+This project contains one `CSharpTestBedAdapter.sln` solution, which in its turn contains 7 C# projects:
 
 ### src\CSharpTestBedAdapter
 
 The main C# project outputting a class library `CSharpTestBedAdapter.dll` that you can use to create Kafka producers and consumers connecting to the DRIVER-EU test-bed.
 
-### examples\CSharpProducer
+### examples\CSharpExampleProducer (Custom & Standard)
 
-The simple example for setting up and using a producer via the `CSharpTestBedAdapter.dll`.
+The simple examples for setting up and using a producer via the `CSharpTestBedAdapter.dll`.
+`CSharpExampleProducerCustom` sends out a test message that is defined in `example\common\CommonMessages`.
+`CSharpExampleProducerStandard` sends out a [Common Alerting Protocol](https://en.wikipedia.org/wiki/Common_Alerting_Protocol) (CAP) message that is defined in `example\common\StandardMessages`.
 
-### examples\CSharpConsumer
+### examples\CSharpExampleConsumer
 
 The simple example for setting up and using a consumer via the `CSharpTestBedAdapter.dll`.
+This example listens to both the test messages from `CSharpExampleProducerCustom` and CAP messages from `CSharpExampleProducerStandard`.
 
-### examples\common\CommonMessages
+### src\CommonMessages
 
-A simple project that is used in both examples, containing the [Common Alerting Protocol](https://en.wikipedia.org/wiki/Common_Alerting_Protocol) (CAP) Avro record obtained from the DRIVER-EU [avro-schemas](https://github.com/DRIVER-EU/avro-schemas).
-
+A simple project that is used in all examples, containing a simple test Avro schema that is used for transmitting messages of that type from producer to consumer.
 Inside the `examples\common\CommonMessages\data` folder you'll find a README regarding the conversion from Avro schema to C# class file(s).
+
+### src\StandardMessages
+
+The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas).
+
+### src\CoreMessages
+
+The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas).
 
 ### Dependencies
 
@@ -45,4 +55,4 @@ In order to use the `csharp-test-bed-adapter`, you are also required to download
 
 Build `CSharpTestBedAdapter` and reference the compiled DLL into your own application.
 
-See the 2 example projects for further implementation of this adapter.
+See the 3 example projects for further implementation of this adapter.
