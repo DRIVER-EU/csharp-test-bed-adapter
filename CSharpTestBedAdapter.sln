@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpTestBedAdapter", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{110475EC-F2D4-4655-9920-840A431B196F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpExampleProducerCustom", "examples\CSharpProducer\CSharpExampleProducerCustom.csproj", "{A7A2ED4B-5C05-4BF6-BC93-3A40959E1C71}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpExampleProducerCustom", "examples\CSharpExampleProducerCustom\CSharpExampleProducerCustom.csproj", "{A7A2ED4B-5C05-4BF6-BC93-3A40959E1C71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpExampleConsumer", "examples\CSharpConsumer\CSharpExampleConsumer.csproj", "{78900558-A8DE-4FA6-B6AB-4F1321C12C16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpExampleConsumer", "examples\CSharpExampleConsumer\CSharpExampleConsumer.csproj", "{78900558-A8DE-4FA6-B6AB-4F1321C12C16}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{D19AA61D-63B1-41E1-A067-3E54F282DC17}"
 EndProject
