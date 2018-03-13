@@ -86,8 +86,8 @@
     <Compile Include="AbstractConsumer.cs" />
     <Compile Include="AbstractProducer.cs" />
     <Compile Include="CommunicationException.cs" />
-    <Compile Include="data\Settings.cs">
-      <DependentUpon>settings.xsd</DependentUpon>
+    <Compile Include="CSharpTestBedAdapter-settings.cs">
+      <DependentUpon>CSharpTestBedAdapter-settings.xsd</DependentUpon>
     </Compile>
     <Compile Include="IAbstractConsumer.cs" />
     <Compile Include="IAbstractProducer.cs" />
@@ -97,13 +97,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="data\settings.xsd">
+    <None Include="CSharpTestBedAdapter-settings.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\settings.xml">
+    <Content Include="CSharpTestBedAdapter-settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

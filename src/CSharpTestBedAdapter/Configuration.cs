@@ -11,6 +11,7 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -24,7 +25,7 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// The path where the user settings are located
         /// </summary>
-        private static readonly string _settingsPath = @".\data\settings.xml";
+        private static readonly string _settingsPath = Path.Combine(Path.GetDirectoryName(typeof(Configuration).Assembly.Location), @"CSharpTestBedAdapter-settings.xml");
 
         /// <summary>
         /// The dictionary containing all core topics used inside this adapter
@@ -52,6 +53,7 @@ namespace CSharpTestBedAdapter
         internal Configuration()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Schemas.settings));
+            Trace.WriteLine($"Loading settings from {_settingsPath}");
             using (StreamReader reader = new StreamReader(_settingsPath))
             {
                 _settings = (Schemas.settings)serializer.Deserialize(reader);
