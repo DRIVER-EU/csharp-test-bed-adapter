@@ -42,16 +42,16 @@
       <HintPath>..\..\packages\Confluent.Kafka.0.11.3\lib\net46\Confluent.Kafka.dll</HintPath>
     </Reference>
     <Reference Include="Confluent.Kafka.Avro, Version=0.11.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Confluent.Kafka.Avro.0.11.3-ci-255\lib\net452\Confluent.Kafka.Avro.dll</HintPath>
+      <HintPath>..\..\packages\Confluent.Kafka.Avro.0.11.3-ci-303\lib\net452\Confluent.Kafka.Avro.dll</HintPath>
     </Reference>
     <Reference Include="Confluent.SchemaRegistry, Version=0.11.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Confluent.SchemaRegistry.0.11.3-ci-255\lib\net452\Confluent.SchemaRegistry.dll</HintPath>
+      <HintPath>..\..\packages\Confluent.SchemaRegistry.0.11.3-ci-303\lib\net452\Confluent.SchemaRegistry.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.11.0.1-beta3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
