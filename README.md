@@ -37,11 +37,11 @@ Inside the `examples\common\CommonMessages\data` folder you'll find a README reg
 
 ### src\StandardMessages
 
-The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas).
+The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run.
 
 ### src\CoreMessages
 
-The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas).
+The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run.
 
 ### Dependencies
 
@@ -53,6 +53,6 @@ In order to use the `csharp-test-bed-adapter`, you are also required to download
  
 ## Usage
 
-Build `CSharpTestBedAdapter` and reference the compiled DLL into your own application.
+Build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
 
 See the 3 example projects for further implementation of this adapter.
