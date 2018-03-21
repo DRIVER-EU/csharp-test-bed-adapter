@@ -15,7 +15,7 @@ namespace eu.driver.model.mlp
 	
 	public partial class LinearRing : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""LinearRing"",""namespace"":""eu.driver.model.mlp"",""fields"":[{""name"":""coords"",""doc"":""Must contain at least 3 coordinates"",""type"":{""type"":""array"",""items"":{""type"":""record"",""name"":""Coord"",""namespace"":""eu.driver.model.mlp"",""fields"":[{""name"":""X"",""doc"":""The first coordinate in a coordinate system (30 27 45.3N)"",""type"":""string""},{""name"":""Y"",""doc"":""Second ordinate in a coordinate.system (45 25 52.9E). This is optional if it is a linear coordinate system."",""default"":null,""type"":[""null"",""double""]},{""name"":""Z"",""doc"":""Third ordinate in a coordinate system which has at least three ordinates."",""default"":null,""type"":[""null"",""double""]}]}}}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""LinearRing"",""namespace"":""eu.driver.model.mlp"",""fields"":[{""name"":""coords"",""doc"":""Must contain at least 3 coordinates"",""type"":{""type"":""array"",""items"":{""type"":""record"",""name"":""Coord"",""namespace"":""eu.driver.model.mlp"",""fields"":[{""name"":""X"",""doc"":""The first coordinate in a coordinate system (30 27 45.3N)"",""type"":""string""},{""name"":""Y"",""doc"":""Second ordinate in a coordinate.system (45 25 52.9E). This is optional if it is a linear coordinate system."",""default"":null,""type"":[""null"",""string""]},{""name"":""Z"",""doc"":""Third ordinate in a coordinate system which has at least three ordinates."",""default"":null,""type"":[""null"",""string""]}]}}}]}");
 		/// <summary>
 		/// Must contain at least 3 coordinates
 		/// </summary>

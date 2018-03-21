@@ -27,9 +27,9 @@ namespace eu.driver.model.mlp
 				"ord\",\"namespace\":\"eu.driver.model.mlp\",\"fields\":[{\"name\":\"X\",\"doc\":\"The first co" +
 				"ordinate in a coordinate system (30 27 45.3N)\",\"type\":\"string\"},{\"name\":\"Y\",\"doc" +
 				"\":\"Second ordinate in a coordinate.system (45 25 52.9E). This is optional if it " +
-				"is a linear coordinate system.\",\"default\":null,\"type\":[\"null\",\"double\"]},{\"name\"" +
+				"is a linear coordinate system.\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"name\"" +
 				":\"Z\",\"doc\":\"Third ordinate in a coordinate system which has at least three ordin" +
-				"ates.\",\"default\":null,\"type\":[\"null\",\"double\"]}]}},{\"name\":\"attr_gid\",\"default\":" +
+				"ates.\",\"default\":null,\"type\":[\"null\",\"string\"]}]}},{\"name\":\"attr_gid\",\"default\":" +
 				"null,\"type\":[\"null\",\"string\"]},{\"name\":\"attr_srsName\",\"default\":null,\"type\":[\"nu" +
 				"ll\",\"string\"]}]},{\"type\":\"record\",\"name\":\"LineString\",\"namespace\":\"eu.driver.mod" +
 				"el.mlp\",\"fields\":[{\"name\":\"coord\",\"doc\":\"Must contain at least 2 coordinates\",\"t" +
@@ -64,22 +64,23 @@ namespace eu.driver.model.mlp
 				"stopAngle\",\"type\":\"double\"},{\"name\":\"angularUnit\",\"default\":null,\"type\":[\"null\"," +
 				"\"AngularUnit\"]},{\"name\":\"distanceUnit\",\"default\":null,\"type\":[\"null\",\"DistanceUn" +
 				"it\"]},{\"name\":\"attr_gid\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"name\":\"attr_" +
-				"srsName\",\"default\":null,\"type\":[\"null\",\"string\"]}]}]},{\"name\":\"alt_alt_acc\",\"def" +
-				"ault\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Alt\",\"namespace\":\"eu.driver.m" +
-				"odel.mlp\",\"fields\":[{\"name\":\"alt\",\"doc\":\"Altitude in meters\",\"type\":\"int\"}]},{\"t" +
-				"ype\":\"record\",\"name\":\"AltAcc\",\"namespace\":\"eu.driver.model.mlp\",\"fields\":[{\"name" +
-				"\":\"alt_acc\",\"doc\":\"Accuracy of Altitude in meters\",\"default\":null,\"type\":[\"null\"" +
-				",\"int\"]}]}]},{\"name\":\"speed\",\"doc\":\"Speed in m/s\",\"default\":null,\"type\":[\"null\"," +
-				"\"int\"]},{\"name\":\"direction\",\"doc\":\"Direction of movement in degrees\",\"default\":n" +
-				"ull,\"type\":[\"null\",\"int\"]},{\"name\":\"lev_conf\",\"doc\":\"Probability in percent that" +
-				" the Mobile Station is located in the position area that is returned\",\"default\":" +
-				"null,\"type\":[\"null\",\"int\"]}]}");
+				"srsName\",\"default\":null,\"type\":[\"null\",\"string\"]}]}]},{\"name\":\"alt\",\"default\":nu" +
+				"ll,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Alt\",\"namespace\":\"eu.driver.model.mlp" +
+				"\",\"fields\":[{\"name\":\"alt\",\"doc\":\"Altitude in meters\",\"type\":\"int\"}]}]},{\"name\":\"" +
+				"altAcc\",\"default\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"AltAcc\",\"namespac" +
+				"e\":\"eu.driver.model.mlp\",\"fields\":[{\"name\":\"alt_acc\",\"doc\":\"Accuracy of Altitude" +
+				" in meters\",\"default\":null,\"type\":[\"null\",\"int\"]}]}]},{\"name\":\"speed\",\"doc\":\"Spe" +
+				"ed in m/s\",\"default\":null,\"type\":[\"null\",\"int\"]},{\"name\":\"direction\",\"doc\":\"Dire" +
+				"ction of movement in degrees\",\"default\":null,\"type\":[\"null\",\"int\"]},{\"name\":\"lev" +
+				"_conf\",\"doc\":\"Probability in percent that the Mobile Station is located in the p" +
+				"osition area that is returned\",\"default\":null,\"type\":[\"null\",\"int\"]}]}");
 		private eu.driver.model.mlp.Time _time;
 		/// <summary>
 		/// TODO: add  MultiLineString | MultiPoint | MultiPolygon if they are needed
 		/// </summary>
 		private object _shape;
-		private object _alt_alt_acc;
+		private eu.driver.model.mlp.Alt _alt;
+		private eu.driver.model.mlp.AltAcc _altAcc;
 		/// <summary>
 		/// Speed in m/s
 		/// </summary>
@@ -124,15 +125,26 @@ namespace eu.driver.model.mlp
 				this._shape = value;
 			}
 		}
-		public object alt_alt_acc
+		public eu.driver.model.mlp.Alt alt
 		{
 			get
 			{
-				return this._alt_alt_acc;
+				return this._alt;
 			}
 			set
 			{
-				this._alt_alt_acc = value;
+				this._alt = value;
+			}
+		}
+		public eu.driver.model.mlp.AltAcc altAcc
+		{
+			get
+			{
+				return this._altAcc;
+			}
+			set
+			{
+				this._altAcc = value;
 			}
 		}
 		/// <summary>
@@ -183,10 +195,11 @@ namespace eu.driver.model.mlp
 			{
 			case 0: return this.time;
 			case 1: return this.shape;
-			case 2: return this.alt_alt_acc;
-			case 3: return this.speed;
-			case 4: return this.direction;
-			case 5: return this.lev_conf;
+			case 2: return this.alt;
+			case 3: return this.altAcc;
+			case 4: return this.speed;
+			case 5: return this.direction;
+			case 6: return this.lev_conf;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -196,10 +209,11 @@ namespace eu.driver.model.mlp
 			{
 			case 0: this.time = (eu.driver.model.mlp.Time)fieldValue; break;
 			case 1: this.shape = (System.Object)fieldValue; break;
-			case 2: this.alt_alt_acc = (System.Object)fieldValue; break;
-			case 3: this.speed = (System.Nullable<int>)fieldValue; break;
-			case 4: this.direction = (System.Nullable<int>)fieldValue; break;
-			case 5: this.lev_conf = (System.Nullable<int>)fieldValue; break;
+			case 2: this.alt = (eu.driver.model.mlp.Alt)fieldValue; break;
+			case 3: this.altAcc = (eu.driver.model.mlp.AltAcc)fieldValue; break;
+			case 4: this.speed = (System.Nullable<int>)fieldValue; break;
+			case 5: this.direction = (System.Nullable<int>)fieldValue; break;
+			case 6: this.lev_conf = (System.Nullable<int>)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

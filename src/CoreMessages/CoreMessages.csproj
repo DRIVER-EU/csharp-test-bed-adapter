@@ -87,7 +87,6 @@
     <Compile Include="schemas\eu\driver\model\cap\publishedAllowed.cs" />
     <Compile Include="schemas\eu\driver\model\cap\subscribeAllowed.cs" />
     <Compile Include="schemas\eu\driver\model\core\AdminHeartbeat.cs" />
-    <Compile Include="schemas\eu\driver\model\core\Configuration.cs" />
     <Compile Include="schemas\eu\driver\model\core\LogSettings.cs" />
     <Compile Include="schemas\eu\driver\model\core\OffsetFetchRequest.cs" />
     <Compile Include="schemas\eu\driver\model\core\Timing.cs" />
