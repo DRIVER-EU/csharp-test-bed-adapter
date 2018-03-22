@@ -15,11 +15,11 @@ namespace eu.driver.model.core
 	
 	public partial class TimingControl : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TimingControl"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""command"",""doc"":""The type of command to switch the state of the time-service."",""type"":{""type"":""enum"",""name"":""Command"",""namespace"":""eu.driver.model.system"",""symbols"":[""Init"",""Start"",""Pause"",""Update"",""Stop"",""Reset""]}},{""name"":""trialTime"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""default"":null,""type"":[""null"",""long""],""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""The Trialtime speed factor."",""default"":null,""type"":[""null"",""float""]}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TimingControl"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""command"",""doc"":""The type of command to switch the state of the time-service."",""type"":{""type"":""enum"",""name"":""Command"",""namespace"":""eu.driver.model.core"",""symbols"":[""Init"",""Start"",""Pause"",""Update"",""Stop"",""Reset""]}},{""name"":""trialTime"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""default"":null,""type"":[""null"",""long""],""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""The Trialtime speed factor."",""default"":null,""type"":[""null"",""float""]}]}");
 		/// <summary>
 		/// The type of command to switch the state of the time-service.
 		/// </summary>
-		private eu.driver.model.system.Command _command;
+		private eu.driver.model.core.Command _command;
 		/// <summary>
 		/// The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
 		/// </summary>
@@ -38,7 +38,7 @@ namespace eu.driver.model.core
 		/// <summary>
 		/// The type of command to switch the state of the time-service.
 		/// </summary>
-		public eu.driver.model.system.Command command
+		public eu.driver.model.core.Command command
 		{
 			get
 			{
@@ -91,7 +91,7 @@ namespace eu.driver.model.core
 		{
 			switch (fieldPos)
 			{
-			case 0: this.command = (eu.driver.model.system.Command)fieldValue; break;
+			case 0: this.command = (eu.driver.model.core.Command)fieldValue; break;
 			case 1: this.trialTime = (System.Nullable<long>)fieldValue; break;
 			case 2: this.trialTimeSpeed = (System.Nullable<float>)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");

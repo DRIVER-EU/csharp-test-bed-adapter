@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace eu.driver.model.system
+namespace eu.driver.model.core
 {
 	using System;
 	using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace eu.driver.model.system
 	
 	public partial class TopicInvite : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TopicInvite"",""namespace"":""eu.driver.model.system"",""fields"":[{""name"":""id"",""doc"":""Client id"",""type"":""string""},{""name"":""topicName"",""doc"":""The name of the Topic to which the adaptor (client) is invited to join."",""type"":""string""},{""name"":""subscribeAllowed"",""doc"":""Indicates if the client is allowed to connect as subscriber."",""type"":""boolean""},{""name"":""publishAllowed"",""doc"":""Indicates if the client is allowed to connect as subscriber."",""type"":""boolean""}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TopicInvite"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Client id"",""type"":""string""},{""name"":""topicName"",""doc"":""The name of the Topic to which the adaptor (client) is invited to join."",""type"":""string""},{""name"":""subscribeAllowed"",""doc"":""Indicates if the client is allowed to connect as subscriber."",""type"":""boolean""},{""name"":""publishAllowed"",""doc"":""Indicates if the client is allowed to connect as subscriber."",""type"":""boolean""}]}");
 		/// <summary>
 		/// Client id
 		/// </summary>

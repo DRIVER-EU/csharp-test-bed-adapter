@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace eu.driver.model.system
+namespace eu.driver.model.core
 {
 	using System;
 	using System.Collections.Generic;

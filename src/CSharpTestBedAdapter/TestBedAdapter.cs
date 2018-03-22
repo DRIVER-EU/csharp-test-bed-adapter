@@ -18,7 +18,6 @@ using Confluent.Kafka.Serialization;
 
 using eu.driver.model.core;
 using eu.driver.model.edxl;
-using eu.driver.model.system;
 
 namespace CSharpTestBedAdapter
 {
@@ -113,12 +112,12 @@ namespace CSharpTestBedAdapter
                 _topicInviteConsumer.OnLog += Adapter_Log;
                 _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
 
-                //// Start listening to the topics
-                //_heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
-                //_timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
-                //_topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
-                //// TODO: Add CancellationToken to stop on dispose
-                //Task.Factory.StartNew(() => { Consume(); });
+                // Start listening to the topics
+                _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
+                _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
+                _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
+                // TODO: Add CancellationToken to stop on dispose
+                Task.Factory.StartNew(() => { Consume(); });
 
                 // Start the heart beat to indicate the connector is still alive
                 // TODO: Add CancellationToken to stop on dispose
