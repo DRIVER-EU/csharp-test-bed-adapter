@@ -7,9 +7,8 @@ The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka
 * Avro schema's and messages: Both producer and consumer use Avro schema's for their message key and value.
 * Logging via Kafka: Your application can log on several log levels (eg. error, debug, info) onto a specific test-bed topic.
 * Management
-  * Heartbeat (topic: connect-status-heartbeat), so you know which clients are online.
-  * Logging (topic: connect-status-log).
-  * Configuration (topic: connect-status-configuration), so you can see which topics clients consume and produce.
+  * Heartbeat (topic: system_heartbeat), so you know which clients are online.
+  * Logging (topic: system_logging).
 
 ## Project structure
 
@@ -37,11 +36,20 @@ Inside the `examples\common\CommonMessages\data` folder you'll find a README reg
 
 ### src\StandardMessages
 
-The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run.
+The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
+
+* [Common Alerting Protocol (CAP)](https://en.wikipedia.org/wiki/Common_Alerting_Protocol)
+* Emergency Management Shared Information (EMSI)
+* [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON)
+* [Mobile Location Protocol (MLP)](https://en.wikipedia.org/wiki/Mobile_Location_Protocol)
 
 ### src\CoreMessages
 
-The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run.
+The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
+
+* Heartbeat: sending to topic `system_heartbeat`
+* AdminHeartbeat: receiving from topic `system_admin_heartbeat`
+* Log: sending top topic `system_loggin`
 
 ### Dependencies
 
