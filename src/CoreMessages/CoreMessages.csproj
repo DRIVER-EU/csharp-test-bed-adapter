@@ -86,7 +86,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="schemas\eu\driver\model\core\AdminHeartbeat.cs" />
     <Compile Include="schemas\eu\driver\model\core\Command.cs" />
+    <Compile Include="schemas\eu\driver\model\core\DataType.cs" />
     <Compile Include="schemas\eu\driver\model\core\Heartbeat.cs" />
+    <Compile Include="schemas\eu\driver\model\core\LargeDataUpdate.cs" />
     <Compile Include="schemas\eu\driver\model\core\Level.cs" />
     <Compile Include="schemas\eu\driver\model\core\Log.cs" />
     <Compile Include="schemas\eu\driver\model\core\publishedAllowed.cs" />
