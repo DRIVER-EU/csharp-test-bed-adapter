@@ -48,6 +48,7 @@ namespace CSharpTestBedAdapter
             { typeof(eu.driver.model.cap.Alert), "standard_cap" },
             { typeof(eu.driver.model.geojson.FeatureCollection), "standard_geojson" },
             { typeof(eu.driver.model.mlp.SlRep), "standard_mlp" },
+            { typeof(eu.driver.model.emsi.TSO_2_0), "standard_emsi" },
         };
 
         /// <summary>
