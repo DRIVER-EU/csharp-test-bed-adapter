@@ -9,7 +9,8 @@
  *   https://github.com/DRIVER-EU/test-bed/blob/master/LICENSE
  *
  *************************************************************/
- using System;
+using System;
+using System.Collections.Generic;
 
 using Confluent.Kafka;
 using Confluent.Kafka.Serialization;
@@ -48,6 +49,11 @@ namespace CSharpTestBedAdapter
         }
 
         /// <summary>
+        /// The message queue to be sent as soon as the adapter is enabled
+        /// </summary>
+        private Queue<KeyValuePair<T, string>> messageQueue;
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="configuration">The test-bed adapter configuration information</param>
@@ -66,6 +72,8 @@ namespace CSharpTestBedAdapter
             {
                 OnLog?.Invoke(sender, log);
             };
+
+            messageQueue = new Queue<KeyValuePair<T, string>>();
         }
 
         /// <summary>
@@ -92,9 +100,31 @@ namespace CSharpTestBedAdapter
         /// <param name="topic">The name of the topic to send the message over</param>
         internal void SendMessage(T message, string topic)
         {
-            // TODO: implement waiting for response or not
-            // TODO: implement time out mechanism
-            _producer.ProduceAsync(topic, CreateKey(), message);
+            // Only send the message whenever the adapter is enabled
+            if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Enabled || TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug)
+            {
+                // TODO: implement waiting for response or not
+                // TODO: implement time out mechanism
+                _producer.ProduceAsync(topic, CreateKey(), message);
+            }
+            else
+            {
+                // If this isn't the case, report and queue the message for sending later
+                TestBedAdapter.GetInstance().Log(log4net.Core.Level.Notice, $"Could not send message to topic {topic}, because adapter is disabled! Enqueuing message for sending later.");
+                messageQueue.Enqueue(new KeyValuePair<T, string>(message, topic));
+            }
+        }
+
+        /// <summary><see cref="IAbstractProducer.FlushQueue"/></summary>
+        public void FlushQueue()
+        {
+            // Make sure that we are not getting in an endless loop of message sending if the adapter is somehow disabled again
+            int totalMessages = messageQueue.Count;
+            for(int i = 0; i < totalMessages; i++)
+            {
+                KeyValuePair<T, string> message = messageQueue.Dequeue();
+                SendMessage(message.Key, message.Value);
+            }
         }
 
         /// <summary><see cref="IDisposable.Dispose"/></summary>

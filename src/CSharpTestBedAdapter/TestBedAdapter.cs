@@ -27,6 +27,33 @@ namespace CSharpTestBedAdapter
     /// </summary>
     public class TestBedAdapter : IDisposable
     {
+        #region Definitions
+
+        /// <summary>
+        /// The different states this adapter can be in
+        /// </summary>
+        public enum States
+        {
+            /// <summary>
+            /// Starting this adapter
+            /// </summary>
+            Init,
+            /// <summary>
+            /// DEBUG mode, sending and receiving messages without a test-bed admin tool present
+            /// </summary>
+            Debug,
+            /// <summary>
+            /// ENABLED mode, sending and receiving messages with a test-bed admin tool present
+            /// </summary>
+            Enabled,
+            /// <summary>
+            /// DISABLED mode, queueing all sent and received messages until the admin tool is present again
+            /// </summary>
+            Disabled,
+        }
+
+        #endregion Definitions
+
         /// <summary>
         /// Configuration class, including internal setup information and external settings
         /// </summary>
@@ -48,10 +75,42 @@ namespace CSharpTestBedAdapter
         /// The producer this connector is using to send logs
         /// </summary>
         private Producer<EDXLDistribution, Log> _logProducer;
+
         /// <summary>
-        /// The producer this connector is using to send its current configuration
+        /// The consumer checking the hearbeat of the test-bed admin tool
         /// </summary>
-        private Producer<EDXLDistribution, eu.driver.model.core.Configuration> _configurationProducer;
+        private Consumer<EDXLDistribution, AdminHeartbeat> _adminHeatbeatConsumer;
+        /// <summary>
+        /// Indication if this adapter is allowed to send or receive standard and custom messages
+        /// </summary>
+        public States State
+        {
+            get { return _state; }
+            private set
+            {
+                _state = value;
+                // If we are in DEBUG or ENABLED state (again), try re-sending and -receiving the queued messages
+                if (_state == States.Enabled || _state == States.Debug)
+                {
+                    foreach (IAbstractProducer producer in _producers.Values)
+                    {
+                        producer.FlushQueue();
+                    }
+                    foreach (List<IAbstractConsumer> consumers in _consumers.Values)
+                    {
+                        foreach (IAbstractConsumer consumer in consumers)
+                        {
+                            consumer.FlushQueue();
+                        }
+                    }
+                }
+            }
+        }
+        private States _state = States.Init;
+        /// <summary>
+        /// The timestamp of the last admin heartbeat
+        /// </summary>
+        private DateTime _lastAdminHeartbeat;
 
         #region Initialization
 
@@ -76,15 +135,23 @@ namespace CSharpTestBedAdapter
                 _logProducer = new Producer<EDXLDistribution, Log>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
                 _logProducer.OnError += Adapter_Error;
                 _logProducer.OnLog += Adapter_Log;
-                _configurationProducer = new Producer<EDXLDistribution, eu.driver.model.core.Configuration>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<eu.driver.model.core.Configuration>());
-                _configurationProducer.OnError += Adapter_Error;
-                _configurationProducer.OnLog += Adapter_Log;
 
-                SendConfiguration();
+                // Create the consumers for the core topics
+                _adminHeatbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
+                _adminHeatbeatConsumer.OnError += Adapter_Error;
+                _adminHeatbeatConsumer.OnLog += Adapter_Log;
+                _adminHeatbeatConsumer.OnMessage += Admin_Heartbeat;
+                _adminHeatbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin_heartbeat"], 0, Offset.End) });
 
                 // Start the heart beat to indicate the connector is still alive
                 // TODO: Add CancellationToken to stop on dispose
                 Task.Factory.StartNew(() => { this.Heartbeat(); });
+
+                // Start the admin heartbeat checker, so we know that we can send messages
+                // TODO: Add CancellationToken to stop on dispose
+                Task.Factory.StartNew(() => { this.AdminCheck(); });
+
+                _lastAdminHeartbeat = DateTime.UtcNow;
             }
             catch (Exception e)
             {
@@ -126,38 +193,6 @@ namespace CSharpTestBedAdapter
 
         #endregion Initialization
 
-        #region Configuration
-
-        /// <summary>
-        /// Method for sending the configuration to the core configuration topic
-        /// </summary>
-        private void SendConfiguration()
-        {
-            try
-            {
-                // Fill in the configuration message
-                EDXLDistribution key = CreateCoreKey();
-                eu.driver.model.core.Configuration config = new eu.driver.model.core.Configuration()
-                {
-                    clientId = _configuration.Settings.clientId,
-                    heartbeatInterval = _configuration.Settings.heartbeatInterval,
-                    kafkaHost = _configuration.Settings.brokerUrl,
-                    schemaRegistry = _configuration.Settings.schemaUrl,
-                    logging = new LogSettings() { logToKafka = 2 },
-                    // TODO: set the topics this adapter is consuming and producing
-                };
-
-                // Send the configuration message
-                _configurationProducer.ProduceAsync(Configuration.CoreTopics["configuration"], key, config);
-            }
-            catch (Exception e)
-            {
-                Log(log4net.Core.Level.Error, e.ToString());
-            }
-        }
-
-        #endregion Configuration
-
         #region Heartbeat
 
         /// <summary>
@@ -169,7 +204,7 @@ namespace CSharpTestBedAdapter
             {
                 // Send out the heart beat that this connector is still alive
                 EDXLDistribution key = CreateCoreKey();
-                Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientId, alive = DateTime.UtcNow.Ticks / 10000 };
+                Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientId, alive = DateTime.UtcNow.Ticks / 1000 };
 
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
@@ -242,6 +277,57 @@ namespace CSharpTestBedAdapter
         }
 
         #endregion Log
+
+        #region Admin hearbeat check
+
+        /// <summary>
+        /// Method for checking the admin tool heartbeat
+        /// </summary>
+        private void AdminCheck()
+        {
+            while (true)
+            {
+                _adminHeatbeatConsumer.Poll(5000);
+
+                // If the latest admin heartbeat is from longer than 10 seconds ago, we should disable this adapter
+                TimeSpan span = DateTime.UtcNow - _lastAdminHeartbeat;
+                if (span.Seconds > 10)
+                {
+                    // If in the first 10 seconds of this adapters existance there wasn't an admin heartbeat, go to the DEBUG state and stop listening
+                    if (State == States.Init)
+                    {
+                        State = States.Debug;
+                        break;
+                    }
+                    // If there was an admin tool when starting this adapter but there isn't one now, go to the DISABLED state
+                    else
+                    {
+                        State = States.Disabled;
+                    }
+                }
+                // If we have received an admin heartbeat (again), go to the ENABLED state
+                else if (State != States.Enabled)
+                {
+                    State = States.Enabled;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Delegate being called whenever the test-bed admin tool is sending out a heartbeat
+        /// </summary>
+        /// <param name="sender">The sender of the hearbeat message</param>
+        /// <param name="message">The hearbeat message</param>
+        private void Admin_Heartbeat(object sender, Message<EDXLDistribution, AdminHeartbeat> message)
+        {
+            TimeSpan span = TimeSpan.FromMilliseconds(message.Value.alive);
+            DateTime timestamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(span);
+
+            // Store the latest timestamp
+            _lastAdminHeartbeat = timestamp;
+        }
+
+        #endregion Admin heartbeat check
 
         #region Producer
 
@@ -400,11 +486,12 @@ namespace CSharpTestBedAdapter
                 _logProducer.OnLog -= Adapter_Log;
                 _logProducer.Dispose();
             }
-            if (_configurationProducer != null)
+            // Dispose all core consumers
+            if (_adminHeatbeatConsumer != null)
             {
-                _configurationProducer.OnError -= Adapter_Error;
-                _configurationProducer.OnLog -= Adapter_Log;
-                _configurationProducer.Dispose();
+                _adminHeatbeatConsumer.OnError -= Adapter_Error;
+                _adminHeatbeatConsumer.OnLog -= Adapter_Log;
+                _adminHeatbeatConsumer.Dispose();
             }
         }
 

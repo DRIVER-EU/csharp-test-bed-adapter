@@ -31,9 +31,9 @@ namespace CSharpTestBedAdapter
         /// </summary>
         internal static readonly Dictionary<string, string> CoreTopics = new Dictionary<string, string>()
         {
-            { "heartbeat", "connect-status-heartbeat" },
-            { "log", "connect-status-log" },
-            { "configuration", "connect-status-configuration" },
+            { "heartbeat", "system_heartbeat" },
+            { "log", "system_logging" },
+            { "admin_heartbeat", "system_admin_heartbeat" },
         };
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace CSharpTestBedAdapter
         /// </summary>
         public static readonly Dictionary<Type, string> StandardTopics = new Dictionary<Type, string>()
         {
-            { typeof(eu.driver.model.cap.Alert), "cap" },
-            { typeof(eu.driver.model.geojson.FeatureCollection), "geojson" },
-            { typeof(eu.driver.model.mlp.SlRep), "mlp" },
+            { typeof(eu.driver.model.cap.Alert), "standard_cap" },
+            { typeof(eu.driver.model.geojson.FeatureCollection), "standard_geojson" },
+            { typeof(eu.driver.model.mlp.SlRep), "standard_mlp" },
         };
 
         /// <summary>
