@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace eu.driver.model.system
+namespace eu.driver.model.core
 {
 	using System;
 	using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace eu.driver.model.system
 	
 	public partial class TopicCreate : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TopicCreate"",""namespace"":""eu.driver.model.system"",""fields"":[{""name"":""id"",""doc"":""sender Client id"",""type"":""string""},{""name"":""topicName"",""doc"":""The name of the Topic to be created by the admin tool."",""type"":""string""},{""name"":""subscribeAllowed"",""doc"":""Indicates which clients are allowed to connect as subscriber."",""type"":[{""type"":""record"",""name"":""subscribeAllowed"",""namespace"":""eu.driver.model.cap"",""fields"":[{""name"":""id"",""doc"":""sender Client id"",""type"":""string""}]}]},{""name"":""publishedAllowed"",""doc"":""Indicates which clients are allowed to connect as publisher."",""type"":[{""type"":""record"",""name"":""publishedAllowed"",""namespace"":""eu.driver.model.cap"",""fields"":[{""name"":""id"",""doc"":""sender Client id"",""type"":""string""}]}]}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TopicCreate"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""sender Client id"",""type"":""string""},{""name"":""topicName"",""doc"":""The name of the Topic to be created by the admin tool."",""type"":""string""},{""name"":""subscribeAllowed"",""doc"":""Indicates which clients are allowed to connect as subscriber."",""type"":[{""type"":""record"",""name"":""subscribeAllowed"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""sender Client id"",""type"":""string""}]}]},{""name"":""publishedAllowed"",""doc"":""Indicates which clients are allowed to connect as publisher."",""type"":[{""type"":""record"",""name"":""publishedAllowed"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""sender Client id"",""type"":""string""}]}]}]}");
 		/// <summary>
 		/// sender Client id
 		/// </summary>

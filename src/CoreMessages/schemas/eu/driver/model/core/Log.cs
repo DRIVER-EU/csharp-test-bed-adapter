@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace eu.driver.model.system
+namespace eu.driver.model.core
 {
 	using System;
 	using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace eu.driver.model.system
 	
 	public partial class Log : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Log"",""namespace"":""eu.driver.model.system"",""fields"":[{""name"":""id"",""doc"":""Client id"",""type"":""string""},{""name"":""dateTimeSent"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""level"",""doc"":""The action-ability of the message."",""type"":{""type"":""enum"",""name"":""Level"",""namespace"":""eu.driver.model.system"",""symbols"":[""DEBUG"",""INFO"",""WARN"",""ERROR"",""CRITICAL"",""SILLY""]}},{""name"":""log"",""doc"":""Actual log message"",""type"":""string""}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Log"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Client id"",""type"":""string""},{""name"":""dateTimeSent"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""level"",""doc"":""The action-ability of the message."",""type"":{""type"":""enum"",""name"":""Level"",""namespace"":""eu.driver.model.core"",""symbols"":[""DEBUG"",""INFO"",""WARN"",""ERROR"",""CRITICAL"",""SILLY""]}},{""name"":""log"",""doc"":""Actual log message"",""type"":""string""}]}");
 		/// <summary>
 		/// Client id
 		/// </summary>
@@ -27,7 +27,7 @@ namespace eu.driver.model.system
 		/// <summary>
 		/// The action-ability of the message.
 		/// </summary>
-		private eu.driver.model.system.Level _level;
+		private eu.driver.model.core.Level _level;
 		/// <summary>
 		/// Actual log message
 		/// </summary>
@@ -70,7 +70,7 @@ namespace eu.driver.model.system
 		/// <summary>
 		/// The action-ability of the message.
 		/// </summary>
-		public eu.driver.model.system.Level level
+		public eu.driver.model.core.Level level
 		{
 			get
 			{
@@ -112,7 +112,7 @@ namespace eu.driver.model.system
 			{
 			case 0: this.id = (System.String)fieldValue; break;
 			case 1: this.dateTimeSent = (System.Int64)fieldValue; break;
-			case 2: this.level = (eu.driver.model.system.Level)fieldValue; break;
+			case 2: this.level = (eu.driver.model.core.Level)fieldValue; break;
 			case 3: this.log = (System.String)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};

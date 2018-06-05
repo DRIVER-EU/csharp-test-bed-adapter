@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace eu.driver.model.system
+namespace eu.driver.model.core
 {
 	using System;
 	using System.Collections.Generic;
@@ -13,13 +13,12 @@ namespace eu.driver.model.system
 	using Avro;
 	using Avro.Specific;
 	
-	public enum Command
+	public enum LayerType
 	{
-		Init,
-		Start,
-		Pause,
-		Update,
-		Stop,
-		Reset,
+		WMS,
+		WMTS,
+		WCS,
+		WFS,
+		OTHER,
 	}
 }

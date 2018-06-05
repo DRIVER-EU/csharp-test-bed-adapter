@@ -18,7 +18,6 @@ using Confluent.Kafka.Serialization;
 
 using eu.driver.model.core;
 using eu.driver.model.edxl;
-using eu.driver.model.system;
 
 namespace CSharpTestBedAdapter
 {
@@ -89,9 +88,11 @@ namespace CSharpTestBedAdapter
             private set
             {
                 _state = value;
+                Log(log4net.Core.Level.Info, $"State of the adapter set to {_state}");
                 // If we are in DEBUG or ENABLED state (again), try re-sending and -receiving the queued messages
                 if (_state == States.Enabled || _state == States.Debug)
                 {
+                    Log(log4net.Core.Level.Info, "Re-doing all queued messages that were sent/received during inactivity of this adapter");
                     foreach (IAbstractProducer producer in _producers.Values)
                     {
                         producer.FlushQueue();
@@ -111,6 +112,11 @@ namespace CSharpTestBedAdapter
         /// The timestamp of the last admin heartbeat
         /// </summary>
         private DateTime _lastAdminHeartbeat;
+
+        /// <summary>
+        /// The timestamp of when this adapter started (is initialized)
+        /// </summary>
+        private DateTime _startTime;
 
         #region Initialization
 
@@ -151,7 +157,8 @@ namespace CSharpTestBedAdapter
                 // TODO: Add CancellationToken to stop on dispose
                 Task.Factory.StartNew(() => { this.AdminCheck(); });
 
-                _lastAdminHeartbeat = DateTime.UtcNow;
+                _lastAdminHeartbeat = DateTime.MinValue;
+                _startTime = DateTime.UtcNow;
             }
             catch (Exception e)
             {
@@ -289,26 +296,32 @@ namespace CSharpTestBedAdapter
             {
                 _adminHeatbeatConsumer.Poll(5000);
 
-                // If the latest admin heartbeat is from longer than 10 seconds ago, we should disable this adapter
-                TimeSpan span = DateTime.UtcNow - _lastAdminHeartbeat;
-                if (span.Seconds > 10)
+                if (_lastAdminHeartbeat != DateTime.MinValue)
                 {
-                    // If in the first 10 seconds of this adapters existance there wasn't an admin heartbeat, go to the DEBUG state and stop listening
-                    if (State == States.Init)
+                    TimeSpan span = DateTime.UtcNow - _lastAdminHeartbeat;
+                    // If the latest admin heartbeat is from longer than 10 seconds ago, we should disable this adapter
+                    if (span.Seconds > 10)
                     {
+                        Log(log4net.Core.Level.Info, "Admin tool not found, going into Disabled mode");
+                        State = States.Disabled;
+                    }
+                    // If we have received an admin heartbeat (again), go to the ENABLED state
+                    else if (State != States.Enabled)
+                    {
+                        Log(log4net.Core.Level.Info, "Admin tool found (again), going into Enabled mode");
+                        State = States.Enabled;
+                    }
+                }
+                else
+                {
+                    TimeSpan span = DateTime.UtcNow - _startTime;
+                    // If in the first 10 seconds of this adapters existance there wasn't an admin heartbeat, go to the DEBUG state and stop listening
+                    if (span.Seconds > 10)
+                    {
+                        Log(log4net.Core.Level.Info, "Admin tool not found, going into Debug mode");
                         State = States.Debug;
                         break;
                     }
-                    // If there was an admin tool when starting this adapter but there isn't one now, go to the DISABLED state
-                    else
-                    {
-                        State = States.Disabled;
-                    }
-                }
-                // If we have received an admin heartbeat (again), go to the ENABLED state
-                else if (State != States.Enabled)
-                {
-                    State = States.Enabled;
                 }
             }
         }

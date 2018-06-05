@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace eu.driver.model.cap
+namespace eu.driver.model.core
 {
 	using System;
 	using System.Collections.Generic;
@@ -13,10 +13,10 @@ namespace eu.driver.model.cap
 	using Avro;
 	using Avro.Specific;
 	
-	public partial class subscribeAllowed : ISpecificRecord
+	public partial class publishedAllowed : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"subscribeAllowed\",\"namespace\":\"eu.driver.model.cap\",\"fie" +
-				"lds\":[{\"name\":\"id\",\"doc\":\"sender Client id\",\"type\":\"string\"}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"publishedAllowed\",\"namespace\":\"eu.driver.model.core\",\"fi" +
+				"elds\":[{\"name\":\"id\",\"doc\":\"sender Client id\",\"type\":\"string\"}]}");
 		/// <summary>
 		/// sender Client id
 		/// </summary>
@@ -25,7 +25,7 @@ namespace eu.driver.model.cap
 		{
 			get
 			{
-				return subscribeAllowed._SCHEMA;
+				return publishedAllowed._SCHEMA;
 			}
 		}
 		/// <summary>

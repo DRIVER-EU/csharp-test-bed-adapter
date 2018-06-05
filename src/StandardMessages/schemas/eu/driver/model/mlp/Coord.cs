@@ -15,7 +15,7 @@ namespace eu.driver.model.mlp
 	
 	public partial class Coord : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Coord"",""namespace"":""eu.driver.model.mlp"",""fields"":[{""name"":""X"",""doc"":""The first coordinate in a coordinate system (30 27 45.3N)"",""type"":""string""},{""name"":""Y"",""doc"":""Second ordinate in a coordinate.system (45 25 52.9E). This is optional if it is a linear coordinate system."",""default"":null,""type"":[""null"",""double""]},{""name"":""Z"",""doc"":""Third ordinate in a coordinate system which has at least three ordinates."",""default"":null,""type"":[""null"",""double""]}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Coord"",""namespace"":""eu.driver.model.mlp"",""fields"":[{""name"":""X"",""doc"":""The first coordinate in a coordinate system (30 27 45.3N)"",""type"":""string""},{""name"":""Y"",""doc"":""Second ordinate in a coordinate.system (45 25 52.9E). This is optional if it is a linear coordinate system."",""default"":null,""type"":[""null"",""string""]},{""name"":""Z"",""doc"":""Third ordinate in a coordinate system which has at least three ordinates."",""default"":null,""type"":[""null"",""string""]}]}");
 		/// <summary>
 		/// The first coordinate in a coordinate system (30 27 45.3N)
 		/// </summary>
@@ -23,11 +23,11 @@ namespace eu.driver.model.mlp
 		/// <summary>
 		/// Second ordinate in a coordinate.system (45 25 52.9E). This is optional if it is a linear coordinate system.
 		/// </summary>
-		private System.Nullable<double> _Y;
+		private string _Y;
 		/// <summary>
 		/// Third ordinate in a coordinate system which has at least three ordinates.
 		/// </summary>
-		private System.Nullable<double> _Z;
+		private string _Z;
 		public virtual Schema Schema
 		{
 			get
@@ -52,7 +52,7 @@ namespace eu.driver.model.mlp
 		/// <summary>
 		/// Second ordinate in a coordinate.system (45 25 52.9E). This is optional if it is a linear coordinate system.
 		/// </summary>
-		public System.Nullable<double> Y
+		public string Y
 		{
 			get
 			{
@@ -66,7 +66,7 @@ namespace eu.driver.model.mlp
 		/// <summary>
 		/// Third ordinate in a coordinate system which has at least three ordinates.
 		/// </summary>
-		public System.Nullable<double> Z
+		public string Z
 		{
 			get
 			{
@@ -92,8 +92,8 @@ namespace eu.driver.model.mlp
 			switch (fieldPos)
 			{
 			case 0: this.X = (System.String)fieldValue; break;
-			case 1: this.Y = (System.Nullable<double>)fieldValue; break;
-			case 2: this.Z = (System.Nullable<double>)fieldValue; break;
+			case 1: this.Y = (System.String)fieldValue; break;
+			case 2: this.Z = (System.String)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

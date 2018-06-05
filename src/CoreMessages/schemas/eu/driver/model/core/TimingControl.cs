@@ -15,19 +15,19 @@ namespace eu.driver.model.core
 	
 	public partial class TimingControl : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TimingControl"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""sequence ID"",""type"":""long""},{""name"":""trialTime"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""The Trialtime speed factor."",""type"":""long""}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TimingControl"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""command"",""doc"":""The type of command to switch the state of the time-service."",""type"":{""type"":""enum"",""name"":""Command"",""namespace"":""eu.driver.model.core"",""symbols"":[""Init"",""Start"",""Pause"",""Update"",""Stop"",""Reset""]}},{""name"":""trialTime"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""default"":null,""type"":[""null"",""long""],""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""The Trialtime speed factor."",""default"":null,""type"":[""null"",""float""]}]}");
 		/// <summary>
-		/// sequence ID
+		/// The type of command to switch the state of the time-service.
 		/// </summary>
-		private long _id;
+		private eu.driver.model.core.Command _command;
 		/// <summary>
 		/// The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
 		/// </summary>
-		private long _trialTime;
+		private System.Nullable<long> _trialTime;
 		/// <summary>
 		/// The Trialtime speed factor.
 		/// </summary>
-		private long _trialTimeSpeed;
+		private System.Nullable<float> _trialTimeSpeed;
 		public virtual Schema Schema
 		{
 			get
@@ -36,23 +36,23 @@ namespace eu.driver.model.core
 			}
 		}
 		/// <summary>
-		/// sequence ID
+		/// The type of command to switch the state of the time-service.
 		/// </summary>
-		public long id
+		public eu.driver.model.core.Command command
 		{
 			get
 			{
-				return this._id;
+				return this._command;
 			}
 			set
 			{
-				this._id = value;
+				this._command = value;
 			}
 		}
 		/// <summary>
 		/// The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
 		/// </summary>
-		public long trialTime
+		public System.Nullable<long> trialTime
 		{
 			get
 			{
@@ -66,7 +66,7 @@ namespace eu.driver.model.core
 		/// <summary>
 		/// The Trialtime speed factor.
 		/// </summary>
-		public long trialTimeSpeed
+		public System.Nullable<float> trialTimeSpeed
 		{
 			get
 			{
@@ -81,7 +81,7 @@ namespace eu.driver.model.core
 		{
 			switch (fieldPos)
 			{
-			case 0: return this.id;
+			case 0: return this.command;
 			case 1: return this.trialTime;
 			case 2: return this.trialTimeSpeed;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
@@ -91,9 +91,9 @@ namespace eu.driver.model.core
 		{
 			switch (fieldPos)
 			{
-			case 0: this.id = (System.Int64)fieldValue; break;
-			case 1: this.trialTime = (System.Int64)fieldValue; break;
-			case 2: this.trialTimeSpeed = (System.Int64)fieldValue; break;
+			case 0: this.command = (eu.driver.model.core.Command)fieldValue; break;
+			case 1: this.trialTime = (System.Nullable<long>)fieldValue; break;
+			case 2: this.trialTimeSpeed = (System.Nullable<float>)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}
