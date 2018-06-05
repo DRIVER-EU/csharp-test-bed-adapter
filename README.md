@@ -58,6 +58,10 @@ This allows the adapter to indicate it is still alive for all other adapters in 
 Both the adapter as your application can send log messages to the test-bed to inform operators on what is going on inside the application.
 * Admin heartbeat: receiving from topic `system_admin_heartbeat`
 The adapter checks if the admin tool inside the test-bed is alive. If not during the first 10 seconds of this adapters existence, the adapter will enter `DEBUG` mode. If the admin tool was present but connection is lost somehow, the adapter will enter `DISABLED` mode until the admin tool comes back alive, re-sending and re-receiving all messages that were queued during being disabled.
+* Timing: receiving from topic `system_timing`
+The [time service](https://github.com/DRIVER-EU/test-bed-time-service) updates all adapters for setting a global time frame.
+* Time control: receiving from topic `system_timing_control`
+The [time service](https://github.com/DRIVER-EU/test-bed-time-service) also notifies all adapters on time changes, for instance whenever a running trial is paused. This only affects the adapter whenever the test-bed admin tool is present. In `DEBUG` mode, the adapter will not adhere to stop sending/receiving messages whenever the time service sends a `PAUSE` or `STOP` command via this topic.
 
 ### Dependencies
 

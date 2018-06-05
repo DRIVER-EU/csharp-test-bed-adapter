@@ -430,8 +430,8 @@ namespace CSharpTestBedAdapter
                         Log(log4net.Core.Level.Info, "Admin tool not found, going into Disabled mode");
                         State = States.Disabled;
                     }
-                    // If we have received an admin heartbeat (again), go to the ENABLED state
-                    else if (State != States.Enabled)
+                    // If we have received an admin heartbeat (again) and the time service allows us to, go to the ENABLED state
+                    else if (State != States.Enabled && (_currentTime.TimeState == Command.Start || _currentTime.TimeState == Command.Update))
                     {
                         Log(log4net.Core.Level.Info, "Admin tool found (again), going into Enabled mode");
                         State = States.Enabled;
@@ -476,6 +476,7 @@ namespace CSharpTestBedAdapter
             TimeSpan updatedAt = TimeSpan.FromMilliseconds(message.Value.updatedAt);
             TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime);
 
+            // Update the values of the time info
             _currentTime.ElapsedTime = TimeSpan.FromMilliseconds(message.Value.timeElapsed);
             _currentTime.UpdatedAt = baseTime.Add(updatedAt);
             _currentTime.TrialTime = baseTime.Add(trialTime);
@@ -490,6 +491,7 @@ namespace CSharpTestBedAdapter
         private void TimecontrolConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
         {
             DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            // Update the values of the time info
             if (message.Value.trialTime.HasValue)
             {
                 TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime.Value);
@@ -500,6 +502,29 @@ namespace CSharpTestBedAdapter
                 _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
             }
             _currentTime.TimeState = message.Value.command;
+
+            // Update the state of this adapter, based on the time service command
+            // This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
+            switch (_currentTime.TimeState)
+            {
+                // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
+                case Command.Start:
+                case Command.Update:
+                    if (State == States.Init)
+                    {
+                        State = States.Enabled;
+                    }
+                    break;
+                // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
+                case Command.Pause:
+                case Command.Stop:
+                case Command.Reset:
+                    if (State == States.Enabled)
+                    {
+                        State = States.Disabled;
+                    }
+                    break;
+            }
         }
 
         /// <summary>
