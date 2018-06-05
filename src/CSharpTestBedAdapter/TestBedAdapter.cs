@@ -184,6 +184,7 @@ namespace CSharpTestBedAdapter
                 _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
                 _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
                 // TODO: Add CancellationToken to stop on dispose
+                Task.Factory.StartNew(() => { AdminCheck(); });
                 Task.Factory.StartNew(() => { Consume(); });
 
                 // Start the heart beat to indicate the connector is still alive
@@ -337,48 +338,10 @@ namespace CSharpTestBedAdapter
         {
             while (true)
             {
-                _heartbeatConsumer.Poll(100);
                 _timeConsumer.Poll(100);
                 _topicInviteConsumer.Poll(100);
             }
         }
-
-        /// <summary>
-        /// Delegate being called once a new message is consumed on the system topic admin heartbeat
-        /// </summary>
-        /// <param name="sender">The consumer that has received the message</param>
-        /// <param name="message">The message that was received</param>
-        private void HeartbeatConsumer_Message(object sender, Message<EDXLDistribution, AdminHeartbeat> message)
-        {
-            // TODO: Implement heartbeat checker to only send messages whenever the admin tool is alive
-            Log(log4net.Core.Level.Verbose, $"Admin alive at: {message.Value.alive}");
-        }
-
-        /// <summary>
-        /// Delegate being called once a new message is consumed on the system topic time
-        /// </summary>
-        /// <param name="sender">The consumer that has received the message</param>
-        /// <param name="message">The message that was received</param>
-        private void TimeConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
-        {
-            // TODO: Implement timing control based on these messages
-            Log(log4net.Core.Level.Verbose, $"Timing control received: {message.Value.command}");
-        }
-
-        /// <summary>
-        /// Delegate being called once a new message is consumed on the system topic for topic invitations
-        /// </summary>
-        /// <param name="sender">The consumer that has received the message</param>
-        /// <param name="message">The message that was received</param>
-        private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
-        {
-            // TODO: Implement topic consumption control based on these invites
-            Log(log4net.Core.Level.Verbose, $"Topic invite received: {message.Value.topicName}");
-        }
-
-        #endregion System consumers
-
-        #region Admin hearbeat check
 
         /// <summary>
         /// Method for checking the admin tool heartbeat
@@ -387,7 +350,7 @@ namespace CSharpTestBedAdapter
         {
             while (true)
             {
-                _adminHeatbeatConsumer.Poll(5000);
+                _heartbeatConsumer.Poll(5000);
 
                 if (_lastAdminHeartbeat != DateTime.MinValue)
                 {
@@ -420,11 +383,11 @@ namespace CSharpTestBedAdapter
         }
 
         /// <summary>
-        /// Delegate being called whenever the test-bed admin tool is sending out a heartbeat
+        /// Delegate being called once a new message is consumed on the system topic admin heartbeat
         /// </summary>
-        /// <param name="sender">The sender of the hearbeat message</param>
-        /// <param name="message">The hearbeat message</param>
-        private void Admin_Heartbeat(object sender, Message<EDXLDistribution, AdminHeartbeat> message)
+        /// <param name="sender">The consumer that has received the message</param>
+        /// <param name="message">The message that was received</param>
+        private void HeartbeatConsumer_Message(object sender, Message<EDXLDistribution, AdminHeartbeat> message)
         {
             TimeSpan span = TimeSpan.FromMilliseconds(message.Value.alive);
             DateTime timestamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(span);
@@ -433,7 +396,29 @@ namespace CSharpTestBedAdapter
             _lastAdminHeartbeat = timestamp;
         }
 
-        #endregion Admin heartbeat check
+        /// <summary>
+        /// Delegate being called once a new message is consumed on the system topic time
+        /// </summary>
+        /// <param name="sender">The consumer that has received the message</param>
+        /// <param name="message">The message that was received</param>
+        private void TimeConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
+        {
+            // TODO: Implement timing control based on these messages
+            Log(log4net.Core.Level.Verbose, $"Timing control received: {message.Value.command}");
+        }
+
+        /// <summary>
+        /// Delegate being called once a new message is consumed on the system topic for topic invitations
+        /// </summary>
+        /// <param name="sender">The consumer that has received the message</param>
+        /// <param name="message">The message that was received</param>
+        private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
+        {
+            // TODO: Implement topic consumption control based on these invites
+            Log(log4net.Core.Level.Verbose, $"Topic invite received: {message.Value.topicName}");
+        }
+
+        #endregion System consumers
 
         #region Producer
 
