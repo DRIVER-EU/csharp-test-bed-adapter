@@ -11,6 +11,7 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -24,7 +25,7 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// The path where the user settings are located
         /// </summary>
-        private static readonly string _settingsPath = @".\data\settings.xml";
+        private static readonly string _settingsPath = Path.Combine(Path.GetDirectoryName(typeof(Configuration).Assembly.Location), @"CSharpTestBedAdapter-settings.xml");
 
         /// <summary>
         /// The dictionary containing all core topics used inside this adapter
@@ -32,8 +33,11 @@ namespace CSharpTestBedAdapter
         internal static readonly Dictionary<string, string> CoreTopics = new Dictionary<string, string>()
         {
             { "heartbeat", "system_heartbeat" },
+            { "admin-heartbeat", "system_admin_heartbeat" },
             { "log", "system_logging" },
-            { "admin_heartbeat", "system_admin_heartbeat" },
+            { "time", "system_timing" },
+            { "topic-create-request", "system_topic_create_request" },
+            { "topic-access-invite", "system_topic_access_invite" }
         };
 
         /// <summary>
@@ -44,6 +48,7 @@ namespace CSharpTestBedAdapter
             { typeof(eu.driver.model.cap.Alert), "standard_cap" },
             { typeof(eu.driver.model.geojson.FeatureCollection), "standard_geojson" },
             { typeof(eu.driver.model.mlp.SlRep), "standard_mlp" },
+            { typeof(eu.driver.model.emsi.TSO_2_0), "standard_emsi" },
         };
 
         /// <summary>
@@ -52,6 +57,7 @@ namespace CSharpTestBedAdapter
         internal Configuration()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Schemas.settings));
+            Trace.WriteLine($"Loading settings from {_settingsPath}");
             using (StreamReader reader = new StreamReader(_settingsPath))
             {
                 _settings = (Schemas.settings)serializer.Deserialize(reader);

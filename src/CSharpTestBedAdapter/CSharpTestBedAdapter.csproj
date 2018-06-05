@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\librdkafka.redist.0.11.3\build\librdkafka.redist.props" Condition="Exists('..\..\packages\librdkafka.redist.0.11.3\build\librdkafka.redist.props')" />
+  <Import Project="..\..\packages\librdkafka.redist.0.11.4\build\librdkafka.redist.props" Condition="Exists('..\..\packages\librdkafka.redist.0.11.4\build\librdkafka.redist.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -33,23 +33,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Avro, Version=1.7.7.3, Culture=neutral, PublicKeyToken=b1248d7eeb9d0814, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Confluent.Apache.Avro.1.7.7.3\lib\net452\Avro.dll</HintPath>
+    <Reference Include="Confluent.Apache.Avro, Version=1.7.7.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Confluent.Apache.Avro.1.7.7.5\lib\net452\Confluent.Apache.Avro.dll</HintPath>
     </Reference>
-    <Reference Include="Confluent.Kafka, Version=0.11.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Confluent.Kafka.0.11.3\lib\net46\Confluent.Kafka.dll</HintPath>
+    <Reference Include="Confluent.Kafka, Version=0.11.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Confluent.Kafka.0.11.4\lib\net46\Confluent.Kafka.dll</HintPath>
     </Reference>
-    <Reference Include="Confluent.Kafka.Avro, Version=0.11.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Confluent.Kafka.Avro.0.11.3-ci-255\lib\net452\Confluent.Kafka.Avro.dll</HintPath>
+    <Reference Include="Confluent.Kafka.Avro, Version=0.11.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Confluent.Kafka.Avro.0.11.4\lib\net452\Confluent.Kafka.Avro.dll</HintPath>
     </Reference>
-    <Reference Include="Confluent.SchemaRegistry, Version=0.11.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Confluent.SchemaRegistry.0.11.3-ci-255\lib\net452\Confluent.SchemaRegistry.dll</HintPath>
+    <Reference Include="Confluent.SchemaRegistry, Version=0.11.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Confluent.SchemaRegistry.0.11.4\lib\net452\Confluent.SchemaRegistry.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.11.0.1-beta3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -86,8 +86,8 @@
     <Compile Include="AbstractConsumer.cs" />
     <Compile Include="AbstractProducer.cs" />
     <Compile Include="CommunicationException.cs" />
-    <Compile Include="data\Settings.cs">
-      <DependentUpon>settings.xsd</DependentUpon>
+    <Compile Include="CSharpTestBedAdapter-settings.cs">
+      <DependentUpon>CSharpTestBedAdapter-settings.xsd</DependentUpon>
     </Compile>
     <Compile Include="IAbstractConsumer.cs" />
     <Compile Include="IAbstractProducer.cs" />
@@ -97,13 +97,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="data\settings.xsd">
+    <None Include="CSharpTestBedAdapter-settings.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\settings.xml">
+    <Content Include="CSharpTestBedAdapter-settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -122,6 +122,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\librdkafka.redist.0.11.3\build\librdkafka.redist.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\librdkafka.redist.0.11.3\build\librdkafka.redist.props'))" />
+    <Error Condition="!Exists('..\..\packages\librdkafka.redist.0.11.4\build\librdkafka.redist.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\librdkafka.redist.0.11.4\build\librdkafka.redist.props'))" />
   </Target>
 </Project>

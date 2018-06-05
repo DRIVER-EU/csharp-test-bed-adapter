@@ -53,6 +53,8 @@ namespace CSharpTestBedAdapter
 
         #endregion Definitions
 
+        #region Properties & variables
+
         /// <summary>
         /// Configuration class, including internal setup information and external settings
         /// </summary>
@@ -71,14 +73,27 @@ namespace CSharpTestBedAdapter
         /// </summary>
         private Producer<EDXLDistribution, Heartbeat> _heartbeatProducer;
         /// <summary>
+        /// The consumer this connector is using to check if the admin tool is still alive
+        /// </summary>
+        private Consumer<EDXLDistribution, AdminHeartbeat> _heartbeatConsumer;
+        /// <summary>
         /// The producer this connector is using to send logs
         /// </summary>
         private Producer<EDXLDistribution, Log> _logProducer;
 
         /// <summary>
-        /// The consumer checking the hearbeat of the test-bed admin tool
+        /// The consumer this connector is using to receive time control changes
         /// </summary>
-        private Consumer<EDXLDistribution, AdminHeartbeat> _adminHeatbeatConsumer;
+        private Consumer<EDXLDistribution, TimingControl> _timeConsumer;
+        /// <summary>
+        /// The producer this connector is using to send out a request for creating a topic
+        /// </summary>
+        private Producer<EDXLDistribution, TopicCreate> _topicCreateProducer;
+        /// <summary>
+        /// The consumer this connector is using to receive invitations to listen to a certain topic
+        /// </summary>
+        private Consumer<EDXLDistribution, TopicInvite> _topicInviteConsumer;
+
         /// <summary>
         /// Indication if this adapter is allowed to send or receive standard and custom messages
         /// </summary>
@@ -118,6 +133,8 @@ namespace CSharpTestBedAdapter
         /// </summary>
         private DateTime _startTime;
 
+        #endregion Properties & variables
+
         #region Initialization
 
         /// <summary>
@@ -134,28 +151,44 @@ namespace CSharpTestBedAdapter
                 _producers = new Dictionary<string, IAbstractProducer>();
                 _consumers = new Dictionary<string, List<IAbstractConsumer>>();
 
-                // Create the producers for the core topics
+                // Create the producers for the system topics
                 _heartbeatProducer = new Producer<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Heartbeat>());
                 _heartbeatProducer.OnError += Adapter_Error;
                 _heartbeatProducer.OnLog += Adapter_Log;
                 _logProducer = new Producer<EDXLDistribution, Log>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
                 _logProducer.OnError += Adapter_Error;
                 _logProducer.OnLog += Adapter_Log;
+                _topicCreateProducer = new Producer<EDXLDistribution, TopicCreate>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<TopicCreate>());
+                _topicCreateProducer.OnError += Adapter_Error;
+                _topicCreateProducer.OnLog += Adapter_Log;
 
-                // Create the consumers for the core topics
-                _adminHeatbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
-                _adminHeatbeatConsumer.OnError += Adapter_Error;
-                _adminHeatbeatConsumer.OnLog += Adapter_Log;
-                _adminHeatbeatConsumer.OnMessage += Admin_Heartbeat;
-                _adminHeatbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin_heartbeat"], 0, Offset.End) });
+                // Initialize the consumers for the system topics
+                _heartbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
+                _heartbeatConsumer.OnError += Adapter_Error;
+                _heartbeatConsumer.OnConsumeError += Adapter_ConsumeError;
+                _heartbeatConsumer.OnLog += Adapter_Log;
+                _heartbeatConsumer.OnMessage += HeartbeatConsumer_Message;
+                _timeConsumer = new Consumer<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TimingControl>());
+                _timeConsumer.OnError += Adapter_Error;
+                _timeConsumer.OnConsumeError += Adapter_ConsumeError;
+                _timeConsumer.OnLog += Adapter_Log;
+                _timeConsumer.OnMessage += TimeConsumer_Message;
+                _topicInviteConsumer = new Consumer<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TopicInvite>());
+                _topicInviteConsumer.OnError += Adapter_Error;
+                _topicInviteConsumer.OnConsumeError += Adapter_ConsumeError;
+                _topicInviteConsumer.OnLog += Adapter_Log;
+                _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
+
+                // Start listening to the topics
+                _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
+                _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
+                _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
+                // TODO: Add CancellationToken to stop on dispose
+                Task.Factory.StartNew(() => { Consume(); });
 
                 // Start the heart beat to indicate the connector is still alive
                 // TODO: Add CancellationToken to stop on dispose
                 Task.Factory.StartNew(() => { this.Heartbeat(); });
-
-                // Start the admin heartbeat checker, so we know that we can send messages
-                // TODO: Add CancellationToken to stop on dispose
-                Task.Factory.StartNew(() => { this.AdminCheck(); });
 
                 _lastAdminHeartbeat = DateTime.MinValue;
                 _startTime = DateTime.UtcNow;
@@ -269,7 +302,17 @@ namespace CSharpTestBedAdapter
         /// <param name="error">The actual error from the producer or consumer</param>
         private void Adapter_Error(object sender, Error error)
         {
-            Log(log4net.Core.Level.Error, sender.GetType() + " " + error.Code + ": " + error.Reason);
+            Log(log4net.Core.Level.Error, $"{sender.GetType()} {error.Code}: {error.Reason}");
+        }
+
+        /// <summary>
+        /// Collective delegate to report all errors created by consumers when receiving a message
+        /// </summary>
+        /// <param name="sender">The consumer sending the error</param>
+        /// <param name="error">The message being consumed</param>
+        private void Adapter_ConsumeError(object sender, Message msg)
+        {
+            Log(log4net.Core.Level.Error, $"{sender.GetType()} {msg.Error.Code}: {msg.Error.Reason}");
         }
 
         /// <summary>
@@ -280,10 +323,60 @@ namespace CSharpTestBedAdapter
         private void Adapter_Log(object sender, LogMessage log)
         {
             // TODO: Possibly map log.Level to log4net.Core.Level?
-            Log(log4net.Core.Level.Info, sender.GetType() + " " + log.Name + ": " + log.Message);
+            Log(log4net.Core.Level.Info, $"{sender.GetType()} {log.Name}: {log.Message}");
         }
 
         #endregion Log
+
+        #region System consumers
+
+        /// <summary>
+        /// Method being used inside a new task to keep polling for new system messages to consume
+        /// </summary>
+        private void Consume()
+        {
+            while (true)
+            {
+                _heartbeatConsumer.Poll(100);
+                _timeConsumer.Poll(100);
+                _topicInviteConsumer.Poll(100);
+            }
+        }
+
+        /// <summary>
+        /// Delegate being called once a new message is consumed on the system topic admin heartbeat
+        /// </summary>
+        /// <param name="sender">The consumer that has received the message</param>
+        /// <param name="message">The message that was received</param>
+        private void HeartbeatConsumer_Message(object sender, Message<EDXLDistribution, AdminHeartbeat> message)
+        {
+            // TODO: Implement heartbeat checker to only send messages whenever the admin tool is alive
+            Log(log4net.Core.Level.Verbose, $"Admin alive at: {message.Value.alive}");
+        }
+
+        /// <summary>
+        /// Delegate being called once a new message is consumed on the system topic time
+        /// </summary>
+        /// <param name="sender">The consumer that has received the message</param>
+        /// <param name="message">The message that was received</param>
+        private void TimeConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
+        {
+            // TODO: Implement timing control based on these messages
+            Log(log4net.Core.Level.Verbose, $"Timing control received: {message.Value.command}");
+        }
+
+        /// <summary>
+        /// Delegate being called once a new message is consumed on the system topic for topic invitations
+        /// </summary>
+        /// <param name="sender">The consumer that has received the message</param>
+        /// <param name="message">The message that was received</param>
+        private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
+        {
+            // TODO: Implement topic consumption control based on these invites
+            Log(log4net.Core.Level.Verbose, $"Topic invite received: {message.Value.topicName}");
+        }
+
+        #endregion System consumers
 
         #region Admin hearbeat check
 
@@ -486,7 +579,7 @@ namespace CSharpTestBedAdapter
                 ((IDisposable)consumer).Dispose();
             }
 
-            // Dispose all core producers
+            // Dispose all system producers
             if (_heartbeatProducer != null)
             {
                 _heartbeatProducer.OnError -= Adapter_Error;
@@ -499,12 +592,37 @@ namespace CSharpTestBedAdapter
                 _logProducer.OnLog -= Adapter_Log;
                 _logProducer.Dispose();
             }
-            // Dispose all core consumers
-            if (_adminHeatbeatConsumer != null)
+            if (_topicCreateProducer != null)
             {
-                _adminHeatbeatConsumer.OnError -= Adapter_Error;
-                _adminHeatbeatConsumer.OnLog -= Adapter_Log;
-                _adminHeatbeatConsumer.Dispose();
+                _topicCreateProducer.OnError -= Adapter_Error;
+                _topicCreateProducer.OnLog -= Adapter_Log;
+                _topicCreateProducer.Dispose();
+            }
+
+            // Dispose all system consumers
+            if (_heartbeatConsumer != null)
+            {
+                _heartbeatConsumer.OnError -= Adapter_Error;
+                _heartbeatConsumer.OnConsumeError -= Adapter_ConsumeError;
+                _heartbeatConsumer.OnLog -= Adapter_Log;
+                _heartbeatConsumer.OnMessage -= HeartbeatConsumer_Message;
+                _heartbeatConsumer.Dispose();
+        }
+            if (_timeConsumer != null)
+            {
+                _timeConsumer.OnError -= Adapter_Error;
+                _timeConsumer.OnConsumeError -= Adapter_ConsumeError;
+                _timeConsumer.OnLog -= Adapter_Log;
+                _timeConsumer.OnMessage -= TimeConsumer_Message;
+                _timeConsumer.Dispose();
+            }
+            if (_topicInviteConsumer != null)
+            {
+                _topicInviteConsumer.OnError -= Adapter_Error;
+                _topicInviteConsumer.OnConsumeError -= Adapter_ConsumeError;
+                _topicInviteConsumer.OnLog -= Adapter_Log;
+                _topicInviteConsumer.OnMessage -= TopicInviteConsumer_Message;
+                _topicInviteConsumer.Dispose();
             }
         }
 
