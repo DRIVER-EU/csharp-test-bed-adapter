@@ -36,6 +36,7 @@ namespace CSharpTestBedAdapter
             { "admin-heartbeat", "system_admin_heartbeat" },
             { "log", "system_logging" },
             { "time", "system_timing" },
+            { "time-control", "system_timing_control" },
             { "topic-create-request", "system_topic_create_request" },
             { "topic-access-invite", "system_topic_access_invite" }
         };

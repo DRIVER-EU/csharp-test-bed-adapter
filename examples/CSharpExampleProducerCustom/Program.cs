@@ -51,6 +51,7 @@ namespace CSharpExampleProducerCustom
 
                     // Send the message over our custom topic
                     TestBedAdapter.GetInstance().SendMessage<Test>(newMsg, CustomTopicName);
+                    Console.WriteLine(TestBedAdapter.GetInstance().GetTimeInfo());
                 }
             }
             catch (Exception e)

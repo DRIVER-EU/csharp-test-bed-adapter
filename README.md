@@ -8,7 +8,11 @@ __For implementation of trial 1, please use the branch [release/trial_1](https:/
 The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.4)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
 * Sending and receiving Avro schema's and messages: both producer and consumer use Avro schema's for their message key and value.
+Methods for sending and receiving standard or custom messages are `SendMessage` & `AddCallback`
 * Logging via Kafka: your application can log on several log levels (eg. error, debug, info) onto a specific test-bed topic.
+Methods for sending and receiving log messages are `Log` & `AddLogCallback`
+* Receive time information (like fictive time, or the speed of the trial) from the [time service](https://github.com/DRIVER-EU/test-bed-time-service) in the test-bed.
+Method for retrieving the time information is `GetTimeInfo`
 * Internal Management: the adapter makes the coupling between application and test-bed as easy as possible.
 
 ## Project structure

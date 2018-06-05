@@ -51,6 +51,39 @@ namespace CSharpTestBedAdapter
             Disabled,
         }
 
+        /// <summary>
+        /// All information regarding time available to the adapter
+        /// </summary>
+        public struct TimeInfo
+        {
+            /// <summary>
+            /// The time frame from the start of the trial to the current time
+            /// </summary>
+            public TimeSpan ElapsedTime { get; set; }
+            /// <summary>
+            /// The timestamp of the last update
+            /// </summary>
+            public DateTime UpdatedAt { get; set; }
+            /// <summary>
+            /// The fictive date and time of the trial
+            /// </summary>
+            public DateTime TrialTime { get; set; }
+            /// <summary>
+            /// The speed factor of the trial
+            /// </summary>
+            public float TrialTimeSpeed { get; set; }
+            /// <summary>
+            /// The current state of the time service
+            /// </summary>
+            public Command TimeState { get; set; }
+
+            /// <summary><see cref="ValueType.ToString"/></summary>
+            public override string ToString()
+            {
+                return $"TimeInfo[ElapsedTime({ElapsedTime.ToString()}); UpdatedAt({UpdatedAt.ToString()}); TrialTime({TrialTime}); TrialTimeSpeed({TrialTimeSpeed}); TimeState({TimeState})]";
+            }
+        }
+
         #endregion Definitions
 
         #region Properties & variables
@@ -82,9 +115,13 @@ namespace CSharpTestBedAdapter
         private Producer<EDXLDistribution, Log> _logProducer;
 
         /// <summary>
+        /// The consumer this connector is using to receive time messages
+        /// </summary>
+        private Consumer<EDXLDistribution, Timing> _timeConsumer;
+        /// <summary>
         /// The consumer this connector is using to receive time control changes
         /// </summary>
-        private Consumer<EDXLDistribution, TimingControl> _timeConsumer;
+        private Consumer<EDXLDistribution, TimingControl> _timecontrolConsumer;
         /// <summary>
         /// The producer this connector is using to send out a request for creating a topic
         /// </summary>
@@ -132,6 +169,10 @@ namespace CSharpTestBedAdapter
         /// The timestamp of when this adapter started (is initialized)
         /// </summary>
         private DateTime _startTime;
+        /// <summary>
+        /// The time information gathered from the latest time service updates
+        /// </summary>
+        private TimeInfo _currentTime;
 
         #endregion Properties & variables
 
@@ -168,11 +209,16 @@ namespace CSharpTestBedAdapter
                 _heartbeatConsumer.OnConsumeError += Adapter_ConsumeError;
                 _heartbeatConsumer.OnLog += Adapter_Log;
                 _heartbeatConsumer.OnMessage += HeartbeatConsumer_Message;
-                _timeConsumer = new Consumer<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TimingControl>());
+                _timeConsumer = new Consumer<EDXLDistribution, Timing>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<Timing>());
                 _timeConsumer.OnError += Adapter_Error;
                 _timeConsumer.OnConsumeError += Adapter_ConsumeError;
                 _timeConsumer.OnLog += Adapter_Log;
                 _timeConsumer.OnMessage += TimeConsumer_Message;
+                _timecontrolConsumer = new Consumer<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TimingControl>());
+                _timecontrolConsumer.OnError += Adapter_Error;
+                _timecontrolConsumer.OnConsumeError += Adapter_ConsumeError;
+                _timecontrolConsumer.OnLog += Adapter_Log;
+                _timecontrolConsumer.OnMessage += TimecontrolConsumer_Message;
                 _topicInviteConsumer = new Consumer<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TopicInvite>());
                 _topicInviteConsumer.OnError += Adapter_Error;
                 _topicInviteConsumer.OnConsumeError += Adapter_ConsumeError;
@@ -182,6 +228,7 @@ namespace CSharpTestBedAdapter
                 // Start listening to the topics
                 _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
                 _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
+                _timecontrolConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time-control"], 0, Offset.End) });
                 _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
                 // TODO: Add CancellationToken to stop on dispose
                 Task.Factory.StartNew(() => { AdminCheck(); });
@@ -193,6 +240,14 @@ namespace CSharpTestBedAdapter
 
                 _lastAdminHeartbeat = DateTime.MinValue;
                 _startTime = DateTime.UtcNow;
+                _currentTime = new TimeInfo()
+                {
+                    ElapsedTime = TimeSpan.FromMilliseconds(0),
+                    UpdatedAt = DateTime.UtcNow,
+                    TrialTime = DateTime.MinValue,
+                    TrialTimeSpeed = 1f,
+                    TimeState = Command.Init
+                };
             }
             catch (Exception e)
             {
@@ -234,6 +289,19 @@ namespace CSharpTestBedAdapter
 
         #endregion Initialization
 
+        #region Time
+
+        /// <summary>
+        /// Method for retrieving the latest time information from the test-bed
+        /// </summary>
+        /// <returns>The available time information</returns>
+        public TimeInfo GetTimeInfo()
+        {
+            return _currentTime;
+        }
+
+        #endregion Time
+
         #region Heartbeat
 
         /// <summary>
@@ -245,7 +313,7 @@ namespace CSharpTestBedAdapter
             {
                 // Send out the heart beat that this connector is still alive
                 EDXLDistribution key = CreateCoreKey();
-                Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientId, alive = DateTime.UtcNow.Ticks / 1000 };
+                Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientId, alive = DateTime.UtcNow.Ticks / 10000 };
 
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
@@ -339,6 +407,7 @@ namespace CSharpTestBedAdapter
             while (true)
             {
                 _timeConsumer.Poll(100);
+                _timecontrolConsumer.Poll(100);
                 _topicInviteConsumer.Poll(100);
             }
         }
@@ -401,10 +470,36 @@ namespace CSharpTestBedAdapter
         /// </summary>
         /// <param name="sender">The consumer that has received the message</param>
         /// <param name="message">The message that was received</param>
-        private void TimeConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
+        private void TimeConsumer_Message(object sender, Message<EDXLDistribution, Timing> message)
         {
-            // TODO: Implement timing control based on these messages
-            Log(log4net.Core.Level.Verbose, $"Timing control received: {message.Value.command}");
+            DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            TimeSpan updatedAt = TimeSpan.FromMilliseconds(message.Value.updatedAt);
+            TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime);
+
+            _currentTime.ElapsedTime = TimeSpan.FromMilliseconds(message.Value.timeElapsed);
+            _currentTime.UpdatedAt = baseTime.Add(updatedAt);
+            _currentTime.TrialTime = baseTime.Add(trialTime);
+            _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed;
+        }
+
+        /// <summary>
+        /// Delegate being called once a new message is consumed on the system topic time
+        /// </summary>
+        /// <param name="sender">The consumer that has received the message</param>
+        /// <param name="message">The message that was received</param>
+        private void TimecontrolConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
+        {
+            DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            if (message.Value.trialTime.HasValue)
+            {
+                TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime.Value);
+                _currentTime.TrialTime = baseTime.Add(trialTime);
+            }
+            if (message.Value.trialTimeSpeed.HasValue)
+            {
+                _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
+            }
+            _currentTime.TimeState = message.Value.command;
         }
 
         /// <summary>
@@ -592,7 +687,7 @@ namespace CSharpTestBedAdapter
                 _heartbeatConsumer.OnLog -= Adapter_Log;
                 _heartbeatConsumer.OnMessage -= HeartbeatConsumer_Message;
                 _heartbeatConsumer.Dispose();
-        }
+            }
             if (_timeConsumer != null)
             {
                 _timeConsumer.OnError -= Adapter_Error;
@@ -600,6 +695,14 @@ namespace CSharpTestBedAdapter
                 _timeConsumer.OnLog -= Adapter_Log;
                 _timeConsumer.OnMessage -= TimeConsumer_Message;
                 _timeConsumer.Dispose();
+            }
+            if (_timecontrolConsumer != null)
+            {
+                _timecontrolConsumer.OnError -= Adapter_Error;
+                _timecontrolConsumer.OnConsumeError -= Adapter_ConsumeError;
+                _timecontrolConsumer.OnLog -= Adapter_Log;
+                _timecontrolConsumer.OnMessage -= TimecontrolConsumer_Message;
+                _timecontrolConsumer.Dispose();
             }
             if (_topicInviteConsumer != null)
             {
