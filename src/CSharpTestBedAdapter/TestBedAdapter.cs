@@ -11,6 +11,7 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Confluent.Kafka;
@@ -132,6 +133,11 @@ namespace CSharpTestBedAdapter
         private Consumer<EDXLDistribution, TopicInvite> _topicInviteConsumer;
 
         /// <summary>
+        /// The general cancellation token for all tasks running in this adapter
+        /// </summary>
+        private CancellationTokenSource _cancellationTokenSource;
+
+        /// <summary>
         /// Indication if this adapter is allowed to send or receive standard and custom messages
         /// </summary>
         public States State
@@ -225,18 +231,20 @@ namespace CSharpTestBedAdapter
                 _topicInviteConsumer.OnLog += Adapter_Log;
                 _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
 
+                _cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken token = _cancellationTokenSource.Token;
+
                 // Start listening to the topics
                 _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
                 _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
                 _timecontrolConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time-control"], 0, Offset.End) });
                 _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
-                // TODO: Add CancellationToken to stop on dispose
-                Task.Factory.StartNew(() => { AdminCheck(); });
-                Task.Factory.StartNew(() => { Consume(); });
+
+                Task.Factory.StartNew((cancelToken) => { AdminCheck((CancellationToken)cancelToken); }, token, token);
+                Task.Factory.StartNew((cancelToken) => { Consume((CancellationToken)cancelToken); }, token, token);
 
                 // Start the heart beat to indicate the connector is still alive
-                // TODO: Add CancellationToken to stop on dispose
-                Task.Factory.StartNew(() => { this.Heartbeat(); });
+                Task.Factory.StartNew((cancelToken) => { Heartbeat((CancellationToken)cancelToken); }, token, token);
 
                 _lastAdminHeartbeat = DateTime.MinValue;
                 _startTime = DateTime.UtcNow;
@@ -307,9 +315,9 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// Method for starting the heart beat of this adapter
         /// </summary>
-        private void Heartbeat()
+        private void Heartbeat(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 // Send out the heart beat that this connector is still alive
                 EDXLDistribution key = CreateCoreKey();
@@ -402,9 +410,9 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// Method being used inside a new task to keep polling for new system messages to consume
         /// </summary>
-        private void Consume()
+        private void Consume(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 _timeConsumer.Poll(100);
                 _timecontrolConsumer.Poll(100);
@@ -415,9 +423,9 @@ namespace CSharpTestBedAdapter
         /// <summary>
         /// Method for checking the admin tool heartbeat
         /// </summary>
-        private void AdminCheck()
+        private void AdminCheck(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 _heartbeatConsumer.Poll(5000);
 
@@ -671,6 +679,9 @@ namespace CSharpTestBedAdapter
         /// <summary><see cref="IDisposable.Dispose"/></summary>
         public void Dispose()
         {
+            // Stop all running tasks
+            _cancellationTokenSource.Cancel();
+
             // Dispose all created producers
             foreach (IAbstractProducer producer in _producers.Values)
             {
@@ -737,6 +748,8 @@ namespace CSharpTestBedAdapter
                 _topicInviteConsumer.OnMessage -= TopicInviteConsumer_Message;
                 _topicInviteConsumer.Dispose();
             }
+
+            _instance = null;
         }
 
         #endregion Destruction

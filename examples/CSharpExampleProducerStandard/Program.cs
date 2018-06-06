@@ -117,6 +117,10 @@ namespace CSharpExampleProducerStandard
             {
                 Console.WriteLine(e);
             }
+            finally
+            {
+                TestBedAdapter.GetInstance().Dispose();
+            }
         }
 
         /// <summary>
