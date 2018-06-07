@@ -110,11 +110,16 @@ namespace CSharpExampleProducerStandard
 
                     // Send the message over the standard topic
                     TestBedAdapter.GetInstance().SendMessage<Alert>(newMsg);
+                    Console.WriteLine(TestBedAdapter.GetInstance().GetTimeInfo());
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+            finally
+            {
+                TestBedAdapter.GetInstance().Dispose();
             }
         }
 

@@ -7,11 +7,13 @@ __For implementation of trial 1, please use the branch [release/trial_1](https:/
 
 The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.4)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
-* Avro schema's and messages: Both producer and consumer use Avro schema's for their message key and value.
-* Logging via Kafka: Your application can log on several log levels (eg. error, debug, info) onto a specific test-bed topic.
-* Management
-  * Heartbeat (topic: system_heartbeat), so you know which clients are online.
-  * Logging (topic: system_logging).
+* Sending and receiving Avro schema's and messages: both producer and consumer use Avro schema's for their message key and value.
+Methods for sending and receiving standard or custom messages are `SendMessage` & `AddCallback`
+* Logging via Kafka: your application can log on several log levels (eg. error, debug, info) onto a specific test-bed topic.
+Methods for sending and receiving log messages are `Log` & `AddLogCallback`
+* Receive time information (like fictive time, or the speed of the trial) from the [time service](https://github.com/DRIVER-EU/test-bed-time-service) in the test-bed.
+Method for retrieving the time information is `GetTimeInfo`
+* Internal Management: the adapter makes the coupling between application and test-bed as easy as possible.
 
 ## Project structure
 
@@ -51,8 +53,15 @@ The code project that bundles all standard message formats defined for the Commo
 The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
 
 * Heartbeat: sending to topic `system_heartbeat`
-* AdminHeartbeat: receiving from topic `system_admin_heartbeat`
-* Log: sending top topic `system_loggin`
+This allows the adapter to indicate it is still alive for all other adapters in the test-bed.
+* Log: sending to topic `system_loggin`
+Both the adapter as your application can send log messages to the test-bed to inform operators on what is going on inside the application.
+* Admin heartbeat: receiving from topic `system_admin_heartbeat`
+The adapter checks if the admin tool inside the test-bed is alive. If not during the first 10 seconds of this adapters existence, the adapter will enter `DEBUG` mode. If the admin tool was present but connection is lost somehow, the adapter will enter `DISABLED` mode until the admin tool comes back alive, re-sending and re-receiving all messages that were queued during being disabled.
+* Timing: receiving from topic `system_timing`
+The [time service](https://github.com/DRIVER-EU/test-bed-time-service) updates all adapters for setting a global time frame.
+* Time control: receiving from topic `system_timing_control`
+The [time service](https://github.com/DRIVER-EU/test-bed-time-service) also notifies all adapters on time changes, for instance whenever a running trial is paused. This only affects the adapter whenever the test-bed admin tool is present. In `DEBUG` mode, the adapter will not adhere to stop sending/receiving messages whenever the time service sends a `PAUSE` or `STOP` command via this topic.
 
 ### Dependencies
 

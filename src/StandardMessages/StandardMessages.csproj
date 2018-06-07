@@ -97,6 +97,11 @@
     <Compile Include="schemas\eu\driver\model\cap\Status.cs" />
     <Compile Include="schemas\eu\driver\model\cap\Urgency.cs" />
     <Compile Include="schemas\eu\driver\model\cap\ValueNamePair.cs" />
+    <Compile Include="schemas\eu\driver\model\core\DataType.cs" />
+    <Compile Include="schemas\eu\driver\model\core\LargeDataUpdate.cs" />
+    <Compile Include="schemas\eu\driver\model\core\LayerType.cs" />
+    <Compile Include="schemas\eu\driver\model\core\MapLayerUpdate.cs" />
+    <Compile Include="schemas\eu\driver\model\core\UpdateType.cs" />
     <Compile Include="schemas\eu\driver\model\emsi\CASUALTIESEVENT.cs" />
     <Compile Include="schemas\eu\driver\model\emsi\CONTACTRESOURCE.cs" />
     <Compile Include="schemas\eu\driver\model\emsi\CONTEXT.cs" />
