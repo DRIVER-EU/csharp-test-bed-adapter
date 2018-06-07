@@ -107,7 +107,11 @@ namespace CSharpTestBedAdapter
         {
             if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Enabled || TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug)
             {
-                _consumerHandler?.Invoke(message.Key.senderID, message.Topic, message.Value);
+                // Make sure this message is allowed to be received from the topic
+                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopics.Contains(message.Topic))
+                {
+                    _consumerHandler?.Invoke(message.Key.senderID, message.Topic, message.Value);
+                }
             }
             else
             {

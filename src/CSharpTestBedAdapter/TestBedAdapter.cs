@@ -180,6 +180,15 @@ namespace CSharpTestBedAdapter
         /// </summary>
         private TimeInfo _currentTime;
 
+        /// <summary>
+        /// The list of topics that this adapter received an invitation to
+        /// </summary>
+        public List<string> AllowedTopics
+        {
+            get { return new List<string>(_allowedTopics); }
+        }
+        private List<string> _allowedTopics;
+
         #endregion Properties & variables
 
         #region Initialization
@@ -256,6 +265,8 @@ namespace CSharpTestBedAdapter
                     TrialTimeSpeed = 1f,
                     TimeState = Command.Init
                 };
+
+                _allowedTopics = new List<string>();
             }
             catch (Exception e)
             {
@@ -542,8 +553,8 @@ namespace CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
         {
-            // TODO: Implement topic consumption control based on these invites
-            Log(log4net.Core.Level.Verbose, $"Topic invite received: {message.Value.topicName}");
+            // Add the topic name to the list to check for sending/receiving messages
+            _allowedTopics.Add(message.Value.topicName);
         }
 
         #endregion System consumers

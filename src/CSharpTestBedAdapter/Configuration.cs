@@ -50,6 +50,8 @@ namespace CSharpTestBedAdapter
             { typeof(eu.driver.model.geojson.FeatureCollection), "standard_geojson" },
             { typeof(eu.driver.model.mlp.SlRep), "standard_mlp" },
             { typeof(eu.driver.model.emsi.TSO_2_0), "standard_emsi" },
+            { typeof(eu.driver.model.core.LargeDataUpdate), "large_data_update" },
+            { typeof(eu.driver.model.core.MapLayerUpdate), "large_data_update" },
         };
 
         /// <summary>

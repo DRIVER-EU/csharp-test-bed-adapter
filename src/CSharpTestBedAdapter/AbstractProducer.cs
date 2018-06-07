@@ -105,7 +105,12 @@ namespace CSharpTestBedAdapter
             {
                 // TODO: implement waiting for response or not
                 // TODO: implement time out mechanism
-                _producer.ProduceAsync(topic, CreateKey(), message);
+                // Make sure this message is allowed to be sent on the topic
+                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopics.Contains(topic))
+                {
+                    _producer.ProduceAsync(topic, CreateKey(), message);
+                }
+                else throw new CommunicationException($"cannot send message, since the topic ({topic}) is restricted");
             }
             else
             {
@@ -120,7 +125,7 @@ namespace CSharpTestBedAdapter
         {
             // Make sure that we are not getting in an endless loop of message sending if the adapter is somehow disabled again
             int totalMessages = messageQueue.Count;
-            for(int i = 0; i < totalMessages; i++)
+            for (int i = 0; i < totalMessages; i++)
             {
                 KeyValuePair<T, string> message = messageQueue.Dequeue();
                 SendMessage(message.Key, message.Value);
