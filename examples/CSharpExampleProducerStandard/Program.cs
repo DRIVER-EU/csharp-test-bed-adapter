@@ -93,6 +93,7 @@ namespace CSharpExampleProducerStandard
                                         uri = "null",
                                         deferUri = "null",
                                         digest = "null",
+                                        mimeType = "null",
                                     },
                                 },
                                 area = new Area
