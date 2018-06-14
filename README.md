@@ -4,6 +4,7 @@ This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https:/
 
 __PLEASE NOTICE: The latest version might not be this master. Newer versions are available as release branches (but might be unstable).__
 __For implementation of trial 1, please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
+__For implementation of trial 2, please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
 
 The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.4)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
