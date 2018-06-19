@@ -41,7 +41,7 @@ Inside the `examples\common\CommonMessages\data` folder you'll find a README reg
 The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
 
 * [Common Alerting Protocol (CAP)](https://en.wikipedia.org/wiki/Common_Alerting_Protocol)
-* Emergency Management Shared Information (EMSI)
+* [Emergency Management Shared Information (EMSI)](https://www.iso.org/standard/57384.html)
 * [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON)
 * [Mobile Location Protocol (MLP)](https://en.wikipedia.org/wiki/Mobile_Location_Protocol)
 
