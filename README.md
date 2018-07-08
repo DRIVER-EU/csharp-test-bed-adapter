@@ -1,4 +1,4 @@
-# csharp-text-bed-adapter
+# csharp-test-bed-adapter
 
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
