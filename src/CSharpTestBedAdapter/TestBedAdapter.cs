@@ -263,7 +263,7 @@ namespace CSharpTestBedAdapter
                     UpdatedAt = DateTime.UtcNow,
                     TrialTime = DateTime.MinValue,
                     TrialTimeSpeed = 1f,
-                    TimeState = Command.Init
+                    TimeState = Command.Start
                 };
 
                 _allowedTopics = new List<string>();
@@ -443,10 +443,11 @@ namespace CSharpTestBedAdapter
             while (!token.IsCancellationRequested)
             {
                 _heartbeatConsumer.Poll(5000);
+                DateTime now = DateTime.UtcNow;
 
                 if (_lastAdminHeartbeat != DateTime.MinValue)
                 {
-                    TimeSpan span = DateTime.UtcNow - _lastAdminHeartbeat;
+                    TimeSpan span = now - _lastAdminHeartbeat;
                     // If the latest admin heartbeat is from longer than 10 seconds ago, we should disable this adapter
                     if (span.Seconds > 10)
                     {
@@ -462,7 +463,7 @@ namespace CSharpTestBedAdapter
                 }
                 else
                 {
-                    TimeSpan span = DateTime.UtcNow - _startTime;
+                    TimeSpan span = now - _startTime;
                     // If in the first 10 seconds of this adapters existance there wasn't an admin heartbeat, go to the DEBUG state and stop listening
                     if (span.Seconds > 10)
                     {
