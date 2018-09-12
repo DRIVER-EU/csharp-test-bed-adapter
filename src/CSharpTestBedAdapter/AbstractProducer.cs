@@ -88,8 +88,8 @@ namespace CSharpTestBedAdapter
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Unknown,
                 distributionStatus = DistributionStatus.Unknown,
-                dateTimeSent = DateTime.UtcNow.Ticks / 10000,
-                dateTimeExpires = (DateTime.UtcNow.Ticks + 600000000) / 10000,
+                dateTimeSent = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
+                dateTimeExpires = (long)((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)) + new TimeSpan(0, 0, 10, 0, 0)).TotalMilliseconds,
             };
         }
 
