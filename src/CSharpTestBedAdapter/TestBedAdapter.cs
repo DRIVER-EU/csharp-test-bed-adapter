@@ -266,7 +266,18 @@ namespace CSharpTestBedAdapter
                     TimeState = Command.Start
                 };
 
-                _allowedTopics = new List<string>();
+                _allowedTopics = new List<string>()
+                {
+                    "csharp-test",
+                    "simulation_timecontrol",
+                    "simulation_object_deleted",
+                    "simulation_entity_item",
+                    "simulation_entity_station",
+                    "simulation_entity_post",
+                    "simulation_connection_unit",
+                    "simulation_connection_unit_connection",
+                    "simulation_request_unittransport",
+                };
             }
             catch (Exception e)
             {
@@ -559,6 +570,7 @@ namespace CSharpTestBedAdapter
         private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
         {
             // Add the topic name to the list to check for sending/receiving messages
+            Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {message.Value.topicName}");
             _allowedTopics.Add(message.Value.topicName);
         }
 
