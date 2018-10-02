@@ -570,8 +570,12 @@ namespace CSharpTestBedAdapter
         private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
         {
             // Add the topic name to the list to check for sending/receiving messages
-            Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {message.Value.topicName}");
-            _allowedTopics.Add(message.Value.topicName);
+            string topic = message.Value.topicName;
+            if (!_allowedTopics.Contains(topic))
+            {
+                Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {topic}");
+                _allowedTopics.Add(topic);
+            }
         }
 
         #endregion System consumers
