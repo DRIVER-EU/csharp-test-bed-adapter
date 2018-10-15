@@ -60,7 +60,7 @@ namespace CSharpTestBedAdapter
         internal AbstractProducer(Configuration configuration)
         {
             _producer = new Producer<EDXLDistribution, T>(configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
-            _sender = configuration.Settings.clientId;
+            _sender = configuration.Settings.clientid;
 
             // Raised on critical errors, e.g. connection failures or all brokers down.
             _producer.OnError += (sender, error) =>

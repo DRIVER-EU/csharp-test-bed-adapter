@@ -29,6 +29,10 @@ namespace Schemas {
         
         private string certificatepathField;
         
+        private string keystorepathField;
+        
+        private string keystorepasswordField;
+        
         private string brokerurlField;
         
         private string schemaurlField;
@@ -41,7 +45,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("client.id")]
-        public string clientId {
+        public string clientid {
             get {
                 return this.clientidField;
             }
@@ -52,7 +56,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("heartbeat.interval")]
-        public ushort heartbeatInterval {
+        public ushort heartbeatinterval {
             get {
                 return this.heartbeatintervalField;
             }
@@ -63,7 +67,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("certificate.path")]
-        public string certificatePath {
+        public string certificatepath {
             get {
                 return this.certificatepathField;
             }
@@ -73,8 +77,30 @@ namespace Schemas {
         }
         
         /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("keystore.path")]
+        public string keystorepath {
+            get {
+                return this.keystorepathField;
+            }
+            set {
+                this.keystorepathField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("keystore.password")]
+        public string keystorepassword {
+            get {
+                return this.keystorepasswordField;
+            }
+            set {
+                this.keystorepasswordField = value;
+            }
+        }
+        
+        /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("broker.url")]
-        public string brokerUrl {
+        public string brokerurl {
             get {
                 return this.brokerurlField;
             }
@@ -85,7 +111,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("schema.url")]
-        public string schemaUrl {
+        public string schemaurl {
             get {
                 return this.schemaurlField;
             }
@@ -96,7 +122,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("send.sync")]
-        public bool sendSync {
+        public bool sendsync {
             get {
                 return this.sendsyncField;
             }
@@ -107,7 +133,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("retry.count")]
-        public byte retryCount {
+        public byte retrycount {
             get {
                 return this.retrycountField;
             }
@@ -118,7 +144,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("retry.time")]
-        public ushort retryTime {
+        public ushort retrytime {
             get {
                 return this.retrytimeField;
             }

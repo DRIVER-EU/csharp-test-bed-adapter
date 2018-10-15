@@ -297,7 +297,7 @@ namespace CSharpTestBedAdapter
         {
             return new EDXLDistribution()
             {
-                senderID = _configuration.Settings.clientId,
+                senderID = _configuration.Settings.clientid,
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Update,
                 distributionStatus = DistributionStatus.System,
@@ -332,12 +332,12 @@ namespace CSharpTestBedAdapter
             {
                 // Send out the heart beat that this connector is still alive
                 EDXLDistribution key = CreateCoreKey();
-                Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientId, alive = DateTime.UtcNow.Ticks / 10000 };
+                Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientid, alive = DateTime.UtcNow.Ticks / 10000 };
 
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
                 // Wait for the specified amount of milliseconds
-                Task wait = Task.Delay(_configuration.Settings.heartbeatInterval);
+                Task wait = Task.Delay(_configuration.Settings.heartbeatinterval);
                 wait.Wait();
             }
         }
@@ -364,7 +364,7 @@ namespace CSharpTestBedAdapter
             if (_logProducer != null)
             {
                 EDXLDistribution key = CreateCoreKey();
-                Log log = new Log() { id = _configuration.Settings.clientId, log = msg };
+                Log log = new Log() { id = _configuration.Settings.clientid, log = msg };
 
                 _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
             }

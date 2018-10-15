@@ -67,29 +67,38 @@ namespace CSharpTestBedAdapter
 
                 _producerConfig = new Dictionary<string, object>
                 {
-                    { "bootstrap.servers", _settings.brokerUrl },
-                    { "schema.registry.url", _settings.schemaUrl },
+                    { "bootstrap.servers", _settings.brokerurl },
+                    { "schema.registry.url", _settings.schemaurl },
                     //{ "compression.type", "none" },
                     { "acks", "all" },
-                    { "retries", _settings.retryCount },
-                    { "request.timeout.ms", _settings.retryTime },
+                    { "retries", _settings.retrycount },
+                    { "request.timeout.ms", _settings.retrytime },
                     // optional avro / schema registry client properties for C#:
                     { "avro.serializer.buffer.bytes", 50 },
                     { "avro.serializer.auto.register.schemas", true },
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
+                    { "security.protocol", "SSL" },
+                    { "ssl.ca.location", _settings.certificatepath },
+                    { "ssl.keystore.location", _settings.keystorepath },
+                    { "ssl.keystore.password", _settings.keystorepassword },
+
                 };
 
                 _consumerConfig = new Dictionary<string, object>
                 {
-                    { "bootstrap.servers", _settings.brokerUrl },
-                    { "schema.registry.url", _settings.schemaUrl },
-                    { "group.id", _settings.clientId },
+                    { "bootstrap.servers", _settings.brokerurl },
+                    { "schema.registry.url", _settings.schemaurl },
+                    { "group.id", _settings.clientid },
                     { "enable.auto.commit", true },
                     { "auto.offset.reset", "latest" },
                     // optional avro / schema registry client properties for C#:
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
+                    { "security.protocol", "SSL" },
+                    { "ssl.ca.location", _settings.certificatepath },
+                    { "ssl.keystore.location", _settings.keystorepath },
+                    { "ssl.keystore.password", _settings.keystorepassword },
                 };
             }
         }
