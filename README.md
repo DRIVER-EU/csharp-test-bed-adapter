@@ -1,9 +1,10 @@
-# csharp-text-bed-adapter
+# csharp-test-bed-adapter
 
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
 __PLEASE NOTICE: The latest version might not be this master. Newer versions are available as release branches (but might be unstable).__
 __For implementation of trial 1, please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
+__For implementation of trial 2, please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
 
 The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.4)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
@@ -44,7 +45,7 @@ Inside the `examples\common\CommonMessages\data` folder you'll find a README reg
 The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
 
 * [Common Alerting Protocol (CAP)](https://en.wikipedia.org/wiki/Common_Alerting_Protocol)
-* Emergency Management Shared Information (EMSI)
+* [Emergency Management Shared Information (EMSI)](https://www.iso.org/standard/57384.html)
 * [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON)
 * [Mobile Location Protocol (MLP)](https://en.wikipedia.org/wiki/Mobile_Location_Protocol)
 

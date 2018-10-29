@@ -46,16 +46,17 @@ namespace eu.driver.model.cap
 				"ull\",{\"type\":\"record\",\"name\":\"Resource\",\"namespace\":\"eu.driver.model.cap\",\"field" +
 				"s\":[{\"name\":\"resourceDesc\",\"type\":\"string\"},{\"name\":\"size\",\"default\":null,\"type\"" +
 				":[\"null\",\"int\"]},{\"name\":\"uri\",\"doc\":\"TODO, anyURI\",\"default\":null,\"type\":[\"null" +
-				"\",\"string\"]},{\"name\":\"deferUri\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"name\"" +
-				":\"digest\",\"default\":null,\"type\":[\"null\",\"string\"]}]},{\"type\":\"array\",\"items\":\"Re" +
-				"source\"}]},{\"name\":\"area\",\"default\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":" +
-				"\"Area\",\"namespace\":\"eu.driver.model.cap\",\"fields\":[{\"name\":\"areaDesc\",\"type\":\"st" +
-				"ring\"},{\"name\":\"polygon\",\"default\":null,\"type\":[\"null\",\"string\",{\"type\":\"array\"," +
-				"\"items\":\"string\"}]},{\"name\":\"circle\",\"default\":null,\"type\":[\"null\",\"string\",{\"ty" +
-				"pe\":\"array\",\"items\":\"string\"}]},{\"name\":\"geocode\",\"default\":null,\"type\":[\"null\"," +
-				"\"ValueNamePair\",{\"type\":\"array\",\"items\":\"ValueNamePair\"}]},{\"name\":\"altitude\",\"d" +
-				"efault\":null,\"type\":[\"null\",\"double\"]},{\"name\":\"ceiling\",\"default\":null,\"type\":[" +
-				"\"null\",\"double\"]}]},{\"type\":\"array\",\"items\":\"Area\"}]}]}");
+				"\",\"string\"]},{\"name\":\"mimeType\",\"doc\":\"The mimetype of the resource!\",\"default\":" +
+				"null,\"type\":[\"null\",\"string\"]},{\"name\":\"deferUri\",\"default\":null,\"type\":[\"null\"," +
+				"\"string\"]},{\"name\":\"digest\",\"default\":null,\"type\":[\"null\",\"string\"]}]},{\"type\":\"" +
+				"array\",\"items\":\"Resource\"}]},{\"name\":\"area\",\"default\":null,\"type\":[\"null\",{\"type" +
+				"\":\"record\",\"name\":\"Area\",\"namespace\":\"eu.driver.model.cap\",\"fields\":[{\"name\":\"ar" +
+				"eaDesc\",\"type\":\"string\"},{\"name\":\"polygon\",\"default\":null,\"type\":[\"null\",\"string" +
+				"\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"circle\",\"default\":null,\"type\":[\"n" +
+				"ull\",\"string\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"geocode\",\"default\":nu" +
+				"ll,\"type\":[\"null\",\"ValueNamePair\",{\"type\":\"array\",\"items\":\"ValueNamePair\"}]},{\"n" +
+				"ame\":\"altitude\",\"default\":null,\"type\":[\"null\",\"double\"]},{\"name\":\"ceiling\",\"defa" +
+				"ult\":null,\"type\":[\"null\",\"double\"]}]},{\"type\":\"array\",\"items\":\"Area\"}]}]}");
 		private string _language;
 		private object _category;
 		private string _event;

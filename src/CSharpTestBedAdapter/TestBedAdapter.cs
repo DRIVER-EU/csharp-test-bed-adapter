@@ -263,10 +263,21 @@ namespace CSharpTestBedAdapter
                     UpdatedAt = DateTime.UtcNow,
                     TrialTime = DateTime.MinValue,
                     TrialTimeSpeed = 1f,
-                    TimeState = Command.Init
+                    TimeState = Command.Start
                 };
 
-                _allowedTopics = new List<string>();
+                _allowedTopics = new List<string>()
+                {
+                    "csharp-test",
+                    "simulation_timecontrol",
+                    "simulation_object_deleted",
+                    "simulation_entity_item",
+                    "simulation_entity_station",
+                    "simulation_entity_post",
+                    "simulation_connection_unit",
+                    "simulation_connection_unit_connection",
+                    "simulation_request_unittransport",
+                };
             }
             catch (Exception e)
             {
@@ -301,8 +312,8 @@ namespace CSharpTestBedAdapter
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Update,
                 distributionStatus = DistributionStatus.System,
-                dateTimeSent = DateTime.UtcNow.Ticks / 10000,
-                dateTimeExpires = (DateTime.UtcNow.Ticks + 600000000) / 10000,
+                dateTimeSent = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
+                dateTimeExpires = (long)((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)) + new TimeSpan(0, 0, 10, 0, 0)).TotalMilliseconds,
             };
         }
 
@@ -332,7 +343,11 @@ namespace CSharpTestBedAdapter
             {
                 // Send out the heart beat that this connector is still alive
                 EDXLDistribution key = CreateCoreKey();
-                Heartbeat beat = new Heartbeat { id = _configuration.Settings.clientid, alive = DateTime.UtcNow.Ticks / 10000 };
+                Heartbeat beat = new Heartbeat
+                {
+                    id = _configuration.Settings.clientid,
+                    alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
+                };
 
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
@@ -439,10 +454,11 @@ namespace CSharpTestBedAdapter
             while (!token.IsCancellationRequested)
             {
                 _heartbeatConsumer.Poll(5000);
+                DateTime now = DateTime.UtcNow;
 
                 if (_lastAdminHeartbeat != DateTime.MinValue)
                 {
-                    TimeSpan span = DateTime.UtcNow - _lastAdminHeartbeat;
+                    TimeSpan span = now - _lastAdminHeartbeat;
                     // If the latest admin heartbeat is from longer than 10 seconds ago, we should disable this adapter
                     if (span.Seconds > 10)
                     {
@@ -458,7 +474,7 @@ namespace CSharpTestBedAdapter
                 }
                 else
                 {
-                    TimeSpan span = DateTime.UtcNow - _startTime;
+                    TimeSpan span = now - _startTime;
                     // If in the first 10 seconds of this adapters existance there wasn't an admin heartbeat, go to the DEBUG state and stop listening
                     if (span.Seconds > 10)
                     {
@@ -554,7 +570,12 @@ namespace CSharpTestBedAdapter
         private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
         {
             // Add the topic name to the list to check for sending/receiving messages
-            _allowedTopics.Add(message.Value.topicName);
+            string topic = message.Value.topicName;
+            if (!_allowedTopics.Contains(topic))
+            {
+                Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {topic}");
+                _allowedTopics.Add(topic);
+        }
         }
 
         #endregion System consumers

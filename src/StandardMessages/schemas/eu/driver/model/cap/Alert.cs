@@ -60,17 +60,18 @@ namespace eu.driver.model.cap
 				"lt\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Resource\",\"namespace\":\"eu.drive" +
 				"r.model.cap\",\"fields\":[{\"name\":\"resourceDesc\",\"type\":\"string\"},{\"name\":\"size\",\"d" +
 				"efault\":null,\"type\":[\"null\",\"int\"]},{\"name\":\"uri\",\"doc\":\"TODO, anyURI\",\"default\"" +
-				":null,\"type\":[\"null\",\"string\"]},{\"name\":\"deferUri\",\"default\":null,\"type\":[\"null\"" +
-				",\"string\"]},{\"name\":\"digest\",\"default\":null,\"type\":[\"null\",\"string\"]}]},{\"type\":" +
-				"\"array\",\"items\":\"Resource\"}]},{\"name\":\"area\",\"default\":null,\"type\":[\"null\",{\"typ" +
-				"e\":\"record\",\"name\":\"Area\",\"namespace\":\"eu.driver.model.cap\",\"fields\":[{\"name\":\"a" +
-				"reaDesc\",\"type\":\"string\"},{\"name\":\"polygon\",\"default\":null,\"type\":[\"null\",\"strin" +
-				"g\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"circle\",\"default\":null,\"type\":[\"" +
-				"null\",\"string\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"geocode\",\"default\":n" +
-				"ull,\"type\":[\"null\",\"ValueNamePair\",{\"type\":\"array\",\"items\":\"ValueNamePair\"}]},{\"" +
-				"name\":\"altitude\",\"default\":null,\"type\":[\"null\",\"double\"]},{\"name\":\"ceiling\",\"def" +
-				"ault\":null,\"type\":[\"null\",\"double\"]}]},{\"type\":\"array\",\"items\":\"Area\"}]}]},{\"typ" +
-				"e\":\"array\",\"items\":\"Info\"}]}]}");
+				":null,\"type\":[\"null\",\"string\"]},{\"name\":\"mimeType\",\"doc\":\"The mimetype of the re" +
+				"source!\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"name\":\"deferUri\",\"default\":n" +
+				"ull,\"type\":[\"null\",\"string\"]},{\"name\":\"digest\",\"default\":null,\"type\":[\"null\",\"st" +
+				"ring\"]}]},{\"type\":\"array\",\"items\":\"Resource\"}]},{\"name\":\"area\",\"default\":null,\"t" +
+				"ype\":[\"null\",{\"type\":\"record\",\"name\":\"Area\",\"namespace\":\"eu.driver.model.cap\",\"f" +
+				"ields\":[{\"name\":\"areaDesc\",\"type\":\"string\"},{\"name\":\"polygon\",\"default\":null,\"ty" +
+				"pe\":[\"null\",\"string\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"circle\",\"defau" +
+				"lt\":null,\"type\":[\"null\",\"string\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"ge" +
+				"ocode\",\"default\":null,\"type\":[\"null\",\"ValueNamePair\",{\"type\":\"array\",\"items\":\"Va" +
+				"lueNamePair\"}]},{\"name\":\"altitude\",\"default\":null,\"type\":[\"null\",\"double\"]},{\"na" +
+				"me\":\"ceiling\",\"default\":null,\"type\":[\"null\",\"double\"]}]},{\"type\":\"array\",\"items\"" +
+				":\"Area\"}]}]},{\"type\":\"array\",\"items\":\"Info\"}]}]}");
 		private string _identifier;
 		private string _sender;
 		/// <summary>
