@@ -50,6 +50,11 @@ namespace CSharpTestBedAdapter
         }
 
         /// <summary>
+        /// The message queue to be processed as soon as the adapter is enabled
+        /// </summary>
+        private Queue<KeyValuePair<object, Message<EDXLDistribution, T>>> messageQueue;
+
+        /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="configuration">The test-bed adapter configuration information</param>
@@ -73,7 +78,9 @@ namespace CSharpTestBedAdapter
             {
                 OnLog?.Invoke(sender, log);
             };
-            
+
+            messageQueue = new Queue<KeyValuePair<object, Message<EDXLDistribution, T>>>();
+
             // Start listening to the topic from the given offset
             _consumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(topic, 0, offset) });
             // TODO: Add CancellationToken to stop on dispose
@@ -98,7 +105,30 @@ namespace CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void Consumer_Message(object sender, Message<EDXLDistribution, T> message)
         {
-            _consumerHandler?.Invoke(message.Key.senderID, message.Topic, message.Value);
+            if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Enabled || TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug)
+            {
+                // Make sure this message is allowed to be received from the topic
+                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopics.Contains(message.Topic))
+                {
+                    _consumerHandler?.Invoke(message.Key.senderID, message.Topic, message.Value);
+                }
+            }
+            else
+            {
+                messageQueue.Enqueue(new KeyValuePair<object, Message<EDXLDistribution, T>>(sender, message));
+            }
+        }
+
+        /// <summary><see cref="IAbstractConsumer.FlushQueue"/></summary>
+        public void FlushQueue()
+        {
+            // Make sure that we are not getting in an endless loop of message receiving if the adapter is somehow disabled again
+            int totalMessages = messageQueue.Count;
+            for (int i = 0; i < totalMessages; i++)
+            {
+                KeyValuePair<object, Message<EDXLDistribution, T>> message = messageQueue.Dequeue();
+                Consumer_Message(message.Key, message.Value);
+            }
         }
 
         /// <summary><see cref="IDisposable.Dispose"/></summary>

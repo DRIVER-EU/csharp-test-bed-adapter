@@ -36,6 +36,7 @@ namespace CSharpTestBedAdapter
             { "admin-heartbeat", "system_admin_heartbeat" },
             { "log", "system_logging" },
             { "time", "system_timing" },
+            { "time-control", "system_timing_control" },
             { "topic-create-request", "system_topic_create_request" },
             { "topic-access-invite", "system_topic_access_invite" }
         };
@@ -49,6 +50,11 @@ namespace CSharpTestBedAdapter
             { typeof(eu.driver.model.geojson.FeatureCollection), "standard_geojson" },
             { typeof(eu.driver.model.mlp.SlRep), "standard_mlp" },
             { typeof(eu.driver.model.emsi.TSO_2_0), "standard_emsi" },
+            { typeof(eu.driver.model.core.LargeDataUpdate), "large_data_update" },
+            { typeof(eu.driver.model.core.MapLayerUpdate), "large_data_update" },
+            // TODO: For listening to the sim updates, one Avro schema is mapped to multiple topics. Since this is currently only for listening we don't
+            // have to deal with this standard topic right away, but a better solution might be useful (<standard name>, {<type>, <topic>} or something)
+            //{ typeof(eu.driver.model.geojson.sim.FeatureCollection), "standard_geojson_sim_item", "standard_geojson_sim_unit", "standard_geojson_sim_unitgroup", "standard_geojson_sim_station" },
         };
 
         /// <summary>

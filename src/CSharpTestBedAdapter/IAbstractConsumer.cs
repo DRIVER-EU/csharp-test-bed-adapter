@@ -22,5 +22,10 @@ namespace CSharpTestBedAdapter
         {
             get;
         }
+
+        /// <summary>
+        /// Method for re-receiving queued messages, stored because of this adapter being disabled
+        /// </summary>
+        void FlushQueue();
     }
 }

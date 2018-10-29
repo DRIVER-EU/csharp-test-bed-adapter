@@ -15,13 +15,17 @@ namespace eu.driver.model.cap
 	
 	public partial class Resource : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Resource"",""namespace"":""eu.driver.model.cap"",""fields"":[{""name"":""resourceDesc"",""type"":""string""},{""name"":""size"",""default"":null,""type"":[""null"",""int""]},{""name"":""uri"",""doc"":""TODO, anyURI"",""default"":null,""type"":[""null"",""string""]},{""name"":""deferUri"",""default"":null,""type"":[""null"",""string""]},{""name"":""digest"",""default"":null,""type"":[""null"",""string""]}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Resource"",""namespace"":""eu.driver.model.cap"",""fields"":[{""name"":""resourceDesc"",""type"":""string""},{""name"":""size"",""default"":null,""type"":[""null"",""int""]},{""name"":""uri"",""doc"":""TODO, anyURI"",""default"":null,""type"":[""null"",""string""]},{""name"":""mimeType"",""doc"":""The mimetype of the resource!"",""default"":null,""type"":[""null"",""string""]},{""name"":""deferUri"",""default"":null,""type"":[""null"",""string""]},{""name"":""digest"",""default"":null,""type"":[""null"",""string""]}]}");
 		private string _resourceDesc;
 		private System.Nullable<int> _size;
 		/// <summary>
 		/// TODO, anyURI
 		/// </summary>
 		private string _uri;
+		/// <summary>
+		/// The mimetype of the resource!
+		/// </summary>
+		private string _mimeType;
 		private string _deferUri;
 		private string _digest;
 		public virtual Schema Schema
@@ -67,6 +71,20 @@ namespace eu.driver.model.cap
 				this._uri = value;
 			}
 		}
+		/// <summary>
+		/// The mimetype of the resource!
+		/// </summary>
+		public string mimeType
+		{
+			get
+			{
+				return this._mimeType;
+			}
+			set
+			{
+				this._mimeType = value;
+			}
+		}
 		public string deferUri
 		{
 			get
@@ -96,8 +114,9 @@ namespace eu.driver.model.cap
 			case 0: return this.resourceDesc;
 			case 1: return this.size;
 			case 2: return this.uri;
-			case 3: return this.deferUri;
-			case 4: return this.digest;
+			case 3: return this.mimeType;
+			case 4: return this.deferUri;
+			case 5: return this.digest;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -108,8 +127,9 @@ namespace eu.driver.model.cap
 			case 0: this.resourceDesc = (System.String)fieldValue; break;
 			case 1: this.size = (System.Nullable<int>)fieldValue; break;
 			case 2: this.uri = (System.String)fieldValue; break;
-			case 3: this.deferUri = (System.String)fieldValue; break;
-			case 4: this.digest = (System.String)fieldValue; break;
+			case 3: this.mimeType = (System.String)fieldValue; break;
+			case 4: this.deferUri = (System.String)fieldValue; break;
+			case 5: this.digest = (System.String)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}
