@@ -18,23 +18,25 @@ namespace eu.driver.model.emsi
 		public static Schema _SCHEMA = Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"CONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"" +
 				"name\":\"ID\",\"type\":\"string\",\"source\":\"element ID\"},{\"name\":\"MODE\",\"type\":\"string\"" +
 				",\"source\":\"element MODE\"},{\"name\":\"MSGTYPE\",\"type\":\"string\",\"source\":\"element MS" +
-				"GTYPE\"},{\"name\":\"CREATION\",\"type\":[\"null\",\"long\"],\"source\":\"element CREATION\"},{" +
-				"\"name\":\"LINK\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"LINKCONTEX" +
-				"T\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ID\",\"type\":\"string\",\"so" +
-				"urce\":\"element ID\"},{\"name\":\"ROLE\",\"type\":[\"null\",\"string\"],\"source\":\"element RO" +
-				"LE\"}]}},\"source\":\"element LINK\"},{\"name\":\"LEVEL\",\"type\":[\"null\",\"string\"],\"sourc" +
-				"e\":\"element LEVEL\"},{\"name\":\"SECLASS\",\"type\":[\"null\",\"string\"],\"source\":\"element" +
-				" SECLASS\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"source\":\"element FREETEX" +
-				"T\"},{\"name\":\"URGENCY\",\"type\":[\"null\",\"string\"],\"source\":\"element URGENCY\"},{\"nam" +
-				"e\":\"ORIGIN\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ORIGINCONTEXT\",\"namespace\":\"" +
-				"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ORG_ID\",\"type\":\"string\",\"source\":\"eleme" +
-				"nt ORG_ID\"},{\"name\":\"USER_ID\",\"type\":[\"null\",\"string\"],\"source\":\"element USER_ID" +
-				"\"},{\"name\":\"NAME\",\"type\":[\"null\",\"string\"],\"source\":\"element NAME\"}]}],\"source\":" +
-				"\"element ORIGIN\"},{\"name\":\"EXTERNAL_INFO\",\"type\":{\"type\":\"array\",\"items\":{\"type\"" +
-				":\"record\",\"name\":\"EXTERNAL_INFOCONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fiel" +
-				"ds\":[{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"source\":\"element FREETEXT\"},{\"" +
-				"name\":\"URI\",\"type\":\"string\",\"source\":\"element URI\"},{\"name\":\"TYPE\",\"type\":[\"null" +
-				"\",\"string\"],\"source\":\"element TYPE\"}]}},\"source\":\"element EXTERNAL_INFO\"}]}");
+				"GTYPE\"},{\"name\":\"CREATION\",\"default\":null,\"type\":[\"null\",\"long\"],\"source\":\"eleme" +
+				"nt CREATION\"},{\"name\":\"LINK\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"item" +
+				"s\":{\"type\":\"record\",\"name\":\"LINKCONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fie" +
+				"lds\":[{\"name\":\"ID\",\"type\":\"string\",\"source\":\"element ID\"},{\"name\":\"ROLE\",\"type\":" +
+				"[\"null\",\"string\"],\"source\":\"element ROLE\"}]}}],\"source\":\"element LINK\"},{\"name\":" +
+				"\"LEVEL\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element LEVEL\"},{\"name" +
+				"\":\"SECLASS\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element SECLASS\"}," +
+				"{\"name\":\"FREETEXT\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element FRE" +
+				"ETEXT\"},{\"name\":\"URGENCY\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"elem" +
+				"ent URGENCY\"},{\"name\":\"ORIGIN\",\"default\":null,\"type\":[\"null\",{\"type\":\"record\",\"n" +
+				"ame\":\"ORIGINCONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ORG_I" +
+				"D\",\"type\":\"string\",\"source\":\"element ORG_ID\"},{\"name\":\"USER_ID\",\"type\":[\"null\",\"" +
+				"string\"],\"source\":\"element USER_ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"string\"],\"so" +
+				"urce\":\"element NAME\"}]}],\"source\":\"element ORIGIN\"},{\"name\":\"EXTERNAL_INFO\",\"def" +
+				"ault\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"EXTER" +
+				"NAL_INFOCONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"FREETEXT\"" +
+				",\"type\":[\"null\",\"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"URI\",\"type\":\"str" +
+				"ing\",\"source\":\"element URI\"},{\"name\":\"TYPE\",\"type\":[\"null\",\"string\"],\"source\":\"e" +
+				"lement TYPE\"}]}}],\"source\":\"element EXTERNAL_INFO\"}]}");
 		private string _ID;
 		private string _MODE;
 		private string _MSGTYPE;

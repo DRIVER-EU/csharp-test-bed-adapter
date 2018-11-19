@@ -16,61 +16,66 @@ namespace eu.driver.model.emsi
 	public partial class EVENT : ISpecificRecord
 	{
 		public static Schema _SCHEMA = Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"EVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"na" +
-				"me\":\"ID\",\"type\":\"string\",\"source\":\"element ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"s" +
-				"tring\"],\"source\":\"element NAME\"},{\"name\":\"MAIN_EVENT_ID\",\"type\":[\"null\",\"string\"" +
-				"],\"source\":\"element MAIN_EVENT_ID\"},{\"name\":\"ETYPE\",\"type\":[\"null\",{\"type\":\"reco" +
-				"rd\",\"name\":\"ETYPEEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"CA" +
-				"TEGORY\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element CATEGORY\"},{\"" +
-				"name\":\"ACTOR\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element ACTOR\"}" +
-				",{\"name\":\"LOCTYPE\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element LO" +
-				"CTYPE\"},{\"name\":\"ENV\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element" +
-				" ENV\"}]}],\"source\":\"element ETYPE\"},{\"name\":\"SOURCE\",\"type\":[\"null\",\"string\"],\"s" +
-				"ource\":\"element SOURCE\"},{\"name\":\"SCALE\",\"type\":[\"null\",\"string\"],\"source\":\"elem" +
-				"ent SCALE\"},{\"name\":\"CERTAINTY\",\"type\":[\"null\",\"string\"],\"source\":\"element CERTA" +
-				"INTY\"},{\"name\":\"DECL_DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DECL_DATIM" +
-				"E\"},{\"name\":\"OCC_DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element OCC_DATIME\"},{" +
-				"\"name\":\"OBS_DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element OBS_DATIME\"},{\"name" +
-				"\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"element STATUS\"},{\"name\":\"RISK_ASS" +
-				"ESSMNT\",\"type\":[\"null\",\"string\"],\"source\":\"element RISK_ASSESSMNT\"},{\"name\":\"REF" +
-				"ERENCE\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"REFERENCEEVENT\"," +
-				"\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ORG_ID\",\"type\":\"string\",\"s" +
-				"ource\":\"element ORG_ID\"},{\"name\":\"OTHER_EVENT_ID\",\"type\":{\"type\":\"array\",\"items\"" +
-				":\"string\"},\"source\":\"element OTHER_EVENT_ID\"}]}},\"source\":\"element REFERENCE\"},{" +
-				"\"name\":\"CASUALTIES\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"CASU" +
-				"ALTIESEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"CONTEXT\",\"typ" +
-				"e\":\"string\",\"source\":\"element CONTEXT\"},{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"]," +
-				"\"source\":\"element DATIME\"},{\"name\":\"DECONT\",\"type\":[\"null\",\"string\"],\"source\":\"e" +
-				"lement DECONT\"},{\"name\":\"TRIAGERED\",\"type\":[\"null\",\"string\"],\"source\":\"element T" +
-				"RIAGERED\"},{\"name\":\"TRIAGEYELLOW\",\"type\":[\"null\",\"string\"],\"source\":\"element TRI" +
-				"AGEYELLOW\"},{\"name\":\"TRIAGEGREEN\",\"type\":[\"null\",\"string\"],\"source\":\"element TRI" +
-				"AGEGREEN\"},{\"name\":\"TRIAGEBLACK\",\"type\":[\"null\",\"string\"],\"source\":\"element TRIA" +
-				"GEBLACK\"},{\"name\":\"MISSING\",\"type\":[\"null\",\"string\"],\"source\":\"element MISSING\"}" +
-				"]}},\"source\":\"element CASUALTIES\"},{\"name\":\"EVAC\",\"type\":{\"type\":\"array\",\"items\"" +
-				":{\"type\":\"record\",\"name\":\"EVACEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\"" +
-				":[{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DATIME\"},{\"name\":\"DI" +
-				"SPLACED\",\"type\":[\"null\",\"string\"],\"source\":\"element DISPLACED\"},{\"name\":\"EVACUAT" +
-				"ED\",\"type\":[\"null\",\"string\"],\"source\":\"element EVACUATED\"}]}},\"source\":\"element " +
-				"EVAC\"},{\"name\":\"EGEO\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"EG" +
-				"EOEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"DATIME\",\"type\":[\"" +
-				"null\",\"long\"],\"source\":\"element DATIME\"},{\"name\":\"TYPE\",\"type\":\"string\",\"source\"" +
-				":\"element TYPE\"},{\"name\":\"POSITION\",\"type\":{\"type\":\"record\",\"name\":\"POSITION\",\"n" +
-				"amespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"LOC_ID\",\"type\":[\"null\",\"stri" +
-				"ng\"],\"source\":\"element LOC_ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"string\"],\"source\"" +
-				":\"element NAME\"},{\"name\":\"TYPE\",\"type\":[\"null\",\"string\"],\"source\":\"element TYPE\"" +
-				"},{\"name\":\"COORDSYS\",\"type\":[\"null\",\"string\"],\"source\":\"element COORDSYS\"},{\"nam" +
-				"e\":\"COORD\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"COORDType\",\"n" +
-				"amespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"LAT\",\"type\":\"double\",\"source" +
-				"\":\"element LAT\"},{\"name\":\"LON\",\"type\":\"double\",\"source\":\"element LON\"},{\"name\":\"" +
-				"HEIGHT\",\"type\":[\"null\",\"double\"],\"source\":\"element HEIGHT\"}]}},\"source\":\"element" +
-				" COORD\"},{\"name\":\"HEIGHT_ROLE\",\"type\":[\"null\",\"string\"],\"source\":\"element HEIGHT" +
-				"_ROLE\"},{\"name\":\"ADDRESS\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"ele" +
-				"ment ADDRESS\"}]},\"source\":\"element POSITION\"},{\"name\":\"WEATHER\",\"type\":{\"type\":\"" +
-				"array\",\"items\":\"string\"},\"source\":\"element WEATHER\"},{\"name\":\"FREETEXT\",\"type\":[" +
-				"\"null\",\"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"ID\",\"type\":[\"null\",\"strin" +
-				"g\"],\"source\":\"element ID\"},{\"name\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"e" +
-				"lement STATUS\"}]}},\"source\":\"element EGEO\"},{\"name\":\"CAUSE\",\"type\":[\"null\",\"stri" +
-				"ng\"],\"source\":\"element CAUSE\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"sour" +
-				"ce\":\"element FREETEXT\"}]}");
+				"me\":\"ID\",\"type\":\"string\",\"source\":\"element ID\"},{\"name\":\"NAME\",\"default\":null,\"t" +
+				"ype\":[\"null\",\"string\"],\"source\":\"element NAME\"},{\"name\":\"MAIN_EVENT_ID\",\"default" +
+				"\":null,\"type\":[\"null\",\"string\"],\"source\":\"element MAIN_EVENT_ID\"},{\"name\":\"ETYPE" +
+				"\",\"default\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ETYPEEVENT\",\"namespace\"" +
+				":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"CATEGORY\",\"type\":{\"type\":\"array\",\"ite" +
+				"ms\":\"string\"},\"source\":\"element CATEGORY\"},{\"name\":\"ACTOR\",\"type\":{\"type\":\"array" +
+				"\",\"items\":\"string\"},\"source\":\"element ACTOR\"},{\"name\":\"LOCTYPE\",\"type\":{\"type\":\"" +
+				"array\",\"items\":\"string\"},\"source\":\"element LOCTYPE\"},{\"name\":\"ENV\",\"type\":{\"type" +
+				"\":\"array\",\"items\":\"string\"},\"source\":\"element ENV\"}]}],\"source\":\"element ETYPE\"}" +
+				",{\"name\":\"SOURCE\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element SOUR" +
+				"CE\"},{\"name\":\"SCALE\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element S" +
+				"CALE\"},{\"name\":\"CERTAINTY\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"ele" +
+				"ment CERTAINTY\"},{\"name\":\"DECL_DATIME\",\"default\":null,\"type\":[\"null\",\"long\"],\"so" +
+				"urce\":\"element DECL_DATIME\"},{\"name\":\"OCC_DATIME\",\"default\":null,\"type\":[\"null\"," +
+				"\"long\"],\"source\":\"element OCC_DATIME\"},{\"name\":\"OBS_DATIME\",\"default\":null,\"type" +
+				"\":[\"null\",\"long\"],\"source\":\"element OBS_DATIME\"},{\"name\":\"STATUS\",\"default\":null" +
+				",\"type\":[\"null\",\"string\"],\"source\":\"element STATUS\"},{\"name\":\"RISK_ASSESSMNT\",\"d" +
+				"efault\":null,\"type\":[\"null\",\"string\"],\"source\":\"element RISK_ASSESSMNT\"},{\"name\"" +
+				":\"REFERENCE\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"reco" +
+				"rd\",\"name\":\"REFERENCEEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\"" +
+				":\"ORG_ID\",\"type\":\"string\",\"source\":\"element ORG_ID\"},{\"name\":\"OTHER_EVENT_ID\",\"t" +
+				"ype\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element OTHER_EVENT_ID\"}]}}],\"s" +
+				"ource\":\"element REFERENCE\"},{\"name\":\"CASUALTIES\",\"default\":null,\"type\":[\"null\",{" +
+				"\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"CASUALTIESEVENT\",\"namespace\":\"eu" +
+				".driver.model.emsi\",\"fields\":[{\"name\":\"CONTEXT\",\"type\":\"string\",\"source\":\"elemen" +
+				"t CONTEXT\"},{\"name\":\"DATIME\",\"default\":null,\"type\":[\"null\",\"long\"],\"source\":\"ele" +
+				"ment DATIME\"},{\"name\":\"DECONT\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":" +
+				"\"element DECONT\"},{\"name\":\"TRIAGERED\",\"default\":null,\"type\":[\"null\",\"string\"],\"s" +
+				"ource\":\"element TRIAGERED\"},{\"name\":\"TRIAGEYELLOW\",\"default\":null,\"type\":[\"null\"" +
+				",\"string\"],\"source\":\"element TRIAGEYELLOW\"},{\"name\":\"TRIAGEGREEN\",\"default\":null" +
+				",\"type\":[\"null\",\"string\"],\"source\":\"element TRIAGEGREEN\"},{\"name\":\"TRIAGEBLACK\"," +
+				"\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element TRIAGEBLACK\"},{\"name\":" +
+				"\"MISSING\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element MISSING\"}]}}" +
+				"],\"source\":\"element CASUALTIES\"},{\"name\":\"EVAC\",\"default\":null,\"type\":[\"null\",{\"" +
+				"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"EVACEVENT\",\"namespace\":\"eu.driver" +
+				".model.emsi\",\"fields\":[{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element" +
+				" DATIME\"},{\"name\":\"DISPLACED\",\"type\":[\"null\",\"string\"],\"source\":\"element DISPLAC" +
+				"ED\"},{\"name\":\"EVACUATED\",\"type\":[\"null\",\"string\"],\"source\":\"element EVACUATED\"}]" +
+				"}}],\"source\":\"element EVAC\"},{\"name\":\"EGEO\",\"default\":null,\"type\":[\"null\",{\"type" +
+				"\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"EGEOEVENT\",\"namespace\":\"eu.driver.mod" +
+				"el.emsi\",\"fields\":[{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DAT" +
+				"IME\"},{\"name\":\"TYPE\",\"type\":\"string\",\"source\":\"element TYPE\"},{\"name\":\"POSITION\"" +
+				",\"type\":{\"type\":\"record\",\"name\":\"POSITION\",\"namespace\":\"eu.driver.model.emsi\",\"f" +
+				"ields\":[{\"name\":\"LOC_ID\",\"type\":[\"null\",\"string\"],\"source\":\"element LOC_ID\"},{\"n" +
+				"ame\":\"NAME\",\"type\":[\"null\",\"string\"],\"source\":\"element NAME\"},{\"name\":\"TYPE\",\"ty" +
+				"pe\":[\"null\",\"string\"],\"source\":\"element TYPE\"},{\"name\":\"COORDSYS\",\"type\":[\"null\"" +
+				",\"string\"],\"source\":\"element COORDSYS\"},{\"name\":\"COORD\",\"type\":{\"type\":\"array\",\"" +
+				"items\":{\"type\":\"record\",\"name\":\"COORDType\",\"namespace\":\"eu.driver.model.emsi\",\"f" +
+				"ields\":[{\"name\":\"LAT\",\"type\":\"double\",\"source\":\"element LAT\"},{\"name\":\"LON\",\"typ" +
+				"e\":\"double\",\"source\":\"element LON\"},{\"name\":\"HEIGHT\",\"type\":[\"null\",\"double\"],\"s" +
+				"ource\":\"element HEIGHT\"}]}},\"source\":\"element COORD\"},{\"name\":\"HEIGHT_ROLE\",\"typ" +
+				"e\":[\"null\",\"string\"],\"source\":\"element HEIGHT_ROLE\"},{\"name\":\"ADDRESS\",\"type\":{\"" +
+				"type\":\"array\",\"items\":\"string\"},\"source\":\"element ADDRESS\"}]},\"source\":\"element " +
+				"POSITION\"},{\"name\":\"WEATHER\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"" +
+				"element WEATHER\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"source\":\"element " +
+				"FREETEXT\"},{\"name\":\"ID\",\"type\":[\"null\",\"string\"],\"source\":\"element ID\"},{\"name\":" +
+				"\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"element STATUS\"}]}}],\"source\":\"eleme" +
+				"nt EGEO\"},{\"name\":\"CAUSE\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"elem" +
+				"ent CAUSE\"},{\"name\":\"FREETEXT\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":" +
+				"\"element FREETEXT\"}]}");
 		private string _ID;
 		private string _NAME;
 		private string _MAIN_EVENT_ID;

@@ -19,120 +19,127 @@ namespace eu.driver.model.emsi
 				"name\":\"CONTEXT\",\"type\":{\"type\":\"record\",\"name\":\"CONTEXT\",\"namespace\":\"eu.driver." +
 				"model.emsi\",\"fields\":[{\"name\":\"ID\",\"type\":\"string\",\"source\":\"element ID\"},{\"name" +
 				"\":\"MODE\",\"type\":\"string\",\"source\":\"element MODE\"},{\"name\":\"MSGTYPE\",\"type\":\"stri" +
-				"ng\",\"source\":\"element MSGTYPE\"},{\"name\":\"CREATION\",\"type\":[\"null\",\"long\"],\"sourc" +
-				"e\":\"element CREATION\"},{\"name\":\"LINK\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"re" +
-				"cord\",\"name\":\"LINKCONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":" +
-				"\"ID\",\"type\":\"string\",\"source\":\"element ID\"},{\"name\":\"ROLE\",\"type\":[\"null\",\"strin" +
-				"g\"],\"source\":\"element ROLE\"}]}},\"source\":\"element LINK\"},{\"name\":\"LEVEL\",\"type\":" +
-				"[\"null\",\"string\"],\"source\":\"element LEVEL\"},{\"name\":\"SECLASS\",\"type\":[\"null\",\"st" +
-				"ring\"],\"source\":\"element SECLASS\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"" +
-				"source\":\"element FREETEXT\"},{\"name\":\"URGENCY\",\"type\":[\"null\",\"string\"],\"source\":" +
-				"\"element URGENCY\"},{\"name\":\"ORIGIN\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ORIG" +
-				"INCONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ORG_ID\",\"type\":" +
-				"\"string\",\"source\":\"element ORG_ID\"},{\"name\":\"USER_ID\",\"type\":[\"null\",\"string\"],\"" +
-				"source\":\"element USER_ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"string\"],\"source\":\"ele" +
-				"ment NAME\"}]}],\"source\":\"element ORIGIN\"},{\"name\":\"EXTERNAL_INFO\",\"type\":{\"type\"" +
-				":\"array\",\"items\":{\"type\":\"record\",\"name\":\"EXTERNAL_INFOCONTEXT\",\"namespace\":\"eu." +
-				"driver.model.emsi\",\"fields\":[{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"source" +
-				"\":\"element FREETEXT\"},{\"name\":\"URI\",\"type\":\"string\",\"source\":\"element URI\"},{\"na" +
-				"me\":\"TYPE\",\"type\":[\"null\",\"string\"],\"source\":\"element TYPE\"}]}},\"source\":\"elemen" +
-				"t EXTERNAL_INFO\"}]},\"source\":\"element CONTEXT\"},{\"name\":\"EVENT\",\"type\":[\"null\",{" +
-				"\"type\":\"record\",\"name\":\"EVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"na" +
-				"me\":\"ID\",\"type\":\"string\",\"source\":\"element ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"s" +
-				"tring\"],\"source\":\"element NAME\"},{\"name\":\"MAIN_EVENT_ID\",\"type\":[\"null\",\"string\"" +
-				"],\"source\":\"element MAIN_EVENT_ID\"},{\"name\":\"ETYPE\",\"type\":[\"null\",{\"type\":\"reco" +
-				"rd\",\"name\":\"ETYPEEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"CA" +
-				"TEGORY\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element CATEGORY\"},{\"" +
-				"name\":\"ACTOR\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element ACTOR\"}" +
-				",{\"name\":\"LOCTYPE\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element LO" +
-				"CTYPE\"},{\"name\":\"ENV\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element" +
-				" ENV\"}]}],\"source\":\"element ETYPE\"},{\"name\":\"SOURCE\",\"type\":[\"null\",\"string\"],\"s" +
-				"ource\":\"element SOURCE\"},{\"name\":\"SCALE\",\"type\":[\"null\",\"string\"],\"source\":\"elem" +
-				"ent SCALE\"},{\"name\":\"CERTAINTY\",\"type\":[\"null\",\"string\"],\"source\":\"element CERTA" +
-				"INTY\"},{\"name\":\"DECL_DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DECL_DATIM" +
-				"E\"},{\"name\":\"OCC_DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element OCC_DATIME\"},{" +
-				"\"name\":\"OBS_DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element OBS_DATIME\"},{\"name" +
-				"\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"element STATUS\"},{\"name\":\"RISK_ASS" +
-				"ESSMNT\",\"type\":[\"null\",\"string\"],\"source\":\"element RISK_ASSESSMNT\"},{\"name\":\"REF" +
-				"ERENCE\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"REFERENCEEVENT\"," +
-				"\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ORG_ID\",\"type\":\"string\",\"s" +
-				"ource\":\"element ORG_ID\"},{\"name\":\"OTHER_EVENT_ID\",\"type\":{\"type\":\"array\",\"items\"" +
-				":\"string\"},\"source\":\"element OTHER_EVENT_ID\"}]}},\"source\":\"element REFERENCE\"},{" +
-				"\"name\":\"CASUALTIES\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"CASU" +
-				"ALTIESEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"CONTEXT\",\"typ" +
-				"e\":\"string\",\"source\":\"element CONTEXT\"},{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"]," +
-				"\"source\":\"element DATIME\"},{\"name\":\"DECONT\",\"type\":[\"null\",\"string\"],\"source\":\"e" +
-				"lement DECONT\"},{\"name\":\"TRIAGERED\",\"type\":[\"null\",\"string\"],\"source\":\"element T" +
-				"RIAGERED\"},{\"name\":\"TRIAGEYELLOW\",\"type\":[\"null\",\"string\"],\"source\":\"element TRI" +
-				"AGEYELLOW\"},{\"name\":\"TRIAGEGREEN\",\"type\":[\"null\",\"string\"],\"source\":\"element TRI" +
-				"AGEGREEN\"},{\"name\":\"TRIAGEBLACK\",\"type\":[\"null\",\"string\"],\"source\":\"element TRIA" +
-				"GEBLACK\"},{\"name\":\"MISSING\",\"type\":[\"null\",\"string\"],\"source\":\"element MISSING\"}" +
-				"]}},\"source\":\"element CASUALTIES\"},{\"name\":\"EVAC\",\"type\":{\"type\":\"array\",\"items\"" +
-				":{\"type\":\"record\",\"name\":\"EVACEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\"" +
-				":[{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DATIME\"},{\"name\":\"DI" +
-				"SPLACED\",\"type\":[\"null\",\"string\"],\"source\":\"element DISPLACED\"},{\"name\":\"EVACUAT" +
-				"ED\",\"type\":[\"null\",\"string\"],\"source\":\"element EVACUATED\"}]}},\"source\":\"element " +
-				"EVAC\"},{\"name\":\"EGEO\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"EG" +
-				"EOEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"DATIME\",\"type\":[\"" +
-				"null\",\"long\"],\"source\":\"element DATIME\"},{\"name\":\"TYPE\",\"type\":\"string\",\"source\"" +
-				":\"element TYPE\"},{\"name\":\"POSITION\",\"type\":{\"type\":\"record\",\"name\":\"POSITION\",\"n" +
-				"amespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"LOC_ID\",\"type\":[\"null\",\"stri" +
-				"ng\"],\"source\":\"element LOC_ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"string\"],\"source\"" +
-				":\"element NAME\"},{\"name\":\"TYPE\",\"type\":[\"null\",\"string\"],\"source\":\"element TYPE\"" +
-				"},{\"name\":\"COORDSYS\",\"type\":[\"null\",\"string\"],\"source\":\"element COORDSYS\"},{\"nam" +
-				"e\":\"COORD\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"COORDType\",\"n" +
-				"amespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"LAT\",\"type\":\"double\",\"source" +
-				"\":\"element LAT\"},{\"name\":\"LON\",\"type\":\"double\",\"source\":\"element LON\"},{\"name\":\"" +
-				"HEIGHT\",\"type\":[\"null\",\"double\"],\"source\":\"element HEIGHT\"}]}},\"source\":\"element" +
-				" COORD\"},{\"name\":\"HEIGHT_ROLE\",\"type\":[\"null\",\"string\"],\"source\":\"element HEIGHT" +
-				"_ROLE\"},{\"name\":\"ADDRESS\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"ele" +
-				"ment ADDRESS\"}]},\"source\":\"element POSITION\"},{\"name\":\"WEATHER\",\"type\":{\"type\":\"" +
-				"array\",\"items\":\"string\"},\"source\":\"element WEATHER\"},{\"name\":\"FREETEXT\",\"type\":[" +
-				"\"null\",\"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"ID\",\"type\":[\"null\",\"strin" +
-				"g\"],\"source\":\"element ID\"},{\"name\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"e" +
-				"lement STATUS\"}]}},\"source\":\"element EGEO\"},{\"name\":\"CAUSE\",\"type\":[\"null\",\"stri" +
-				"ng\"],\"source\":\"element CAUSE\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"sour" +
-				"ce\":\"element FREETEXT\"}]}],\"source\":\"element EVENT\"},{\"name\":\"RESOURCE\",\"type\":{" +
-				"\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"RESOURCE\",\"namespace\":\"eu.driver" +
-				".model.emsi\",\"fields\":[{\"name\":\"RTYPE\",\"type\":{\"type\":\"record\",\"name\":\"RTYPERESO" +
-				"URCE\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"CLASS\",\"type\":\"strin" +
-				"g\",\"source\":\"element CLASS\"},{\"name\":\"CAPABILITY\",\"type\":{\"type\":\"array\",\"items\"" +
-				":\"string\"},\"source\":\"element CAPABILITY\"},{\"name\":\"CHARACTERISTICS\",\"type\":{\"typ" +
-				"e\":\"array\",\"items\":\"string\"},\"source\":\"element CHARACTERISTICS\"}]},\"source\":\"ele" +
-				"ment RTYPE\"},{\"name\":\"ID\",\"type\":[\"null\",\"string\"],\"source\":\"element ID\"},{\"name" +
-				"\":\"ORG_ID\",\"type\":[\"null\",\"string\"],\"source\":\"element ORG_ID\"},{\"name\":\"NAME\",\"t" +
-				"ype\":[\"null\",\"string\"],\"source\":\"element NAME\"},{\"name\":\"FREETEXT\",\"type\":[\"null" +
-				"\",\"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"RGEO\",\"type\":{\"type\":\"array\",\"" +
-				"items\":{\"type\":\"record\",\"name\":\"RGEORESOURCE\",\"namespace\":\"eu.driver.model.emsi\"" +
-				",\"fields\":[{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DATIME\"},{\"" +
-				"name\":\"TYPE\",\"type\":\"string\",\"source\":\"element TYPE\"},{\"name\":\"POSITION\",\"type\":" +
-				"\"POSITION\",\"source\":\"element POSITION\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"strin" +
-				"g\"],\"source\":\"element FREETEXT\"},{\"name\":\"ID\",\"type\":[\"null\",\"string\"],\"source\":" +
-				"\"element ID\"}]}},\"source\":\"element RGEO\"},{\"name\":\"QUANTITY\",\"type\":[\"null\",\"dou" +
-				"ble\"],\"source\":\"element QUANTITY\"},{\"name\":\"UM\",\"type\":[\"null\",\"string\"],\"source" +
-				"\":\"element UM\"},{\"name\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"element STAT" +
-				"US\"},{\"name\":\"NATIONALITY\",\"type\":[\"null\",\"string\"],\"source\":\"element NATIONALIT" +
-				"Y\"},{\"name\":\"CONTACT\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"CO" +
-				"NTACTRESOURCE\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"TYPE\",\"type" +
-				"\":\"string\",\"source\":\"element TYPE\"},{\"name\":\"DETAIL\",\"type\":\"string\",\"source\":\"e" +
-				"lement DETAIL\"}]}},\"source\":\"element CONTACT\"}]}},\"source\":\"element RESOURCE\"},{" +
-				"\"name\":\"MISSION\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"MISSION" +
-				"\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"TYPE\",\"type\":{\"type\":\"ar" +
-				"ray\",\"items\":\"string\"},\"source\":\"element TYPE\"},{\"name\":\"FREETEXT\",\"type\":[\"null" +
-				"\",\"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"ID\",\"type\":[\"null\",\"string\"],\"" +
-				"source\":\"element ID\"},{\"name\":\"MAIN_MISSION_ID\",\"type\":[\"null\",\"string\"],\"source" +
-				"\":\"element MAIN_MISSION_ID\"},{\"name\":\"ORG_ID\",\"type\":[\"null\",\"string\"],\"source\":" +
-				"\"element ORG_ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"string\"],\"source\":\"element NAME" +
-				"\"},{\"name\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"element STATUS\"},{\"name\":" +
-				"\"START_TIME\",\"type\":[\"null\",\"long\"],\"source\":\"element START_TIME\"},{\"name\":\"END_" +
-				"TIME\",\"type\":[\"null\",\"long\"],\"source\":\"element END_TIME\"},{\"name\":\"RESOURCE_ID\"," +
-				"\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element RESOURCE_ID\"},{\"name\"" +
-				":\"PARENT_MISSION_ID\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element " +
-				"PARENT_MISSION_ID\"},{\"name\":\"CHILD_MISSION_ID\",\"type\":{\"type\":\"array\",\"items\":\"s" +
-				"tring\"},\"source\":\"element CHILD_MISSION_ID\"},{\"name\":\"POSITION\",\"type\":[\"null\",\"" +
-				"POSITION\"],\"source\":\"element POSITION\"},{\"name\":\"PRIORITY\",\"type\":[\"null\",\"strin" +
-				"g\"],\"source\":\"element PRIORITY\"}]}},\"source\":\"element MISSION\"}],\"source\":\"docum" +
-				"ent\"}");
+				"ng\",\"source\":\"element MSGTYPE\"},{\"name\":\"CREATION\",\"default\":null,\"type\":[\"null\"" +
+				",\"long\"],\"source\":\"element CREATION\"},{\"name\":\"LINK\",\"default\":null,\"type\":[\"nul" +
+				"l\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"LINKCONTEXT\",\"namespace\":\"eu" +
+				".driver.model.emsi\",\"fields\":[{\"name\":\"ID\",\"type\":\"string\",\"source\":\"element ID\"" +
+				"},{\"name\":\"ROLE\",\"type\":[\"null\",\"string\"],\"source\":\"element ROLE\"}]}}],\"source\":" +
+				"\"element LINK\"},{\"name\":\"LEVEL\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\"" +
+				":\"element LEVEL\"},{\"name\":\"SECLASS\",\"default\":null,\"type\":[\"null\",\"string\"],\"sou" +
+				"rce\":\"element SECLASS\"},{\"name\":\"FREETEXT\",\"default\":null,\"type\":[\"null\",\"string" +
+				"\"],\"source\":\"element FREETEXT\"},{\"name\":\"URGENCY\",\"default\":null,\"type\":[\"null\"," +
+				"\"string\"],\"source\":\"element URGENCY\"},{\"name\":\"ORIGIN\",\"default\":null,\"type\":[\"n" +
+				"ull\",{\"type\":\"record\",\"name\":\"ORIGINCONTEXT\",\"namespace\":\"eu.driver.model.emsi\"," +
+				"\"fields\":[{\"name\":\"ORG_ID\",\"type\":\"string\",\"source\":\"element ORG_ID\"},{\"name\":\"U" +
+				"SER_ID\",\"type\":[\"null\",\"string\"],\"source\":\"element USER_ID\"},{\"name\":\"NAME\",\"typ" +
+				"e\":[\"null\",\"string\"],\"source\":\"element NAME\"}]}],\"source\":\"element ORIGIN\"},{\"na" +
+				"me\":\"EXTERNAL_INFO\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type" +
+				"\":\"record\",\"name\":\"EXTERNAL_INFOCONTEXT\",\"namespace\":\"eu.driver.model.emsi\",\"fie" +
+				"lds\":[{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"source\":\"element FREETEXT\"},{" +
+				"\"name\":\"URI\",\"type\":\"string\",\"source\":\"element URI\"},{\"name\":\"TYPE\",\"type\":[\"nul" +
+				"l\",\"string\"],\"source\":\"element TYPE\"}]}}],\"source\":\"element EXTERNAL_INFO\"}]},\"s" +
+				"ource\":\"element CONTEXT\"},{\"name\":\"EVENT\",\"type\":[\"null\",{\"type\":\"record\",\"name\"" +
+				":\"EVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ID\",\"type\":\"strin" +
+				"g\",\"source\":\"element ID\"},{\"name\":\"NAME\",\"default\":null,\"type\":[\"null\",\"string\"]" +
+				",\"source\":\"element NAME\"},{\"name\":\"MAIN_EVENT_ID\",\"default\":null,\"type\":[\"null\"," +
+				"\"string\"],\"source\":\"element MAIN_EVENT_ID\"},{\"name\":\"ETYPE\",\"default\":null,\"type" +
+				"\":[\"null\",{\"type\":\"record\",\"name\":\"ETYPEEVENT\",\"namespace\":\"eu.driver.model.emsi" +
+				"\",\"fields\":[{\"name\":\"CATEGORY\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\"" +
+				":\"element CATEGORY\"},{\"name\":\"ACTOR\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"s" +
+				"ource\":\"element ACTOR\"},{\"name\":\"LOCTYPE\",\"type\":{\"type\":\"array\",\"items\":\"string" +
+				"\"},\"source\":\"element LOCTYPE\"},{\"name\":\"ENV\",\"type\":{\"type\":\"array\",\"items\":\"str" +
+				"ing\"},\"source\":\"element ENV\"}]}],\"source\":\"element ETYPE\"},{\"name\":\"SOURCE\",\"def" +
+				"ault\":null,\"type\":[\"null\",\"string\"],\"source\":\"element SOURCE\"},{\"name\":\"SCALE\",\"" +
+				"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element SCALE\"},{\"name\":\"CERTAI" +
+				"NTY\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element CERTAINTY\"},{\"nam" +
+				"e\":\"DECL_DATIME\",\"default\":null,\"type\":[\"null\",\"long\"],\"source\":\"element DECL_DA" +
+				"TIME\"},{\"name\":\"OCC_DATIME\",\"default\":null,\"type\":[\"null\",\"long\"],\"source\":\"elem" +
+				"ent OCC_DATIME\"},{\"name\":\"OBS_DATIME\",\"default\":null,\"type\":[\"null\",\"long\"],\"sou" +
+				"rce\":\"element OBS_DATIME\"},{\"name\":\"STATUS\",\"default\":null,\"type\":[\"null\",\"strin" +
+				"g\"],\"source\":\"element STATUS\"},{\"name\":\"RISK_ASSESSMNT\",\"default\":null,\"type\":[\"" +
+				"null\",\"string\"],\"source\":\"element RISK_ASSESSMNT\"},{\"name\":\"REFERENCE\",\"default\"" +
+				":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"REFERENCEE" +
+				"VENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"ORG_ID\",\"type\":\"stri" +
+				"ng\",\"source\":\"element ORG_ID\"},{\"name\":\"OTHER_EVENT_ID\",\"type\":{\"type\":\"array\",\"" +
+				"items\":\"string\"},\"source\":\"element OTHER_EVENT_ID\"}]}}],\"source\":\"element REFERE" +
+				"NCE\"},{\"name\":\"CASUALTIES\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\"" +
+				":{\"type\":\"record\",\"name\":\"CASUALTIESEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"f" +
+				"ields\":[{\"name\":\"CONTEXT\",\"type\":\"string\",\"source\":\"element CONTEXT\"},{\"name\":\"D" +
+				"ATIME\",\"default\":null,\"type\":[\"null\",\"long\"],\"source\":\"element DATIME\"},{\"name\":" +
+				"\"DECONT\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element DECONT\"},{\"na" +
+				"me\":\"TRIAGERED\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element TRIAGE" +
+				"RED\"},{\"name\":\"TRIAGEYELLOW\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"e" +
+				"lement TRIAGEYELLOW\"},{\"name\":\"TRIAGEGREEN\",\"default\":null,\"type\":[\"null\",\"strin" +
+				"g\"],\"source\":\"element TRIAGEGREEN\"},{\"name\":\"TRIAGEBLACK\",\"default\":null,\"type\":" +
+				"[\"null\",\"string\"],\"source\":\"element TRIAGEBLACK\"},{\"name\":\"MISSING\",\"default\":nu" +
+				"ll,\"type\":[\"null\",\"string\"],\"source\":\"element MISSING\"}]}}],\"source\":\"element CA" +
+				"SUALTIES\"},{\"name\":\"EVAC\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":" +
+				"{\"type\":\"record\",\"name\":\"EVACEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":" +
+				"[{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DATIME\"},{\"name\":\"DIS" +
+				"PLACED\",\"type\":[\"null\",\"string\"],\"source\":\"element DISPLACED\"},{\"name\":\"EVACUATE" +
+				"D\",\"type\":[\"null\",\"string\"],\"source\":\"element EVACUATED\"}]}}],\"source\":\"element " +
+				"EVAC\"},{\"name\":\"EGEO\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"ty" +
+				"pe\":\"record\",\"name\":\"EGEOEVENT\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"n" +
+				"ame\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DATIME\"},{\"name\":\"TYPE\",\"" +
+				"type\":\"string\",\"source\":\"element TYPE\"},{\"name\":\"POSITION\",\"type\":{\"type\":\"recor" +
+				"d\",\"name\":\"POSITION\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"LOC_I" +
+				"D\",\"type\":[\"null\",\"string\"],\"source\":\"element LOC_ID\"},{\"name\":\"NAME\",\"type\":[\"n" +
+				"ull\",\"string\"],\"source\":\"element NAME\"},{\"name\":\"TYPE\",\"type\":[\"null\",\"string\"]," +
+				"\"source\":\"element TYPE\"},{\"name\":\"COORDSYS\",\"type\":[\"null\",\"string\"],\"source\":\"e" +
+				"lement COORDSYS\"},{\"name\":\"COORD\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record" +
+				"\",\"name\":\"COORDType\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"LAT\"," +
+				"\"type\":\"double\",\"source\":\"element LAT\"},{\"name\":\"LON\",\"type\":\"double\",\"source\":\"" +
+				"element LON\"},{\"name\":\"HEIGHT\",\"type\":[\"null\",\"double\"],\"source\":\"element HEIGHT" +
+				"\"}]}},\"source\":\"element COORD\"},{\"name\":\"HEIGHT_ROLE\",\"type\":[\"null\",\"string\"],\"" +
+				"source\":\"element HEIGHT_ROLE\"},{\"name\":\"ADDRESS\",\"type\":{\"type\":\"array\",\"items\":" +
+				"\"string\"},\"source\":\"element ADDRESS\"}]},\"source\":\"element POSITION\"},{\"name\":\"WE" +
+				"ATHER\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element WEATHER\"},{\"na" +
+				"me\":\"FREETEXT\",\"type\":[\"null\",\"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"ID" +
+				"\",\"type\":[\"null\",\"string\"],\"source\":\"element ID\"},{\"name\":\"STATUS\",\"type\":[\"null" +
+				"\",\"string\"],\"source\":\"element STATUS\"}]}}],\"source\":\"element EGEO\"},{\"name\":\"CAU" +
+				"SE\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element CAUSE\"},{\"name\":\"F" +
+				"REETEXT\",\"default\":null,\"type\":[\"null\",\"string\"],\"source\":\"element FREETEXT\"}]}]" +
+				",\"source\":\"element EVENT\"},{\"name\":\"RESOURCE\",\"default\":null,\"type\":[\"null\",{\"ty" +
+				"pe\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"RESOURCE\",\"namespace\":\"eu.driver.mo" +
+				"del.emsi\",\"fields\":[{\"name\":\"RTYPE\",\"type\":{\"type\":\"record\",\"name\":\"RTYPERESOURC" +
+				"E\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"CLASS\",\"type\":\"string\"," +
+				"\"source\":\"element CLASS\"},{\"name\":\"CAPABILITY\",\"type\":{\"type\":\"array\",\"items\":\"s" +
+				"tring\"},\"source\":\"element CAPABILITY\"},{\"name\":\"CHARACTERISTICS\",\"type\":{\"type\":" +
+				"\"array\",\"items\":\"string\"},\"source\":\"element CHARACTERISTICS\"}]},\"source\":\"elemen" +
+				"t RTYPE\"},{\"name\":\"ID\",\"type\":[\"null\",\"string\"],\"source\":\"element ID\"},{\"name\":\"" +
+				"ORG_ID\",\"type\":[\"null\",\"string\"],\"source\":\"element ORG_ID\"},{\"name\":\"NAME\",\"type" +
+				"\":[\"null\",\"string\"],\"source\":\"element NAME\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"" +
+				"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"RGEO\",\"type\":{\"type\":\"array\",\"ite" +
+				"ms\":{\"type\":\"record\",\"name\":\"RGEORESOURCE\",\"namespace\":\"eu.driver.model.emsi\",\"f" +
+				"ields\":[{\"name\":\"DATIME\",\"type\":[\"null\",\"long\"],\"source\":\"element DATIME\"},{\"nam" +
+				"e\":\"TYPE\",\"type\":\"string\",\"source\":\"element TYPE\"},{\"name\":\"POSITION\",\"type\":\"PO" +
+				"SITION\",\"source\":\"element POSITION\"},{\"name\":\"FREETEXT\",\"type\":[\"null\",\"string\"]" +
+				",\"source\":\"element FREETEXT\"},{\"name\":\"ID\",\"type\":[\"null\",\"string\"],\"source\":\"el" +
+				"ement ID\"}]}},\"source\":\"element RGEO\"},{\"name\":\"QUANTITY\",\"type\":[\"null\",\"double" +
+				"\"],\"source\":\"element QUANTITY\"},{\"name\":\"UM\",\"type\":[\"null\",\"string\"],\"source\":\"" +
+				"element UM\"},{\"name\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"element STATUS\"" +
+				"},{\"name\":\"NATIONALITY\",\"type\":[\"null\",\"string\"],\"source\":\"element NATIONALITY\"}" +
+				",{\"name\":\"CONTACT\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"CONTA" +
+				"CTRESOURCE\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"TYPE\",\"type\":\"" +
+				"string\",\"source\":\"element TYPE\"},{\"name\":\"DETAIL\",\"type\":\"string\",\"source\":\"elem" +
+				"ent DETAIL\"}]}},\"source\":\"element CONTACT\"}]}}],\"source\":\"element RESOURCE\"},{\"n" +
+				"ame\":\"MISSION\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"re" +
+				"cord\",\"name\":\"MISSION\",\"namespace\":\"eu.driver.model.emsi\",\"fields\":[{\"name\":\"TYP" +
+				"E\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element TYPE\"},{\"name\":\"FR" +
+				"EETEXT\",\"type\":[\"null\",\"string\"],\"source\":\"element FREETEXT\"},{\"name\":\"ID\",\"type" +
+				"\":[\"null\",\"string\"],\"source\":\"element ID\"},{\"name\":\"MAIN_MISSION_ID\",\"type\":[\"nu" +
+				"ll\",\"string\"],\"source\":\"element MAIN_MISSION_ID\"},{\"name\":\"ORG_ID\",\"type\":[\"null" +
+				"\",\"string\"],\"source\":\"element ORG_ID\"},{\"name\":\"NAME\",\"type\":[\"null\",\"string\"],\"" +
+				"source\":\"element NAME\"},{\"name\":\"STATUS\",\"type\":[\"null\",\"string\"],\"source\":\"elem" +
+				"ent STATUS\"},{\"name\":\"START_TIME\",\"type\":[\"null\",\"long\"],\"source\":\"element START" +
+				"_TIME\"},{\"name\":\"END_TIME\",\"type\":[\"null\",\"long\"],\"source\":\"element END_TIME\"},{" +
+				"\"name\":\"RESOURCE_ID\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"source\":\"element " +
+				"RESOURCE_ID\"},{\"name\":\"PARENT_MISSION_ID\",\"type\":{\"type\":\"array\",\"items\":\"string" +
+				"\"},\"source\":\"element PARENT_MISSION_ID\"},{\"name\":\"CHILD_MISSION_ID\",\"type\":{\"typ" +
+				"e\":\"array\",\"items\":\"string\"},\"source\":\"element CHILD_MISSION_ID\"},{\"name\":\"POSIT" +
+				"ION\",\"type\":[\"null\",\"POSITION\"],\"source\":\"element POSITION\"},{\"name\":\"PRIORITY\"," +
+				"\"type\":[\"null\",\"string\"],\"source\":\"element PRIORITY\"}]}}],\"source\":\"element MISS" +
+				"ION\"}],\"source\":\"document\"}");
 		private eu.driver.model.emsi.CONTEXT _CONTEXT;
 		private eu.driver.model.emsi.EVENT _EVENT;
 		private IList<eu.driver.model.emsi.RESOURCE> _RESOURCE;
