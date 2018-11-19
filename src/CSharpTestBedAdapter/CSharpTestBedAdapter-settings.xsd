@@ -5,9 +5,10 @@
       <xs:sequence>
         <xs:element name="client.id" type="xs:string" />
         <xs:element name="heartbeat.interval" type="xs:unsignedShort" />
-        <xs:element name="certificate.path" type="xs:string" />
-        <xs:element name="keystore.path" type="xs:string" />
-        <xs:element name="keystore.password" type="xs:string" />
+		<xs:element name="security.protocol" type="xs:string" />
+        <xs:element name="security.certificate.path" type="xs:string" />
+        <xs:element name="security.keystore.path" type="xs:string" />
+        <xs:element name="security.keystore.password" type="xs:string" />
         <xs:element name="broker.url" type="xs:string" />
         <xs:element name="schema.url" type="xs:string" />
         <xs:element name="send.sync" type="xs:boolean" />

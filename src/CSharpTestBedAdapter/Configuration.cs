@@ -81,10 +81,10 @@ namespace CSharpTestBedAdapter
                     { "avro.serializer.auto.register.schemas", true },
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
-                    { "security.protocol", "SSL" },
-                    { "ssl.ca.location", _settings.certificatepath },
-                    { "ssl.keystore.location", _settings.keystorepath },
-                    { "ssl.keystore.password", _settings.keystorepassword },
+                    { "security.protocol", _settings.securityprotocol },
+                    { "ssl.ca.location", _settings.securitycertificatepath },
+                    { "ssl.keystore.location", _settings.securitykeystorepath },
+                    { "ssl.keystore.password", _settings.securitykeystorepassword },
 
                 };
 
@@ -98,10 +98,10 @@ namespace CSharpTestBedAdapter
                     // optional avro / schema registry client properties for C#:
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
-                    { "security.protocol", "SSL" },
-                    { "ssl.ca.location", _settings.certificatepath },
-                    { "ssl.keystore.location", _settings.keystorepath },
-                    { "ssl.keystore.password", _settings.keystorepassword },
+                    { "security.protocol", _settings.securityprotocol },
+                    { "ssl.ca.location", _settings.securitycertificatepath },
+                    { "ssl.keystore.location", _settings.securitykeystorepath },
+                    { "ssl.keystore.password", _settings.securitykeystorepassword },
                 };
             }
         }

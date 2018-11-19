@@ -26,12 +26,14 @@ namespace Schemas {
         private string clientidField;
         
         private ushort heartbeatintervalField;
+
+        private string securityprotocolField;
         
-        private string certificatepathField;
+        private string securitycertificatepathField;
         
-        private string keystorepathField;
+        private string securitykeystorepathField;
         
-        private string keystorepasswordField;
+        private string securitykeystorepasswordField;
         
         private string brokerurlField;
         
@@ -64,37 +66,51 @@ namespace Schemas {
                 this.heartbeatintervalField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("certificate.path")]
-        public string certificatepath {
+        [System.Xml.Serialization.XmlElementAttribute("security.protocol")]
+        public string securityprotocol
+        {
+            get
+            {
+                return this.securityprotocolField;
+            }
+            set
+            {
+                this.securityprotocolField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("security.certificate.path")]
+        public string securitycertificatepath {
             get {
-                return this.certificatepathField;
+                return this.securitycertificatepathField;
             }
             set {
-                this.certificatepathField = value;
+                this.securitycertificatepathField = value;
             }
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("keystore.path")]
-        public string keystorepath {
+        [System.Xml.Serialization.XmlElementAttribute("security.keystore.path")]
+        public string securitykeystorepath {
             get {
-                return this.keystorepathField;
+                return this.securitykeystorepathField;
             }
             set {
-                this.keystorepathField = value;
+                this.securitykeystorepathField = value;
             }
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("keystore.password")]
-        public string keystorepassword {
+        [System.Xml.Serialization.XmlElementAttribute("security.keystore.password")]
+        public string securitykeystorepassword {
             get {
-                return this.keystorepasswordField;
+                return this.securitykeystorepasswordField;
             }
             set {
-                this.keystorepasswordField = value;
+                this.securitykeystorepasswordField = value;
             }
         }
         
