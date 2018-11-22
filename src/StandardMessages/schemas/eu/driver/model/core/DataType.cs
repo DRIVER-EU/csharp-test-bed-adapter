@@ -34,6 +34,7 @@ namespace eu.driver.model.core
 		video_mpeg,
 		video_msvideo,
 		video_avi,
+		netcdf,
 		other,
 	}
 }
