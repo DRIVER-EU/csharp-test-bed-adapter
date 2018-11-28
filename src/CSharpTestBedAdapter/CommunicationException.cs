@@ -11,7 +11,7 @@
  *************************************************************/
 using System;
 
-namespace CSharpTestBedAdapter
+namespace Driver.CSharpTestBedAdapter
 {
     public class CommunicationException : Exception
     {

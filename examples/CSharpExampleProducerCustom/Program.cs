@@ -13,7 +13,7 @@ using System;
 
 using log4net.Core;
 
-using CSharpTestBedAdapter;
+using Driver.CSharpTestBedAdapter;
 // Namesapce from the CommonMessages project
 using eu.driver.model.test;
 
