@@ -13,7 +13,7 @@ using System;
 
 using log4net.Core;
 
-using CSharpTestBedAdapter;
+using Driver.CSharpTestBedAdapter;
 // Namespace from the StandardMessages project
 using eu.driver.model.cap;
 
