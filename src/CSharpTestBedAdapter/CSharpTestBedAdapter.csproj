@@ -8,7 +8,7 @@
     <ProjectGuid>{9FA5257A-BD49-43EE-8B48-B4BCEB02122B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Driver.CSharpTestBedAdapter</RootNamespace>
+    <RootNamespace>eu.driver.CSharpTestBedAdapter</RootNamespace>
     <AssemblyName>CSharpTestBedAdapter</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

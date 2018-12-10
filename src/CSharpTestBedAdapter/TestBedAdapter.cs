@@ -20,7 +20,7 @@ using Confluent.Kafka.Serialization;
 using eu.driver.model.core;
 using eu.driver.model.edxl;
 
-namespace Driver.CSharpTestBedAdapter
+namespace eu.driver.CSharpTestBedAdapter
 {
     /// <summary>
     /// Main C# adapter class that provides an interface for external applications to connect to the DRIVER-EU test-bed (https://github.com/DRIVER-EU/test-bed).
