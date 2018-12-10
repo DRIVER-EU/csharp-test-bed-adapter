@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/DRIVER-EU/test-bed/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/DRIVER-EU/csharp-test-bed-adapter</projectUrl>
+    <iconUrl>https://www.driver-project.eu/wp-content/uploads/2017/12/driver-logo-2.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>First release of the C# test-bed adapter</releaseNotes>
+    <copyright>Copyright (C) 2017-2018 XVR Simulation B.V., Delft, The Netherlands; Martijn Hendriks "hendriks @ xvrsim.com"; part of "DRIVER+ WP923 Test-bed infrastructure" project; licensed under the MIT license : https://github.com/DRIVER-EU/test-bed/blob/master/LICENSE</copyright>
+    <tags>DRIVER+ Test-bed</tags>
+  </metadata>
+</package>

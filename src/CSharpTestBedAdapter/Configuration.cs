@@ -15,7 +15,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 
-namespace Driver.CSharpTestBedAdapter
+namespace eu.driver.CSharpTestBedAdapter
 {
     /// <summary>
     /// System configuration class that collects all general configuration parameters for the <see cref="CSharpConnector"/>s
