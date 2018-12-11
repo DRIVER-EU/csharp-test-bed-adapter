@@ -97,6 +97,10 @@
       <Project>{9fa5257a-bd49-43ee-8b48-b4bceb02122b}</Project>
       <Name>CSharpTestBedAdapter</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\StandardMessages\StandardMessages.csproj">
+      <Project>{ad423bf6-84c1-497b-b453-e85ac665ef8a}</Project>
+      <Name>StandardMessages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\common\CommonMessages\CommonMessages.csproj">
       <Project>{63f6c6f4-2cab-4060-a5fc-5b4bc6c95379}</Project>
       <Name>CommonMessages</Name>

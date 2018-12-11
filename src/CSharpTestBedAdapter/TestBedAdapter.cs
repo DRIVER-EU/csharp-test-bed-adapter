@@ -11,6 +11,7 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -179,6 +180,11 @@ namespace eu.driver.CSharpTestBedAdapter
         /// The time information gathered from the latest time service updates
         /// </summary>
         private TimeInfo _currentTime;
+
+        /// <summary>
+        /// The client connected to the large file service
+        /// </summary>
+        private HttpClient _fileServiceClient = null;
 
         /// <summary>
         /// The list of topics that this adapter received an invitation to
@@ -430,6 +436,114 @@ namespace eu.driver.CSharpTestBedAdapter
         }
 
         #endregion Log
+
+        #region Large file service
+
+        /// <summary>
+        /// Method for retrieving the <see cref="HttpClient"/> created to connect to the large file service of the test-bed
+        /// </summary>
+        /// <returns>The <see cref="HttpClient"/> for using the REST API of the large file service</returns>
+        public HttpClient GetLargeFileServiceClient()
+        {
+            if (_fileServiceClient == null)
+            {
+                string host = _configuration.Settings.brokerUrl.Substring(0, _configuration.Settings.brokerUrl.IndexOf(':'));
+                if (!host.StartsWith("http"))
+                {
+                    host = "http://" + host;
+                }
+                Uri largeFileUri = new Uri(host + ":9090");
+
+                _fileServiceClient = new HttpClient();
+                _fileServiceClient.BaseAddress = largeFileUri;
+                _fileServiceClient.DefaultRequestHeaders.Clear();
+                _fileServiceClient.DefaultRequestHeaders.ConnectionClose = false;
+                _fileServiceClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                System.Net.ServicePointManager.FindServicePoint(largeFileUri).ConnectionLeaseTimeout = 60 * 1000;
+            }
+
+            return _fileServiceClient;
+        }
+
+        /// <summary>
+        /// Method for letting the adapter upload the file at the given path to the large file service
+        /// </summary>
+        /// <param name="filePath">The path directing to the file to upload</param>
+        /// <param name="dataType">The type of file that is going to be uploaded</param>
+        /// <param name="obfuscate">Indication if this should be a private upload, therefore generating a obfuscated link to the uploaded file</param>
+        /// <param name="sendToTestbed">Indication if the adapter should automatically update the test-bed via the <see cref="eu.driver.model.core.LargeDataUpdate"/> message</param>
+        /// <returns>The <see cref="Task"/> handling the upload, resulting in a <see cref="HttpRequestMessage"/>, or null if the file couldn't be found</returns>
+        public Task<HttpResponseMessage> Upload(string filePath, DataType dataType, bool obfuscate, bool sendToTestbed)
+        {
+            // Make sure the file actually exists
+            if (System.IO.File.Exists(filePath))
+            {
+                // Retrieve the large file service client for the upload
+                System.Net.Http.HttpClient client = TestBedAdapter.GetInstance().GetLargeFileServiceClient();
+
+                // Create and enter the POST parameters
+                MultipartFormDataContent content = new MultipartFormDataContent();
+                // the file to upload
+                StreamContent file = new StreamContent(System.IO.File.OpenRead(filePath));
+                file.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "uploadFile",
+                    FileName = System.IO.Path.GetFileName(filePath),
+                };
+                content.Add(file);
+                // the indication if this upload needs to be obfuscated or not
+                content.Add(new StringContent(obfuscate.ToString().ToLower()), "private");
+
+                // Send the POST
+                Task<HttpResponseMessage> res = client.PostAsync("/upload", content);
+
+                // Wait for the task whenever this adapter needs to send the update as well
+                if (sendToTestbed)
+                {
+                    WaitForUploadCompletion(System.IO.Path.GetFileName(filePath), dataType, res);
+                }
+
+                return res;
+            }
+            else return null;
+        }
+
+        /// <summary>
+        /// Method for sending the <see cref="eu.driver.model.core.LargeDataUpdate"/> message after the upload is completed
+        /// </summary>
+        /// <param name="fileName">The file name that has been uploaded</param>
+        /// <param name="dataType">The data type of the uploaded file</param>
+        /// <param name="task">The <see cref="Task"/> that handles the upload</param>
+        private async void WaitForUploadCompletion(string fileName, DataType dataType, Task<HttpResponseMessage> task)
+        {
+            // Wait for a response from the large file service
+            HttpResponseMessage response = await task;
+
+            // Check if the POST was a success
+            if (response.IsSuccessStatusCode)
+            {
+                string resContent = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(resContent))
+                {
+                    // Retrieve the URL from the upload response
+                    string url = resContent.Substring(resContent.IndexOf("\":\"") + 3);
+                    url = url.Substring(0, url.IndexOf('"'));
+
+                    // Send the large data update message 
+                    LargeDataUpdate message = new LargeDataUpdate()
+                    {
+                        url = url,
+                        title = fileName,
+                        description = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString(),
+                        dataType = dataType,
+                    };
+                    SendMessage<LargeDataUpdate>(message);
+                }
+            }
+        }
+
+        #endregion Large file service
 
         #region System consumers
 
@@ -713,6 +827,11 @@ namespace eu.driver.CSharpTestBedAdapter
         {
             // Stop all running tasks
             _cancellationTokenSource.Cancel();
+            // Stop the connection with the large file service
+            if (_fileServiceClient != null)
+            {
+                _fileServiceClient.Dispose();
+            }
 
             // Dispose all created producers
             foreach (IAbstractProducer producer in _producers.Values)
