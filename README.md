@@ -16,7 +16,7 @@ Methods for sending and receiving log messages are `Log` & `AddLogCallback`
 * Receive time information: the adapter is connected to the [test-bed time service](https://github.com/DRIVER-EU/test-bed-time-service), allowing you to receive relevant time-related information like fictive trial time, or the speed of the trial.
 Method for retrieving the time information is `GetTimeInfo`
 * Uploading large data: the adapter is connected to the [test-bed large data service](https://github.com/DRIVER-EU/large-file-service), allowing you to upload large data files for sharing with other applications connected to the test-bed.
-Methods for uploading large data are 'GetLargeFileServiceClient' & 'Upload'
+Methods for uploading large data are `GetLargeFileServiceClient` & `Upload`
 * Internal Management: the adapter makes the coupling between application and test-bed as easy as possible.
 
 ## Project structure
@@ -82,13 +82,13 @@ The C# test-bed adapter is available as [Nuget package](https://www.nuget.org/pa
 You can also manually build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
 
 Next to the compiled `CSharpTestBedAdapter.dll`, there is a `CSharpTestBedAdapter-settings.xml`, where you can change the following adapter settings:
-* client.id: the name of the application that uses this adapter
-* heartbeat.interval: the time (in ms) between sending a heartbeat
-* certificate.path: path of the authorisation certificate (not implemented yet)
-* broker.url: the URL of the Kafka broker to connect to
-* schema.url: the URL of the schema registry to use
-* send.sync: (a)synchronized sending of messages (not implemented yet)
-* retry.count: number of retries, before reporting an error (not implemented yet)
-* retry.time: the retry interval in between retries (not implemented yet)
+* __client.id__: the name of the application that uses this adapter
+* __heartbeat.interval__: the time (in ms) between sending a heartbeat
+* __certificate.path__: path of the authorisation certificate (not implemented yet)
+* __broker.url__: the URL of the Kafka broker to connect to
+* __schema.url__: the URL of the schema registry to use
+* __send.sync__: (a)synchronized sending of messages (not implemented yet)
+* __retry.count__: number of retries, before reporting an error (not implemented yet)
+* __retry.time__: the retry interval in between retries (not implemented yet)
 
 See the 3 example projects for further implementation of this adapter.
