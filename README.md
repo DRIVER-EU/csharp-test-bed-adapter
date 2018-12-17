@@ -3,17 +3,20 @@
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
 __PLEASE NOTICE: The latest version might not be this master. Newer versions are available as release branches (but might be unstable).__
-__For implementation of trial 1, please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
-__For implementation of trial 2, please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
+__For implementation of trial 1 (Poland), please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
+__For implementation of trial 2 (France), please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
+__For implementation of trial 4 (Netherlands), please use the branch [release/trial_4](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_4).__
 
-The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.4)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
+The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.6)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
 * Sending and receiving Avro schema's and messages: both producer and consumer use Avro schema's for their message key and value.
 Methods for sending and receiving standard or custom messages are `SendMessage` & `AddCallback`
 * Logging via Kafka: your application can log on several log levels (eg. error, debug, info) onto a specific test-bed topic.
 Methods for sending and receiving log messages are `Log` & `AddLogCallback`
-* Receive time information (like fictive time, or the speed of the trial) from the [time service](https://github.com/DRIVER-EU/test-bed-time-service) in the test-bed.
+* Receive time information: the adapter is connected to the [test-bed time service](https://github.com/DRIVER-EU/test-bed-time-service), allowing you to receive relevant time-related information like fictive trial time, or the speed of the trial.
 Method for retrieving the time information is `GetTimeInfo`
+* Uploading large data: the adapter is connected to the [test-bed large data service](https://github.com/DRIVER-EU/large-file-service), allowing you to upload large data files for sharing with other applications connected to the test-bed.
+Methods for uploading large data are 'GetLargeFileServiceClient' & 'Upload'
 * Internal Management: the adapter makes the coupling between application and test-bed as easy as possible.
 
 ## Project structure
@@ -48,6 +51,7 @@ The code project that bundles all standard message formats defined for the Commo
 * [Emergency Management Shared Information (EMSI)](https://www.iso.org/standard/57384.html)
 * [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON)
 * [Mobile Location Protocol (MLP)](https://en.wikipedia.org/wiki/Mobile_Location_Protocol)
+* [Test-bed large data update messages](https://github.com/DRIVER-EU/avro-schemas/tree/master/core/large-data)
 
 ### src\CoreMessages
 
@@ -74,16 +78,17 @@ In order to use the `csharp-test-bed-adapter`, you are also required to download
  
 ## Usage
 
-Build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
+The C# test-bed adapter is available as [Nuget package](https://www.nuget.org/packages/CSharpTestBedAdapter/).
+You can also manually build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
 
 Next to the compiled `CSharpTestBedAdapter.dll`, there is a `CSharpTestBedAdapter-settings.xml`, where you can change the following adapter settings:
-* The name of the application that uses this adapter
-* The heartbeat interval
-* Location of the authorisation certificate (not implemented yet)
-* The URL of the Kafka broker
-* The URL of the schema registry
-* (A)synchronized sending of messages (not implemented yet)
-* Number of retries, before reporting an error (not implemented yet)
-* The retry interval in between retries (not implemented yet)
+* client.id: the name of the application that uses this adapter
+* heartbeat.interval: the time (in ms) between sending a heartbeat
+* certificate.path: path of the authorisation certificate (not implemented yet)
+* broker.url: the URL of the Kafka broker to connect to
+* schema.url: the URL of the schema registry to use
+* send.sync: (a)synchronized sending of messages (not implemented yet)
+* retry.count: number of retries, before reporting an error (not implemented yet)
+* retry.time: the retry interval in between retries (not implemented yet)
 
 See the 3 example projects for further implementation of this adapter.
