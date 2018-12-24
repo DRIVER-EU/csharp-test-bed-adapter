@@ -90,6 +90,7 @@
     <Compile Include="schemas\eu\driver\model\core\Level.cs" />
     <Compile Include="schemas\eu\driver\model\core\Log.cs" />
     <Compile Include="schemas\eu\driver\model\core\publishedAllowed.cs" />
+    <Compile Include="schemas\eu\driver\model\core\State.cs" />
     <Compile Include="schemas\eu\driver\model\core\subscribeAllowed.cs" />
     <Compile Include="schemas\eu\driver\model\core\Timing.cs" />
     <Compile Include="schemas\eu\driver\model\core\TimingControl.cs" />

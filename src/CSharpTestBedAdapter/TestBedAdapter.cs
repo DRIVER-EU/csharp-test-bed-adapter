@@ -77,7 +77,7 @@ namespace eu.driver.CSharpTestBedAdapter
             /// <summary>
             /// The current state of the time service
             /// </summary>
-            public Command TimeState { get; set; }
+            public State TimeState { get; set; }
 
             /// <summary><see cref="ValueType.ToString"/></summary>
             public override string ToString()
@@ -269,7 +269,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     UpdatedAt = DateTime.UtcNow,
                     TrialTime = DateTime.MinValue,
                     TrialTimeSpeed = 1f,
-                    TimeState = Command.Start
+                    TimeState = model.core.State.Initialized
                 };
 
                 _allowedTopics = new List<string>()
@@ -580,7 +580,7 @@ namespace eu.driver.CSharpTestBedAdapter
                         State = States.Disabled;
                     }
                     // If we have received an admin heartbeat (again) and the time service allows us to, go to the ENABLED state
-                    else if (State != States.Enabled && (_currentTime.TimeState == Command.Start || _currentTime.TimeState == Command.Update))
+                    else if (State != States.Enabled && (_currentTime.TimeState == model.core.State.Initialized || _currentTime.TimeState == model.core.State.Started))
                     {
                         Log(log4net.Core.Level.Info, "Admin tool found (again), going into Enabled mode");
                         State = States.Enabled;
@@ -630,6 +630,7 @@ namespace eu.driver.CSharpTestBedAdapter
             _currentTime.UpdatedAt = baseTime.Add(updatedAt);
             _currentTime.TrialTime = baseTime.Add(trialTime);
             _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed;
+            _currentTime.TimeState = message.Value.state;
         }
 
         /// <summary>
@@ -650,11 +651,10 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
             }
-            _currentTime.TimeState = message.Value.command;
 
             // Update the state of this adapter, based on the time service command
             // This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
-            switch (_currentTime.TimeState)
+            switch (message.Value.command)
             {
                 // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
                 case Command.Start:
