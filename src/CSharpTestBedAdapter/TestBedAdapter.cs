@@ -59,17 +59,27 @@ namespace eu.driver.CSharpTestBedAdapter
         public struct TimeInfo
         {
             /// <summary>
-            /// The time frame from the start of the trial to the current time
-            /// </summary>
-            public TimeSpan ElapsedTime { get; set; }
-            /// <summary>
             /// The timestamp of the last update
             /// </summary>
             public DateTime UpdatedAt { get; set; }
             /// <summary>
+            /// The time frame from the start of the trial to the current time
+            /// </summary>
+            public TimeSpan ElapsedTime
+            {
+                get { return _elapsedTime + (DateTime.UtcNow - UpdatedAt); }
+                set { _elapsedTime = value; }
+            }
+            private TimeSpan _elapsedTime;
+            /// <summary>
             /// The fictive date and time of the trial
             /// </summary>
-            public DateTime TrialTime { get; set; }
+            public DateTime TrialTime
+            {
+                get { return _trialTime + (DateTime.UtcNow - UpdatedAt); }
+                set { _trialTime = value; }
+            }
+            private DateTime _trialTime;
             /// <summary>
             /// The speed factor of the trial
             /// </summary>
@@ -269,7 +279,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     UpdatedAt = DateTime.UtcNow,
                     TrialTime = DateTime.MinValue,
                     TrialTimeSpeed = 1f,
-                    TimeState = Command.Start
+                    TimeState = Command.Init
                 };
 
                 _allowedTopics = new List<string>()
@@ -580,7 +590,7 @@ namespace eu.driver.CSharpTestBedAdapter
                         State = States.Disabled;
                     }
                     // If we have received an admin heartbeat (again) and the time service allows us to, go to the ENABLED state
-                    else if (State != States.Enabled && (_currentTime.TimeState == Command.Start || _currentTime.TimeState == Command.Update))
+                    else if (State != States.Enabled)
                     {
                         Log(log4net.Core.Level.Info, "Admin tool found (again), going into Enabled mode");
                         State = States.Enabled;
@@ -652,28 +662,30 @@ namespace eu.driver.CSharpTestBedAdapter
             }
             _currentTime.TimeState = message.Value.command;
 
-            // Update the state of this adapter, based on the time service command
-            // This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
-            switch (_currentTime.TimeState)
-            {
-                // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
-                case Command.Start:
-                case Command.Update:
-                    if (State == States.Init)
-                    {
-                        State = States.Enabled;
-                    }
-                    break;
-                // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
-                case Command.Pause:
-                case Command.Stop:
-                case Command.Reset:
-                    if (State == States.Enabled)
-                    {
-                        State = States.Disabled;
-                    }
-                    break;
-            }
+            // FIXME: This last functionality should be replaced with a separate state to disable/enable the adapter sending and receiving messages
+            //// Update the state of this adapter, based on the time service command
+            //// This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
+            //switch (_currentTime.TimeState)
+            //{
+            //    // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
+            //    case Command.Start:
+            //    case Command.Update:
+            //        if (State == States.Init)
+            //        {
+            //            State = States.Enabled;
+            //        }
+            //        break;
+            //    // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
+            //    case Command.Pause:
+            //    case Command.Stop:
+            //    case Command.Reset:
+            //        if (State == States.Enabled)
+            //        {
+            //            State = States.Disabled;
+            //        }
+            //        break;
+            //}
+            // END_OF_FIXME
         }
 
         /// <summary>
