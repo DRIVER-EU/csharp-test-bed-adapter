@@ -26,8 +26,14 @@ namespace Schemas {
         private string clientidField;
         
         private ushort heartbeatintervalField;
+
+        private string securityprotocolField;
         
-        private string certificatepathField;
+        private string securitycertificatepathField;
+        
+        private string securitykeystorepathField;
+        
+        private string securitykeystorepasswordField;
         
         private string brokerurlField;
         
@@ -41,7 +47,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("client.id")]
-        public string clientId {
+        public string clientid {
             get {
                 return this.clientidField;
             }
@@ -52,7 +58,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("heartbeat.interval")]
-        public ushort heartbeatInterval {
+        public ushort heartbeatinterval {
             get {
                 return this.heartbeatintervalField;
             }
@@ -60,21 +66,57 @@ namespace Schemas {
                 this.heartbeatintervalField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("certificate.path")]
-        public string certificatePath {
+        [System.Xml.Serialization.XmlElementAttribute("security.protocol")]
+        public string securityprotocol
+        {
+            get
+            {
+                return this.securityprotocolField;
+            }
+            set
+            {
+                this.securityprotocolField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("security.certificate.path")]
+        public string securitycertificatepath {
             get {
-                return this.certificatepathField;
+                return this.securitycertificatepathField;
             }
             set {
-                this.certificatepathField = value;
+                this.securitycertificatepathField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("security.keystore.path")]
+        public string securitykeystorepath {
+            get {
+                return this.securitykeystorepathField;
+            }
+            set {
+                this.securitykeystorepathField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("security.keystore.password")]
+        public string securitykeystorepassword {
+            get {
+                return this.securitykeystorepasswordField;
+            }
+            set {
+                this.securitykeystorepasswordField = value;
             }
         }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("broker.url")]
-        public string brokerUrl {
+        public string brokerurl {
             get {
                 return this.brokerurlField;
             }
@@ -85,7 +127,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("schema.url")]
-        public string schemaUrl {
+        public string schemaurl {
             get {
                 return this.schemaurlField;
             }
@@ -96,7 +138,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("send.sync")]
-        public bool sendSync {
+        public bool sendsync {
             get {
                 return this.sendsyncField;
             }
@@ -107,7 +149,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("retry.count")]
-        public byte retryCount {
+        public byte retrycount {
             get {
                 return this.retrycountField;
             }
@@ -118,7 +160,7 @@ namespace Schemas {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("retry.time")]
-        public ushort retryTime {
+        public ushort retrytime {
             get {
                 return this.retrytimeField;
             }

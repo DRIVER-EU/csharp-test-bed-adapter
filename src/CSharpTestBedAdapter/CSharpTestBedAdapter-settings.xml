@@ -3,8 +3,14 @@
   <client.id>CSharpTestbedAdapter</client.id>
   <!-- The time (in ms) between sending a heartbeat -->
   <heartbeat.interval>5000</heartbeat.interval>
-  <!-- The path of the authentication certificate -->
-  <certificate.path></certificate.path>
+  <!-- The security protocol this adapter is using (PLAINTEXT or SSL) -->
+  <security.protocol>PLAINTEXT</security.protocol>
+  <!-- The path of the authentication certificate; this is the client's public key (PEM) -->
+  <security.certificate.path>./ssl/ca-crt.pem</security.certificate.path>
+  <!-- The path of the PKCS#12 keystore (client keypair + certificate) for client authentication -->
+  <security.keystore.path>./ssl/other-tool-1-client.p12</security.keystore.path>
+  <!-- The password for the PKCS#12 keystore -->
+  <security.keystore.password>changeit</security.keystore.password>
   <!-- The URL of the Kafka broker -->
   <broker.url>localhost:3501</broker.url>
   <!-- The URL of the schema registry service -->

@@ -59,17 +59,27 @@ namespace eu.driver.CSharpTestBedAdapter
         public struct TimeInfo
         {
             /// <summary>
-            /// The time frame from the start of the trial to the current time
-            /// </summary>
-            public TimeSpan ElapsedTime { get; set; }
-            /// <summary>
             /// The timestamp of the last update
             /// </summary>
             public DateTime UpdatedAt { get; set; }
             /// <summary>
+            /// The time frame from the start of the trial to the current time
+            /// </summary>
+            public TimeSpan ElapsedTime
+            {
+                get { return _elapsedTime + (DateTime.UtcNow - UpdatedAt); }
+                set { _elapsedTime = value; }
+            }
+            private TimeSpan _elapsedTime;
+            /// <summary>
             /// The fictive date and time of the trial
             /// </summary>
-            public DateTime TrialTime { get; set; }
+            public DateTime TrialTime
+            {
+                get { return _trialTime + (DateTime.UtcNow - UpdatedAt); }
+                set { _trialTime = value; }
+            }
+            private DateTime _trialTime;
             /// <summary>
             /// The speed factor of the trial
             /// </summary>
@@ -314,7 +324,7 @@ namespace eu.driver.CSharpTestBedAdapter
         {
             return new EDXLDistribution()
             {
-                senderID = _configuration.Settings.clientId,
+                senderID = _configuration.Settings.clientid,
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Update,
                 distributionStatus = DistributionStatus.System,
@@ -351,14 +361,14 @@ namespace eu.driver.CSharpTestBedAdapter
                 EDXLDistribution key = CreateCoreKey();
                 Heartbeat beat = new Heartbeat
                 {
-                    id = _configuration.Settings.clientId,
+                    id = _configuration.Settings.clientid,
                     alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
                 };
 
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
                 // Wait for the specified amount of milliseconds
-                Task wait = Task.Delay(_configuration.Settings.heartbeatInterval);
+                Task wait = Task.Delay(_configuration.Settings.heartbeatinterval);
                 wait.Wait();
             }
         }
@@ -385,7 +395,7 @@ namespace eu.driver.CSharpTestBedAdapter
             if (_logProducer != null)
             {
                 EDXLDistribution key = CreateCoreKey();
-                Log log = new Log() { id = _configuration.Settings.clientId, log = msg };
+                Log log = new Log() { id = _configuration.Settings.clientid, log = msg };
 
                 _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
             }
@@ -447,7 +457,7 @@ namespace eu.driver.CSharpTestBedAdapter
         {
             if (_fileServiceClient == null)
             {
-                string host = _configuration.Settings.brokerUrl.Substring(0, _configuration.Settings.brokerUrl.IndexOf(':'));
+                string host = _configuration.Settings.brokerurl.Substring(0, _configuration.Settings.brokerurl.IndexOf(':'));
                 if (!host.StartsWith("http"))
                 {
                     host = "http://" + host;
@@ -580,7 +590,7 @@ namespace eu.driver.CSharpTestBedAdapter
                         State = States.Disabled;
                     }
                     // If we have received an admin heartbeat (again) and the time service allows us to, go to the ENABLED state
-                    else if (State != States.Enabled && (_currentTime.TimeState == model.core.State.Initialized || _currentTime.TimeState == model.core.State.Started))
+                    else if (State != States.Enabled)
                     {
                         Log(log4net.Core.Level.Info, "Admin tool found (again), going into Enabled mode");
                         State = States.Enabled;
@@ -652,29 +662,31 @@ namespace eu.driver.CSharpTestBedAdapter
                 _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
             }
 
-            // Update the state of this adapter, based on the time service command
-            // This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
-            switch (message.Value.command)
-            {
-                // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
-                case Command.Start:
-                case Command.Update:
-                    if (State == States.Init)
-                    {
-                        State = States.Enabled;
+            // FIXME: This last functionality should be replaced with a separate state to disable/enable the adapter sending and receiving messages
+            //// Update the state of this adapter, based on the time service command
+            //// This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
+            //switch (_currentTime.TimeState)
+            //{
+            //    // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
+            //    case Command.Start:
+            //    case Command.Update:
+            //        if (State == States.Init)
+            //        {
+            //            State = States.Enabled;
+            //        }
+            //        break;
+            //    // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
+            //    case Command.Pause:
+            //    case Command.Stop:
+            //    case Command.Reset:
+            //        if (State == States.Enabled)
+            //        {
+            //            State = States.Disabled;
+            //        }
+            //        break;
+            //}
+            // END_OF_FIXME
                     }
-                    break;
-                // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
-                case Command.Pause:
-                case Command.Stop:
-                case Command.Reset:
-                    if (State == States.Enabled)
-                    {
-                        State = States.Disabled;
-                    }
-                    break;
-            }
-        }
 
         /// <summary>
         /// Delegate being called once a new message is consumed on the system topic for topic invitations
