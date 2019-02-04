@@ -74,7 +74,7 @@ The [time service](https://github.com/DRIVER-EU/test-bed-time-service) also noti
 
 * All projects are build on the .NET Framework 4.6
 * All projects are dependent on one NuGet package from Confluent:
-  * pre-released [Confluent.Kafka.Avro 0.11.4](https://www.nuget.org/packages/Confluent.Kafka.Avro/0.11.4)
+  * pre-released [Confluent.Kafka.Avro 0.11.6](https://www.nuget.org/packages/Confluent.Kafka.Avro/0.11.6)
 
 In order to use the `csharp-test-bed-adapter`, you are also required to download and install the above-mentioned NuGet package.
  
