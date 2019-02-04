@@ -14,6 +14,8 @@ Methods for sending and receiving standard or custom messages are `SendMessage` 
 Methods for sending and receiving log messages are `Log` & `AddLogCallback`
 * Receive time information (like fictive time, or the speed of the trial) from the [time service](https://github.com/DRIVER-EU/test-bed-time-service) in the test-bed.
 Method for retrieving the time information is `GetTimeInfo`
+* Setup a SSL connection with a [test-bed including security features](https://github.com/DRIVER-EU/test-bed/tree/master/docker/local%2Bsecurity)
+Setup is completely done in the `CSharpTestBedAdapter-settings.xml`
 * Internal Management: the adapter makes the coupling between application and test-bed as easy as possible.
 
 ## Project structure
@@ -26,23 +28,23 @@ The main C# project outputting a class library `CSharpTestBedAdapter.dll` that y
 
 ### examples\CSharpExampleProducer (Custom & Standard)
 
-The simple examples for setting up and using a producer via the `CSharpTestBedAdapter.dll`.
+The examples for setting up and using a producer via the `CSharpTestBedAdapter.dll`.
 `CSharpExampleProducerCustom` sends out a test message that is defined in `example\common\CommonMessages`.
 `CSharpExampleProducerStandard` sends out a [Common Alerting Protocol](https://en.wikipedia.org/wiki/Common_Alerting_Protocol) (CAP) message that is defined in `example\common\StandardMessages`.
 
 ### examples\CSharpExampleConsumer
 
-The simple example for setting up and using a consumer via the `CSharpTestBedAdapter.dll`.
+The example for setting up and using a consumer via the `CSharpTestBedAdapter.dll`.
 This example listens to both the test messages from `CSharpExampleProducerCustom` and CAP messages from `CSharpExampleProducerStandard`.
 
 ### src\CommonMessages
 
-A simple project that is used in all examples, containing a simple test Avro schema that is used for transmitting messages of that type from producer to consumer.
-Inside the `examples\common\CommonMessages\data` folder you'll find a README regarding the conversion from Avro schema to C# class file(s).
+Project that is used in the examples only, containing a simple test Avro schema that is used for transmitting messages of that type from producer to consumer.
+Inside the [examples\common\CommonMessages\data](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/master/examples/common/CommonMessages/data) folder you'll find a README regarding the conversion from Avro schema to C# class file(s).
 
 ### src\StandardMessages
 
-The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
+The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas/tree/master/standard). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
 
 * [Common Alerting Protocol (CAP)](https://en.wikipedia.org/wiki/Common_Alerting_Protocol)
 * [Emergency Management Shared Information (EMSI)](https://www.iso.org/standard/57384.html)
@@ -51,7 +53,7 @@ The code project that bundles all standard message formats defined for the Commo
 
 ### src\CoreMessages
 
-The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
+The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas/tree/master/core). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
 
 * Heartbeat: sending to topic `system_heartbeat`
 This allows the adapter to indicate it is still alive for all other adapters in the test-bed.
@@ -60,9 +62,9 @@ Both the adapter as your application can send log messages to the test-bed to in
 * Admin heartbeat: receiving from topic `system_admin_heartbeat`
 The adapter checks if the admin tool inside the test-bed is alive. If not during the first 10 seconds of this adapters existence, the adapter will enter `DEBUG` mode. If the admin tool was present but connection is lost somehow, the adapter will enter `DISABLED` mode until the admin tool comes back alive, re-sending and re-receiving all messages that were queued during being disabled.
 * Timing: receiving from topic `system_timing`
-The [time service](https://github.com/DRIVER-EU/test-bed-time-service) updates all adapters for setting a global time frame.
+The [time service](https://github.com/DRIVER-EU/test-bed-time-service) updates all adapters for setting a global time frame. Current time information can be retrieved from the `GetTimeInfo` method.
 * Time control: receiving from topic `system_timing_control`
-The [time service](https://github.com/DRIVER-EU/test-bed-time-service) also notifies all adapters on time changes, for instance whenever a running trial is paused. This only affects the adapter whenever the test-bed admin tool is present. In `DEBUG` mode, the adapter will not adhere to stop sending/receiving messages whenever the time service sends a `PAUSE` or `STOP` command via this topic.
+The [time service](https://github.com/DRIVER-EU/test-bed-time-service) also notifies all adapters on time changes, for instance whenever a running trial is paused. Currently, this is only changing the time state in the current time information.
 
 ### Dependencies
 
@@ -76,10 +78,13 @@ In order to use the `csharp-test-bed-adapter`, you are also required to download
 
 Build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
 
-Next to the compiled `CSharpTestBedAdapter.dll`, there is a `CSharpTestBedAdapter-settings.xml`, where you can change the following adapter settings:
+Next to the compiled `CSharpTestBedAdapter.dll`, there is a [CSharpTestBedAdapter-settings.xml](https://github.com/DRIVER-EU/csharp-test-bed-adapter/blob/release/trial_4/src/CSharpTestBedAdapter/CSharpTestBedAdapter-settings.xml), where you can change the following adapter settings:
 * The name of the application that uses this adapter
 * The heartbeat interval
-* Location of the authorisation certificate (not implemented yet)
+* __security.protocol__: the security protocol this adapter is using (PLAINTEXT or SSL)
+* __security.certificate.path__: the path of the authentication certificate; this is the client's public key (PEM) :: only needed when `security.protocol = SSL`
+* __security.keystore.path__: the path of the PKCS#12 keystore (client keypair + certificate) for client authentication :: only needed when `security.protocol = SSL`
+* __security.keystore.password__: the password for the PKCS#12 keystore :: only needed when `security.protocol = SSL`
 * The URL of the Kafka broker
 * The URL of the schema registry
 * (A)synchronized sending of messages (not implemented yet)

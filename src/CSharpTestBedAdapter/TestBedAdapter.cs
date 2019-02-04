@@ -457,7 +457,7 @@ namespace eu.driver.CSharpTestBedAdapter
         {
             if (_fileServiceClient == null)
             {
-                string host = _configuration.Settings.brokerUrl.Substring(0, _configuration.Settings.brokerUrl.IndexOf(':'));
+                string host = _configuration.Settings.brokerurl.Substring(0, _configuration.Settings.brokerurl.IndexOf(':'));
                 if (!host.StartsWith("http"))
                 {
                     host = "http://" + host;
