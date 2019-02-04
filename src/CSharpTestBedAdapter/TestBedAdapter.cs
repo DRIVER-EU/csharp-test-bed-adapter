@@ -324,7 +324,7 @@ namespace eu.driver.CSharpTestBedAdapter
         {
             return new EDXLDistribution()
             {
-                senderID = _configuration.Settings.clientId,
+                senderID = _configuration.Settings.clientid,
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Update,
                 distributionStatus = DistributionStatus.System,
@@ -361,14 +361,14 @@ namespace eu.driver.CSharpTestBedAdapter
                 EDXLDistribution key = CreateCoreKey();
                 Heartbeat beat = new Heartbeat
                 {
-                    id = _configuration.Settings.clientId,
+                    id = _configuration.Settings.clientid,
                     alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
                 };
 
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
                 // Wait for the specified amount of milliseconds
-                Task wait = Task.Delay(_configuration.Settings.heartbeatInterval);
+                Task wait = Task.Delay(_configuration.Settings.heartbeatinterval);
                 wait.Wait();
             }
         }
@@ -395,7 +395,7 @@ namespace eu.driver.CSharpTestBedAdapter
             if (_logProducer != null)
             {
                 EDXLDistribution key = CreateCoreKey();
-                Log log = new Log() { id = _configuration.Settings.clientId, log = msg };
+                Log log = new Log() { id = _configuration.Settings.clientid, log = msg };
 
                 _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
             }
@@ -457,7 +457,7 @@ namespace eu.driver.CSharpTestBedAdapter
         {
             if (_fileServiceClient == null)
             {
-                string host = _configuration.Settings.brokerUrl.Substring(0, _configuration.Settings.brokerUrl.IndexOf(':'));
+                string host = _configuration.Settings.brokerurl.Substring(0, _configuration.Settings.brokerurl.IndexOf(':'));
                 if (!host.StartsWith("http"))
                 {
                     host = "http://" + host;
@@ -701,7 +701,7 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {topic}");
                 _allowedTopics.Add(topic);
-            }
+        }
         }
 
         #endregion System consumers

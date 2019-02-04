@@ -101,16 +101,16 @@ namespace CSharpExampleProducerCustom
                     string resContent = await response.Content.ReadAsStringAsync();
                     if (!string.IsNullOrEmpty(resContent))
                     {
-                        Console.WriteLine(resContent);
+                        Console.WriteLine("Large File Service response: " + resContent);
                     }
                     else
                     {
-                        Console.WriteLine("NO RESPONSE");
+                        Console.WriteLine("Large File Service response: Service up but no response");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("FAILURE");
+                    Console.WriteLine("Large File Service response: Service down or bad request");
                 }
 
                 //// Or do this all automatically via the adapter
