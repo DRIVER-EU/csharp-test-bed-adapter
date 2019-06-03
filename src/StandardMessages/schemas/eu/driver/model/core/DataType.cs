@@ -35,6 +35,8 @@ namespace eu.driver.model.core
 		video_msvideo,
 		video_avi,
 		netcdf,
+		wms,
+		wfs,
 		other,
 	}
 }

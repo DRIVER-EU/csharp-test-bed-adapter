@@ -97,3 +97,18 @@ Next to the compiled `CSharpTestBedAdapter.dll`, there is a [CSharpTestBedAdapte
 * __retry.time__: the retry interval in between retries (not implemented yet)
 
 See the 3 example projects for further implementation of this adapter.
+
+# Data conversion between Avro and C#
+
+This functionality ensures proper conversion from Avro schemas to C# classes. It uses the `avrogen.exe` that is built from the [Apache Avro GitHub](https://github.com/apache/avro).
+
+## Core and Standard Avro schemas
+
+Within this adapter, all core and standard Avro schemas defined in the [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas) repository are already converted for ease of use. If you want to re-convert these schemas, you can run the `convert.bat` Windows batch file in the folder `src\CoreMessages\data\avro-schemas` for the core adapter messages and `src\StandardMessages\data\avro-schemas` for the standard messages.
+
+## Conversion of custom schemas
+
+Conversion from Avro schema to C# class file requires the following files, which can be found at `src\CoreMessages\data\avro-schemas` or `src\StandardMessages\data\avro-schemas`:
+
+* The compiled `avrogen.exe` ([source](https://github.com/apache/avro/tree/master/lang/csharp/src/apache/codegen)) and its required DLLs
+* The Windows batch file `convert.bat` that calls the `avrogen.exe` with the correct parameters for converting all present Avro schemas to corresponding C# class file(s). You can edit this batch file to convert your own Avro schemas.
