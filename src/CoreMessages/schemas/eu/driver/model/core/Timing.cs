@@ -15,7 +15,7 @@ namespace eu.driver.model.core
 	
 	public partial class Timing : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Timing"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""updatedAt"",""doc"":""The date and time the trialTime was updated as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTime"",""doc"":""The fictive date and time of the simulation / trial as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""timeElapsed"",""doc"":""The number of milliseconds from the start of the trial."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""Positive number, indicating how fast the simulation / trial time moves with respect to the actual time. A value of 0 means a pause, 1 is as fast as real-time."",""type"":""float""}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Timing"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""updatedAt"",""doc"":""The date and time the trialTime was updated as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTime"",""doc"":""The fictive date and time of the simulation / trial as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""timeElapsed"",""doc"":""The number of milliseconds from the start of the trial."",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""trialTimeSpeed"",""doc"":""Positive number, indicating how fast the simulation / trial time moves with respect to the actual time. A value of 0 means a pause, 1 is as fast as real-time."",""type"":""float""},{""name"":""state"",""doc"":""The State of the Test-Bed Time Service."",""type"":{""type"":""enum"",""name"":""State"",""namespace"":""eu.driver.model.core"",""symbols"":[""Idle"",""Initialized"",""Started"",""Paused"",""Stopped""]}}]}");
 		/// <summary>
 		/// The date and time the trialTime was updated as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
 		/// </summary>
@@ -32,6 +32,10 @@ namespace eu.driver.model.core
 		/// Positive number, indicating how fast the simulation / trial time moves with respect to the actual time. A value of 0 means a pause, 1 is as fast as real-time.
 		/// </summary>
 		private float _trialTimeSpeed;
+		/// <summary>
+		/// The State of the Test-Bed Time Service.
+		/// </summary>
+		private eu.driver.model.core.State _state;
 		public virtual Schema Schema
 		{
 			get
@@ -95,6 +99,20 @@ namespace eu.driver.model.core
 				this._trialTimeSpeed = value;
 			}
 		}
+		/// <summary>
+		/// The State of the Test-Bed Time Service.
+		/// </summary>
+		public eu.driver.model.core.State state
+		{
+			get
+			{
+				return this._state;
+			}
+			set
+			{
+				this._state = value;
+			}
+		}
 		public virtual object Get(int fieldPos)
 		{
 			switch (fieldPos)
@@ -103,6 +121,7 @@ namespace eu.driver.model.core
 			case 1: return this.trialTime;
 			case 2: return this.timeElapsed;
 			case 3: return this.trialTimeSpeed;
+			case 4: return this.state;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -114,6 +133,7 @@ namespace eu.driver.model.core
 			case 1: this.trialTime = (System.Int64)fieldValue; break;
 			case 2: this.timeElapsed = (System.Int64)fieldValue; break;
 			case 3: this.trialTimeSpeed = (System.Single)fieldValue; break;
+			case 4: this.state = (eu.driver.model.core.State)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

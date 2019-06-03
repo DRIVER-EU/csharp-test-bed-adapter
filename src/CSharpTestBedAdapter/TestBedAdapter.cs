@@ -87,7 +87,7 @@ namespace eu.driver.CSharpTestBedAdapter
             /// <summary>
             /// The current state of the time service
             /// </summary>
-            public Command TimeState { get; set; }
+            public State TimeState { get; set; }
 
             /// <summary><see cref="ValueType.ToString"/></summary>
             public override string ToString()
@@ -279,7 +279,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     UpdatedAt = DateTime.UtcNow,
                     TrialTime = DateTime.MinValue,
                     TrialTimeSpeed = 1f,
-                    TimeState = Command.Init
+                    TimeState = model.core.State.Initialized
                 };
 
                 _allowedTopics = new List<string>()
@@ -640,6 +640,7 @@ namespace eu.driver.CSharpTestBedAdapter
             _currentTime.UpdatedAt = baseTime.Add(updatedAt);
             _currentTime.TrialTime = baseTime.Add(trialTime);
             _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed;
+            _currentTime.TimeState = message.Value.state;
         }
 
         /// <summary>
@@ -660,7 +661,6 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
             }
-            _currentTime.TimeState = message.Value.command;
 
             // FIXME: This last functionality should be replaced with a separate state to disable/enable the adapter sending and receiving messages
             //// Update the state of this adapter, based on the time service command
@@ -686,7 +686,7 @@ namespace eu.driver.CSharpTestBedAdapter
             //        break;
             //}
             // END_OF_FIXME
-        }
+                    }
 
         /// <summary>
         /// Delegate being called once a new message is consumed on the system topic for topic invitations
@@ -701,7 +701,7 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {topic}");
                 _allowedTopics.Add(topic);
-        }
+            }
         }
 
         #endregion System consumers

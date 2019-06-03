@@ -13,30 +13,12 @@ namespace eu.driver.model.core
 	using Avro;
 	using Avro.Specific;
 	
-	public enum DataType
+	public enum State
 	{
-		msword,
-		ogg,
-		pdf,
-		excel,
-		powerpoint,
-		zip,
-		audio_mpeg,
-		audio_vorbis,
-		image_bmp,
-		image_gif,
-		image_geotiff,
-		image_jpeg,
-		image_png,
-		json,
-		geojson,
-		text_plain,
-		video_mpeg,
-		video_msvideo,
-		video_avi,
-		netcdf,
-		wms,
-		wfs,
-		other,
+		Idle,
+		Initialized,
+		Started,
+		Paused,
+		Stopped,
 	}
 }

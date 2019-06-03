@@ -3,17 +3,20 @@
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
 __PLEASE NOTICE: The latest version might not be this master. Newer versions are available as release branches (but might be unstable).__
-__For implementation of trial 1, please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
-__For implementation of trial 2, please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
+__For implementation of trial 1 (Poland), please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
+__For implementation of trial 2 (France), please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
+__For implementation of trial 4 (Netherlands), please use the branch [release/trial_4](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_4).__
 
-The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.4)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
+The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.6)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
 * Sending and receiving Avro schema's and messages: both producer and consumer use Avro schema's for their message key and value.
 Methods for sending and receiving standard or custom messages are `SendMessage` & `AddCallback`
 * Logging via Kafka: your application can log on several log levels (eg. error, debug, info) onto a specific test-bed topic.
 Methods for sending and receiving log messages are `Log` & `AddLogCallback`
-* Receive time information (like fictive time, or the speed of the trial) from the [time service](https://github.com/DRIVER-EU/test-bed-time-service) in the test-bed.
+* Receive time information: the adapter is connected to the [test-bed time service](https://github.com/DRIVER-EU/test-bed-time-service), allowing you to receive relevant time-related information like fictive trial time, or the speed of the trial.
 Method for retrieving the time information is `GetTimeInfo`
+* Uploading large data: the adapter is connected to the [test-bed large data service](https://github.com/DRIVER-EU/large-file-service), allowing you to upload large data files for sharing with other applications connected to the test-bed.
+Methods for uploading large data are `GetLargeFileServiceClient` & `Upload`
 * Setup a SSL connection with a [test-bed including security features](https://github.com/DRIVER-EU/test-bed/tree/master/docker/local%2Bsecurity)
 Setup is completely done in the `CSharpTestBedAdapter-settings.xml`
 * Internal Management: the adapter makes the coupling between application and test-bed as easy as possible.
@@ -50,6 +53,7 @@ The code project that bundles all standard message formats defined for the Commo
 * [Emergency Management Shared Information (EMSI)](https://www.iso.org/standard/57384.html)
 * [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON)
 * [Mobile Location Protocol (MLP)](https://en.wikipedia.org/wiki/Mobile_Location_Protocol)
+* [Test-bed large data update messages](https://github.com/DRIVER-EU/avro-schemas/tree/master/core/large-data)
 
 ### src\CoreMessages
 
@@ -70,25 +74,41 @@ The [time service](https://github.com/DRIVER-EU/test-bed-time-service) also noti
 
 * All projects are build on the .NET Framework 4.6
 * All projects are dependent on one NuGet package from Confluent:
-  * pre-released [Confluent.Kafka.Avro 0.11.4](https://www.nuget.org/packages/Confluent.Kafka.Avro/0.11.4)
+  * pre-released [Confluent.Kafka.Avro 0.11.6](https://www.nuget.org/packages/Confluent.Kafka.Avro/0.11.6)
 
 In order to use the `csharp-test-bed-adapter`, you are also required to download and install the above-mentioned NuGet package.
  
 ## Usage
 
-Build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
+The C# test-bed adapter is available as [Nuget package](https://www.nuget.org/packages/CSharpTestBedAdapter/).
+You can also manually build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
 
 Next to the compiled `CSharpTestBedAdapter.dll`, there is a [CSharpTestBedAdapter-settings.xml](https://github.com/DRIVER-EU/csharp-test-bed-adapter/blob/release/trial_4/src/CSharpTestBedAdapter/CSharpTestBedAdapter-settings.xml), where you can change the following adapter settings:
-* The name of the application that uses this adapter
-* The heartbeat interval
+* __client.id__: the name of the application that uses this adapter
+* __heartbeat.interval__: the time (in ms) between sending a heartbeat
 * __security.protocol__: the security protocol this adapter is using (PLAINTEXT or SSL)
 * __security.certificate.path__: the path of the authentication certificate; this is the client's public key (PEM) :: only needed when `security.protocol = SSL`
 * __security.keystore.path__: the path of the PKCS#12 keystore (client keypair + certificate) for client authentication :: only needed when `security.protocol = SSL`
 * __security.keystore.password__: the password for the PKCS#12 keystore :: only needed when `security.protocol = SSL`
-* The URL of the Kafka broker
-* The URL of the schema registry
-* (A)synchronized sending of messages (not implemented yet)
-* Number of retries, before reporting an error (not implemented yet)
-* The retry interval in between retries (not implemented yet)
+* __broker.url__: the URL of the Kafka broker to connect to
+* __schema.url__: the URL of the schema registry to use
+* __send.sync__: (a)synchronized sending of messages (not implemented yet)
+* __retry.count__: number of retries, before reporting an error (not implemented yet)
+* __retry.time__: the retry interval in between retries (not implemented yet)
 
 See the 3 example projects for further implementation of this adapter.
+
+# Data conversion between Avro and C#
+
+This functionality ensures proper conversion from Avro schemas to C# classes. It uses the `avrogen.exe` that is built from the [Apache Avro GitHub](https://github.com/apache/avro).
+
+## Core and Standard Avro schemas
+
+Within this adapter, all core and standard Avro schemas defined in the [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas) repository are already converted for ease of use. If you want to re-convert these schemas, you can run the `convert.bat` Windows batch file in the folder `src\CoreMessages\data\avro-schemas` for the core adapter messages and `src\StandardMessages\data\avro-schemas` for the standard messages.
+
+## Conversion of custom schemas
+
+Conversion from Avro schema to C# class file requires the following files, which can be found at `src\CoreMessages\data\avro-schemas` or `src\StandardMessages\data\avro-schemas`:
+
+* The compiled `avrogen.exe` ([source](https://github.com/apache/avro/tree/master/lang/csharp/src/apache/codegen)) and its required DLLs
+* The Windows batch file `convert.bat` that calls the `avrogen.exe` with the correct parameters for converting all present Avro schemas to corresponding C# class file(s). You can edit this batch file to convert your own Avro schemas.

@@ -16,9 +16,9 @@ namespace eu.driver.model.core
 	public partial class subscribeAllowed : ISpecificRecord
 	{
 		public static Schema _SCHEMA = Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"subscribeAllowed\",\"namespace\":\"eu.driver.model.core\",\"fi" +
-				"elds\":[{\"name\":\"id\",\"doc\":\"sender Client id\",\"type\":\"string\"}]}");
+				"elds\":[{\"name\":\"id\",\"doc\":\"Sender Client id\",\"type\":\"string\"}]}");
 		/// <summary>
-		/// sender Client id
+		/// Sender Client id
 		/// </summary>
 		private string _id;
 		public virtual Schema Schema
@@ -29,7 +29,7 @@ namespace eu.driver.model.core
 			}
 		}
 		/// <summary>
-		/// sender Client id
+		/// Sender Client id
 		/// </summary>
 		public string id
 		{
