@@ -11,6 +11,7 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,7 +21,7 @@ using Confluent.Kafka.Serialization;
 using eu.driver.model.core;
 using eu.driver.model.edxl;
 
-namespace CSharpTestBedAdapter
+namespace eu.driver.CSharpTestBedAdapter
 {
     /// <summary>
     /// Main C# adapter class that provides an interface for external applications to connect to the DRIVER-EU test-bed (https://github.com/DRIVER-EU/test-bed).
@@ -58,17 +59,27 @@ namespace CSharpTestBedAdapter
         public struct TimeInfo
         {
             /// <summary>
-            /// The time frame from the start of the trial to the current time
-            /// </summary>
-            public TimeSpan ElapsedTime { get; set; }
-            /// <summary>
             /// The timestamp of the last update
             /// </summary>
             public DateTime UpdatedAt { get; set; }
             /// <summary>
+            /// The time frame from the start of the trial to the current time
+            /// </summary>
+            public TimeSpan ElapsedTime
+            {
+                get { return _elapsedTime + (DateTime.UtcNow - UpdatedAt); }
+                set { _elapsedTime = value; }
+            }
+            private TimeSpan _elapsedTime;
+            /// <summary>
             /// The fictive date and time of the trial
             /// </summary>
-            public DateTime TrialTime { get; set; }
+            public DateTime TrialTime
+            {
+                get { return _trialTime + (DateTime.UtcNow - UpdatedAt); }
+                set { _trialTime = value; }
+            }
+            private DateTime _trialTime;
             /// <summary>
             /// The speed factor of the trial
             /// </summary>
@@ -76,7 +87,7 @@ namespace CSharpTestBedAdapter
             /// <summary>
             /// The current state of the time service
             /// </summary>
-            public Command TimeState { get; set; }
+            public State TimeState { get; set; }
 
             /// <summary><see cref="ValueType.ToString"/></summary>
             public override string ToString()
@@ -181,6 +192,11 @@ namespace CSharpTestBedAdapter
         private TimeInfo _currentTime;
 
         /// <summary>
+        /// The client connected to the large file service
+        /// </summary>
+        private HttpClient _fileServiceClient = null;
+
+        /// <summary>
         /// The list of topics that this adapter received an invitation to
         /// </summary>
         public List<string> AllowedTopics
@@ -263,7 +279,7 @@ namespace CSharpTestBedAdapter
                     UpdatedAt = DateTime.UtcNow,
                     TrialTime = DateTime.MinValue,
                     TrialTimeSpeed = 1f,
-                    TimeState = Command.Start
+                    TimeState = model.core.State.Initialized
                 };
 
                 _allowedTopics = new List<string>()
@@ -308,7 +324,7 @@ namespace CSharpTestBedAdapter
         {
             return new EDXLDistribution()
             {
-                senderID = _configuration.Settings.clientId,
+                senderID = _configuration.Settings.clientid,
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Update,
                 distributionStatus = DistributionStatus.System,
@@ -345,14 +361,14 @@ namespace CSharpTestBedAdapter
                 EDXLDistribution key = CreateCoreKey();
                 Heartbeat beat = new Heartbeat
                 {
-                    id = _configuration.Settings.clientId,
+                    id = _configuration.Settings.clientid,
                     alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
                 };
 
                 _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
 
                 // Wait for the specified amount of milliseconds
-                Task wait = Task.Delay(_configuration.Settings.heartbeatInterval);
+                Task wait = Task.Delay(_configuration.Settings.heartbeatinterval);
                 wait.Wait();
             }
         }
@@ -379,7 +395,7 @@ namespace CSharpTestBedAdapter
             if (_logProducer != null)
             {
                 EDXLDistribution key = CreateCoreKey();
-                Log log = new Log() { id = _configuration.Settings.clientId, log = msg };
+                Log log = new Log() { id = _configuration.Settings.clientid, log = msg };
 
                 _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
             }
@@ -431,6 +447,114 @@ namespace CSharpTestBedAdapter
 
         #endregion Log
 
+        #region Large file service
+
+        /// <summary>
+        /// Method for retrieving the <see cref="HttpClient"/> created to connect to the large file service of the test-bed
+        /// </summary>
+        /// <returns>The <see cref="HttpClient"/> for using the REST API of the large file service</returns>
+        public HttpClient GetLargeFileServiceClient()
+        {
+            if (_fileServiceClient == null)
+            {
+                string host = _configuration.Settings.brokerurl.Substring(0, _configuration.Settings.brokerurl.IndexOf(':'));
+                if (!host.StartsWith("http"))
+                {
+                    host = "http://" + host;
+                }
+                Uri largeFileUri = new Uri(host + ":9090");
+
+                _fileServiceClient = new HttpClient();
+                _fileServiceClient.BaseAddress = largeFileUri;
+                _fileServiceClient.DefaultRequestHeaders.Clear();
+                _fileServiceClient.DefaultRequestHeaders.ConnectionClose = false;
+                _fileServiceClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                System.Net.ServicePointManager.FindServicePoint(largeFileUri).ConnectionLeaseTimeout = 60 * 1000;
+            }
+
+            return _fileServiceClient;
+        }
+
+        /// <summary>
+        /// Method for letting the adapter upload the file at the given path to the large file service
+        /// </summary>
+        /// <param name="filePath">The path directing to the file to upload</param>
+        /// <param name="dataType">The type of file that is going to be uploaded</param>
+        /// <param name="obfuscate">Indication if this should be a private upload, therefore generating a obfuscated link to the uploaded file</param>
+        /// <param name="sendToTestbed">Indication if the adapter should automatically update the test-bed via the <see cref="eu.driver.model.core.LargeDataUpdate"/> message</param>
+        /// <returns>The <see cref="Task"/> handling the upload, resulting in a <see cref="HttpRequestMessage"/>, or null if the file couldn't be found</returns>
+        public Task<HttpResponseMessage> Upload(string filePath, DataType dataType, bool obfuscate, bool sendToTestbed)
+        {
+            // Make sure the file actually exists
+            if (System.IO.File.Exists(filePath))
+            {
+                // Retrieve the large file service client for the upload
+                System.Net.Http.HttpClient client = TestBedAdapter.GetInstance().GetLargeFileServiceClient();
+
+                // Create and enter the POST parameters
+                MultipartFormDataContent content = new MultipartFormDataContent();
+                // the file to upload
+                StreamContent file = new StreamContent(System.IO.File.OpenRead(filePath));
+                file.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "uploadFile",
+                    FileName = System.IO.Path.GetFileName(filePath),
+                };
+                content.Add(file);
+                // the indication if this upload needs to be obfuscated or not
+                content.Add(new StringContent(obfuscate.ToString().ToLower()), "private");
+
+                // Send the POST
+                Task<HttpResponseMessage> res = client.PostAsync("/upload", content);
+
+                // Wait for the task whenever this adapter needs to send the update as well
+                if (sendToTestbed)
+                {
+                    WaitForUploadCompletion(System.IO.Path.GetFileName(filePath), dataType, res);
+                }
+
+                return res;
+            }
+            else return null;
+        }
+
+        /// <summary>
+        /// Method for sending the <see cref="eu.driver.model.core.LargeDataUpdate"/> message after the upload is completed
+        /// </summary>
+        /// <param name="fileName">The file name that has been uploaded</param>
+        /// <param name="dataType">The data type of the uploaded file</param>
+        /// <param name="task">The <see cref="Task"/> that handles the upload</param>
+        private async void WaitForUploadCompletion(string fileName, DataType dataType, Task<HttpResponseMessage> task)
+        {
+            // Wait for a response from the large file service
+            HttpResponseMessage response = await task;
+
+            // Check if the POST was a success
+            if (response.IsSuccessStatusCode)
+            {
+                string resContent = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(resContent))
+                {
+                    // Retrieve the URL from the upload response
+                    string url = resContent.Substring(resContent.IndexOf("\":\"") + 3);
+                    url = url.Substring(0, url.IndexOf('"'));
+
+                    // Send the large data update message 
+                    LargeDataUpdate message = new LargeDataUpdate()
+                    {
+                        url = url,
+                        title = fileName,
+                        description = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString(),
+                        dataType = dataType,
+                    };
+                    SendMessage<LargeDataUpdate>(message);
+                }
+            }
+        }
+
+        #endregion Large file service
+
         #region System consumers
 
         /// <summary>
@@ -466,7 +590,7 @@ namespace CSharpTestBedAdapter
                         State = States.Disabled;
                     }
                     // If we have received an admin heartbeat (again) and the time service allows us to, go to the ENABLED state
-                    else if (State != States.Enabled && (_currentTime.TimeState == Command.Start || _currentTime.TimeState == Command.Update))
+                    else if (State != States.Enabled)
                     {
                         Log(log4net.Core.Level.Info, "Admin tool found (again), going into Enabled mode");
                         State = States.Enabled;
@@ -516,6 +640,7 @@ namespace CSharpTestBedAdapter
             _currentTime.UpdatedAt = baseTime.Add(updatedAt);
             _currentTime.TrialTime = baseTime.Add(trialTime);
             _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed;
+            _currentTime.TimeState = message.Value.state;
         }
 
         /// <summary>
@@ -536,31 +661,32 @@ namespace CSharpTestBedAdapter
             {
                 _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
             }
-            _currentTime.TimeState = message.Value.command;
 
-            // Update the state of this adapter, based on the time service command
-            // This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
-            switch (_currentTime.TimeState)
-            {
-                // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
-                case Command.Start:
-                case Command.Update:
-                    if (State == States.Init)
-                    {
-                        State = States.Enabled;
+            // FIXME: This last functionality should be replaced with a separate state to disable/enable the adapter sending and receiving messages
+            //// Update the state of this adapter, based on the time service command
+            //// This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
+            //switch (_currentTime.TimeState)
+            //{
+            //    // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
+            //    case Command.Start:
+            //    case Command.Update:
+            //        if (State == States.Init)
+            //        {
+            //            State = States.Enabled;
+            //        }
+            //        break;
+            //    // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
+            //    case Command.Pause:
+            //    case Command.Stop:
+            //    case Command.Reset:
+            //        if (State == States.Enabled)
+            //        {
+            //            State = States.Disabled;
+            //        }
+            //        break;
+            //}
+            // END_OF_FIXME
                     }
-                    break;
-                // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
-                case Command.Pause:
-                case Command.Stop:
-                case Command.Reset:
-                    if (State == States.Enabled)
-                    {
-                        State = States.Disabled;
-                    }
-                    break;
-            }
-        }
 
         /// <summary>
         /// Delegate being called once a new message is consumed on the system topic for topic invitations
@@ -713,6 +839,11 @@ namespace CSharpTestBedAdapter
         {
             // Stop all running tasks
             _cancellationTokenSource.Cancel();
+            // Stop the connection with the large file service
+            if (_fileServiceClient != null)
+            {
+                _fileServiceClient.Dispose();
+            }
 
             // Dispose all created producers
             foreach (IAbstractProducer producer in _producers.Values)

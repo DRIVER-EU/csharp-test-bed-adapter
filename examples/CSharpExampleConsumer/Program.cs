@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using Confluent.Kafka;
 using log4net.Core;
 
-using CSharpTestBedAdapter;
+using eu.driver.CSharpTestBedAdapter;
 // Namesapce from the CommonMessages project
 using eu.driver.model.test;
 // Namespace from the StandardMessages project

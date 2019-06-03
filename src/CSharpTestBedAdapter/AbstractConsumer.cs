@@ -18,7 +18,7 @@ using Confluent.Kafka.Serialization;
 
 using eu.driver.model.edxl;
 
-namespace CSharpTestBedAdapter
+namespace eu.driver.CSharpTestBedAdapter
 {
     internal class AbstractConsumer<T> : IAbstractConsumer, IDisposable
         where T : Avro.Specific.ISpecificRecord

@@ -10,10 +10,11 @@
  *
  *************************************************************/
 using System;
+using System.Net.Http;
 
 using log4net.Core;
 
-using CSharpTestBedAdapter;
+using eu.driver.CSharpTestBedAdapter;
 // Namesapce from the CommonMessages project
 using eu.driver.model.test;
 
@@ -38,6 +39,9 @@ namespace CSharpExampleProducerCustom
                 TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
                 TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
 
+                // Test the large file system access
+                TestLargeFileService();
+
                 Console.WriteLine($"Please type in any text to be send over topic '{CustomTopicName}'; q to exit");
                 string text;
                 // Whenever a new text has been entered by the user, create a new test message, or quit the application if the text is 'q'
@@ -61,6 +65,56 @@ namespace CSharpExampleProducerCustom
             finally
             {
                 TestBedAdapter.GetInstance().Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Method for testing the large file service upload functionality
+        /// </summary>
+        private static async void TestLargeFileService()
+        {
+            string filePath = @".\test.jpg";
+
+            if (System.IO.File.Exists(filePath))
+            {
+                // Retrieve the large file service client for a manual upload
+                System.Net.Http.HttpClient client = TestBedAdapter.GetInstance().GetLargeFileServiceClient();
+
+                // Create and enter the POST parameters
+                MultipartFormDataContent content = new MultipartFormDataContent();
+                // the file to upload
+                StreamContent file = new StreamContent(System.IO.File.OpenRead(filePath));
+                file.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "uploadFile",
+                    FileName = System.IO.Path.GetFileName(filePath),
+                };
+                content.Add(file);
+                // the indication if this upload needs to be obfuscated or not
+                content.Add(new StringContent("false"), "private");
+
+                // Send the POST
+                HttpResponseMessage response = await client.PostAsync("/upload", content);
+                // Check for the response of the large file service
+                if (response.IsSuccessStatusCode)
+                {
+                    string resContent = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(resContent))
+                    {
+                        Console.WriteLine("Large File Service response: " + resContent);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Large File Service response: Service up but no response");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Large File Service response: Service down or bad request");
+                }
+
+                //// Or do this all automatically via the adapter
+                //HttpResponseMessage response = await TestBedAdapter.GetInstance().Upload(filePath, eu.driver.model.core.DataType.image_jpeg, true, true);
             }
         }
 

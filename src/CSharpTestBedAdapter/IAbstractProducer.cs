@@ -11,7 +11,7 @@
  *************************************************************/
 using System;
 
-namespace CSharpTestBedAdapter
+namespace eu.driver.CSharpTestBedAdapter
 {
     internal interface IAbstractProducer
     {
