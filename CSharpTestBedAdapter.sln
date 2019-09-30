@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpTestBedAdapter", "src\CSharpTestBedAdapter\CSharpTestBedAdapter.csproj", "{9FA5257A-BD49-43EE-8B48-B4BCEB02122B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{676F11F8-F956-4499-BA68-D4E7F81C34DC} = {676F11F8-F956-4499-BA68-D4E7F81C34DC}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{110475EC-F2D4-4655-9920-840A431B196F}"
 EndProject
@@ -20,6 +23,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandardMessages", "src\StandardMessages\StandardMessages.csproj", "{AD423BF6-84C1-497B-B453-E85AC665EF8A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpExampleProducerStandard", "examples\CSharpExampleProducerStandard\CSharpExampleProducerStandard.csproj", "{F984556F-D1D9-4E96-948B-098D7D120755}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimMessages", "src\SimMessages\SimMessages.csproj", "{676F11F8-F956-4499-BA68-D4E7F81C34DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +60,10 @@ Global
 		{F984556F-D1D9-4E96-948B-098D7D120755}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F984556F-D1D9-4E96-948B-098D7D120755}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F984556F-D1D9-4E96-948B-098D7D120755}.Release|Any CPU.Build.0 = Release|Any CPU
+		{676F11F8-F956-4499-BA68-D4E7F81C34DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{676F11F8-F956-4499-BA68-D4E7F81C34DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{676F11F8-F956-4499-BA68-D4E7F81C34DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{676F11F8-F956-4499-BA68-D4E7F81C34DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
