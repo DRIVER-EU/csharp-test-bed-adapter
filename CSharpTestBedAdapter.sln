@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.852
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpTestBedAdapter", "src\CSharpTestBedAdapter\CSharpTestBedAdapter.csproj", "{9FA5257A-BD49-43EE-8B48-B4BCEB02122B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{676F11F8-F956-4499-BA68-D4E7F81C34DC} = {676F11F8-F956-4499-BA68-D4E7F81C34DC}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{110475EC-F2D4-4655-9920-840A431B196F}"
 EndProject
