@@ -2,11 +2,6 @@
 
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
-__PLEASE NOTICE: The latest version might not be this master. Newer versions are available as release branches (but might be unstable).__
-__For implementation of trial 1 (Poland), please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
-__For implementation of trial 2 (France), please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
-__For implementation of trial 4 (Netherlands), please use the branch [release/trial_4](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_4).__
-
 The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.6)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
 * Sending and receiving Avro schema's and messages: both producer and consumer use Avro schema's for their message key and value.

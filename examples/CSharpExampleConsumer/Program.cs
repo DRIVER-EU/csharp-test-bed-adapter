@@ -12,9 +12,6 @@
 using System;
 using System.Collections.Generic;
 
-using Confluent.Kafka;
-using log4net.Core;
-
 using eu.driver.CSharpTestBedAdapter;
 // Namesapce from the CommonMessages project
 using eu.driver.model.test;
@@ -39,9 +36,9 @@ namespace CSharpExampleConsumer
             try
             {
                 TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
-                TestBedAdapter.GetInstance().AddCallback<Test>(Adapter_TestMessage, CustomTopicName, Offset.Beginning);
-                TestBedAdapter.GetInstance().AddCallback<Alert>(Adapter_AlertMessage, Configuration.StandardTopics[typeof(Alert)], Offset.Beginning);
-                TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to messages...");
+                TestBedAdapter.GetInstance().AddCallback<Test>(Adapter_TestMessage, CustomTopicName, Confluent.Kafka.Offset.Beginning);
+                TestBedAdapter.GetInstance().AddCallback<Alert>(Adapter_AlertMessage, Configuration.StandardTopics[typeof(Alert)], Confluent.Kafka.Offset.Beginning);
+                TestBedAdapter.GetInstance().Log(log4net.Core.Level.Debug, "adapter started, listening to messages...");
                 while (true)
                 { }
             }
