@@ -13,8 +13,8 @@ using System;
 using System.Collections.Generic;
 
 using Confluent.Kafka;
-using Confluent.SchemaRegistry;
-using Confluent.SchemaRegistry.Serdes;
+using Confluent.Kafka.Serialization;
+
 using eu.driver.model.edxl;
 
 namespace eu.driver.CSharpTestBedAdapter
@@ -25,7 +25,7 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <summary>
         /// The concrete producer to send messages with
         /// </summary>
-        private IProducer<EDXLDistribution, T> _producer;
+        private Producer<EDXLDistribution, T> _producer;
         /// <summary>
         /// The name of the sending application
         /// </summary>
@@ -59,18 +59,19 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="configuration">The test-bed adapter configuration information</param>
         internal AbstractProducer(Configuration configuration)
         {
-            using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(configuration.SchemaRegistryConfig))
-            {
-                _producer = new ProducerBuilder<EDXLDistribution, T>(configuration.ProducerConfig)
-                    .SetKeySerializer(new AvroSerializer<EDXLDistribution>(csrc))
-                    .SetValueSerializer(new AvroSerializer<T>(csrc))
-                    // Raised on critical errors, e.g.connection failures or all brokers down.
-                    .SetErrorHandler((_, error) => OnError?.Invoke(this, error))
-                    // Raised when there is information that should be logged.
-                    .SetLogHandler((_, log) => OnLog?.Invoke(this, log))
-                    .Build();
-            }
+            _producer = new Producer<EDXLDistribution, T>(configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
             _sender = configuration.Settings.clientid;
+
+            // Raised on critical errors, e.g. connection failures or all brokers down.
+            _producer.OnError += (sender, error) =>
+            {
+                OnError?.Invoke(sender, error);
+            };
+            // Raised when there is information that should be logged.
+            _producer.OnLog += (sender, log) =>
+            {
+                OnLog?.Invoke(sender, log);
+            };
 
             messageQueue = new Queue<KeyValuePair<T, string>>();
         }
@@ -107,12 +108,7 @@ namespace eu.driver.CSharpTestBedAdapter
                 // Make sure this message is allowed to be sent on the topic
                 if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopics.Contains(topic))
                 {
-                    Message<EDXLDistribution, T> m = new Message<EDXLDistribution, T>()
-                    {
-                        Key = CreateKey(),
-                        Value = message,
-                    };
-                    _producer.ProduceAsync(topic, m);
+                    _producer.ProduceAsync(topic, CreateKey(), message);
                 }
                 else throw new CommunicationException($"cannot send message, since the topic ({topic}) is restricted");
             }
@@ -139,7 +135,6 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <summary><see cref="IDisposable.Dispose"/></summary>
         public void Dispose()
         {
-            _producer.Flush();
             _producer.Dispose();
         }
     }

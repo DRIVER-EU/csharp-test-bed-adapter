@@ -12,6 +12,8 @@
 using System;
 using System.Net.Http;
 
+using log4net.Core;
+
 using eu.driver.CSharpTestBedAdapter;
 // Namesapce from the CommonMessages project
 using eu.driver.model.test;
@@ -35,7 +37,7 @@ namespace CSharpExampleProducerCustom
             try
             {
                 TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
-                TestBedAdapter.GetInstance().Log(log4net.Core.Level.Debug, "adapter started, listening to input...");
+                TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
 
                 // Test the large file system access
                 TestLargeFileService();

@@ -11,6 +11,8 @@
  *************************************************************/
 using System;
 
+using log4net.Core;
+
 using eu.driver.CSharpTestBedAdapter;
 // Namespace from the StandardMessages project
 using eu.driver.model.cap;
@@ -31,7 +33,7 @@ namespace CSharpExampleProducerStandard
             try
             {
                 TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
-                TestBedAdapter.GetInstance().Log(log4net.Core.Level.Debug, "adapter started, listening to input...");
+                TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
 
                 Console.WriteLine($"Please type in any text to be send over the standard CAP topic; q to exit");
                 string text;
