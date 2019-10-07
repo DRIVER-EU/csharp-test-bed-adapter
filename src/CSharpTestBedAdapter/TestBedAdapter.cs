@@ -197,13 +197,21 @@ namespace eu.driver.CSharpTestBedAdapter
         private HttpClient _fileServiceClient = null;
 
         /// <summary>
-        /// The list of topics that this adapter received an invitation to
+        /// The list of topics that this adapter received an invitation for sending messages
         /// </summary>
-        public List<string> AllowedTopics
+        public List<string> AllowedTopicsSend
         {
-            get { return new List<string>(_allowedTopics); }
+            get { return new List<string>(_allowedTopicsSend); }
         }
-        private List<string> _allowedTopics;
+        private List<string> _allowedTopicsSend;
+        /// <summary>
+        /// The list of topics that this adapter received an invitation for receiving messages
+        /// </summary>
+        public List<string> AllowedTopicsReceive
+        {
+            get { return new List<string>(_allowedTopicsReceive); }
+        }
+        private List<string> _allowedTopicsReceive;
 
         #endregion Properties & variables
 
@@ -282,18 +290,8 @@ namespace eu.driver.CSharpTestBedAdapter
                     TimeState = model.core.State.Initialized
                 };
 
-                _allowedTopics = new List<string>()
-                {
-                    "csharp-test",
-                    "simulation_timecontrol",
-                    "simulation_object_deleted",
-                    "simulation_entity_item",
-                    "simulation_entity_station",
-                    "simulation_entity_post",
-                    "simulation_connection_unit",
-                    "simulation_connection_unit_connection",
-                    "simulation_request_unittransport",
-                };
+                _allowedTopicsSend = new List<string>();
+                _allowedTopicsReceive = new List<string>();
             }
             catch (Exception e)
             {
@@ -695,12 +693,35 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
         {
-            // Add the topic name to the list to check for sending/receiving messages
-            string topic = message.Value.topicName;
-            if (!_allowedTopics.Contains(topic))
+            // Check if this message is directed to us
+            if (message.Value.id == _configuration.Settings.clientid)
             {
-                Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {topic}");
-                _allowedTopics.Add(topic);
+                // Retrieve the topic name that this invitation applies to
+                string topic = message.Value.topicName;
+
+                // Check for publishing rights
+                if (message.Value.publishAllowed && !_allowedTopicsSend.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is allowed to send on topic {topic}");
+                    _allowedTopicsSend.Add(topic);
+                }
+                else if(_allowedTopicsSend.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is restricted from sending on topic {topic}");
+                    _allowedTopicsSend.Remove(topic);
+                }
+
+                // Check for subscription rights
+                if (message.Value.subscribeAllowed && !_allowedTopicsReceive.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is allowed to receive on topic {topic}");
+                    _allowedTopicsReceive.Add(topic);
+                }
+                else if(_allowedTopicsReceive.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is restricted from receiving on topic {topic}");
+                    _allowedTopicsReceive.Remove(topic);
+                }
             }
         }
 

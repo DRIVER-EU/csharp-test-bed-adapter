@@ -108,7 +108,7 @@ namespace eu.driver.CSharpTestBedAdapter
             if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Enabled || TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug)
             {
                 // Make sure this message is allowed to be received from the topic
-                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopics.Contains(message.Topic))
+                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopicsReceive.Contains(message.Topic))
                 {
                     _consumerHandler?.Invoke(message.Key.senderID, message.Topic, message.Value);
                 }

@@ -106,7 +106,7 @@ namespace eu.driver.CSharpTestBedAdapter
                 // TODO: implement waiting for response or not
                 // TODO: implement time out mechanism
                 // Make sure this message is allowed to be sent on the topic
-                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopics.Contains(topic))
+                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopicsSend.Contains(topic))
                 {
                     _producer.ProduceAsync(topic, CreateKey(), message);
                 }
