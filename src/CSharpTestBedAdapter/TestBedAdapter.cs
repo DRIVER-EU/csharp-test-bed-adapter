@@ -140,10 +140,6 @@ namespace eu.driver.CSharpTestBedAdapter
         /// </summary>
         private Consumer<EDXLDistribution, TimingControl> _timecontrolConsumer;
         /// <summary>
-        /// The producer this connector is using to send out a request for creating a topic
-        /// </summary>
-        private Producer<EDXLDistribution, TopicCreate> _topicCreateProducer;
-        /// <summary>
         /// The consumer this connector is using to receive invitations to listen to a certain topic
         /// </summary>
         private Consumer<EDXLDistribution, TopicInvite> _topicInviteConsumer;
@@ -243,9 +239,6 @@ namespace eu.driver.CSharpTestBedAdapter
                 _logProducer = new Producer<EDXLDistribution, Log>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
                 _logProducer.OnError += Adapter_Error;
                 _logProducer.OnLog += Adapter_Log;
-                _topicCreateProducer = new Producer<EDXLDistribution, TopicCreate>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<TopicCreate>());
-                _topicCreateProducer.OnError += Adapter_Error;
-                _topicCreateProducer.OnLog += Adapter_Log;
 
                 // Initialize the consumers for the system topics
                 _heartbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
@@ -906,12 +899,6 @@ namespace eu.driver.CSharpTestBedAdapter
                 _logProducer.OnError -= Adapter_Error;
                 _logProducer.OnLog -= Adapter_Log;
                 _logProducer.Dispose();
-            }
-            if (_topicCreateProducer != null)
-            {
-                _topicCreateProducer.OnError -= Adapter_Error;
-                _topicCreateProducer.OnLog -= Adapter_Log;
-                _topicCreateProducer.Dispose();
             }
 
             // Dispose all system consumers
