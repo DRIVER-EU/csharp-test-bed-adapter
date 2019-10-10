@@ -31,6 +31,11 @@ namespace eu.driver.CSharpTestBedAdapter
         #region Definitions
 
         /// <summary>
+        /// The UNIX Epoch defined as 1970-01-01T00:00:00Z
+        /// </summary>
+        public static readonly DateTime UNIXEpoch = DateTimeOffset.FromUnixTimeMilliseconds(0).DateTime;
+
+        /// <summary>
         /// The different states this adapter can be in
         /// </summary>
         public enum States
@@ -344,6 +349,17 @@ namespace eu.driver.CSharpTestBedAdapter
             return _currentTime;
         }
 
+        /// <summary>
+        /// Method for adding a callback function to the time control events of this adapter
+        /// </summary>
+        /// <param name="handler">The function that will be called once a timing control message is sent</param>
+        public void AddTimingControlCallback(TimingControlHandler handler)
+        {
+            _timingControlHandler = handler;
+        }
+        public delegate void TimingControlHandler();
+        private TimingControlHandler _timingControlHandler = null;
+
         #endregion Time
 
         #region Heartbeat
@@ -629,14 +645,13 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void TimeConsumer_Message(object sender, Message<EDXLDistribution, Timing> message)
         {
-            DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             TimeSpan updatedAt = TimeSpan.FromMilliseconds(message.Value.updatedAt);
             TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime);
 
             // Update the values of the time info
             _currentTime.ElapsedTime = TimeSpan.FromMilliseconds(message.Value.timeElapsed);
-            _currentTime.UpdatedAt = baseTime.Add(updatedAt);
-            _currentTime.TrialTime = baseTime.Add(trialTime);
+            _currentTime.UpdatedAt = UNIXEpoch.Add(updatedAt);
+            _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
             _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed;
             _currentTime.TimeState = message.Value.state;
         }
@@ -648,43 +663,43 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void TimecontrolConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
         {
-            DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             // Update the values of the time info
+            switch (message.Value.command)
+            {
+                case Command.Init:
+                    _currentTime.TimeState = model.core.State.Initialized;
+                    break;
+                case Command.Start:
+                    _currentTime.TimeState = model.core.State.Started;
+                    break;
+                case Command.Update:
+                    break;
+                case Command.Pause:
+                    _currentTime.TimeState = model.core.State.Paused;
+                    break;
+                case Command.Stop:
+                    _currentTime.TimeState = model.core.State.Stopped;
+                    break;
+                case Command.Reset:
+                    _currentTime.TimeState = model.core.State.Idle;
+                    break;
+            }
             if (message.Value.trialTime.HasValue)
             {
                 TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime.Value);
-                _currentTime.TrialTime = baseTime.Add(trialTime);
+                _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
             }
             if (message.Value.trialTimeSpeed.HasValue)
             {
                 _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
             }
 
-            // FIXME: This last functionality should be replaced with a separate state to disable/enable the adapter sending and receiving messages
-            //// Update the state of this adapter, based on the time service command
-            //// This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
-            //switch (_currentTime.TimeState)
-            //{
-            //    // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
-            //    case Command.Start:
-            //    case Command.Update:
-            //        if (State == States.Init)
-            //        {
-            //            State = States.Enabled;
-            //        }
-            //        break;
-            //    // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
-            //    case Command.Pause:
-            //    case Command.Stop:
-            //    case Command.Reset:
-            //        if (State == States.Enabled)
-            //        {
-            //            State = States.Disabled;
-            //        }
-            //        break;
-            //}
-            // END_OF_FIXME
-                    }
+            // If the callback handler was provided, notify the application of the timing control change
+            if (_timingControlHandler != null)
+            {
+                _timingControlHandler.Invoke();
+            }
+        }
 
         /// <summary>
         /// Delegate being called once a new message is consumed on the system topic for topic invitations
