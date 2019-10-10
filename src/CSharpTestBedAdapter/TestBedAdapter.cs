@@ -241,11 +241,20 @@ namespace eu.driver.CSharpTestBedAdapter
                 _logProducer.OnLog += Adapter_Log;
 
                 // Initialize the consumers for the system topics
-                _heartbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
-                _heartbeatConsumer.OnError += Adapter_Error;
-                _heartbeatConsumer.OnConsumeError += Adapter_ConsumeError;
-                _heartbeatConsumer.OnLog += Adapter_Log;
-                _heartbeatConsumer.OnMessage += HeartbeatConsumer_Message;
+                // Whenever bypassing the adming tool, don't listen to the admin tool control topics
+                if (!_configuration.Settings.directconnect)
+                {
+                    _heartbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
+                    _heartbeatConsumer.OnError += Adapter_Error;
+                    _heartbeatConsumer.OnConsumeError += Adapter_ConsumeError;
+                    _heartbeatConsumer.OnLog += Adapter_Log;
+                    _heartbeatConsumer.OnMessage += HeartbeatConsumer_Message;
+                    _topicInviteConsumer = new Consumer<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TopicInvite>());
+                    _topicInviteConsumer.OnError += Adapter_Error;
+                    _topicInviteConsumer.OnConsumeError += Adapter_ConsumeError;
+                    _topicInviteConsumer.OnLog += Adapter_Log;
+                    _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
+                }
                 _timeConsumer = new Consumer<EDXLDistribution, Timing>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<Timing>());
                 _timeConsumer.OnError += Adapter_Error;
                 _timeConsumer.OnConsumeError += Adapter_ConsumeError;
@@ -256,22 +265,25 @@ namespace eu.driver.CSharpTestBedAdapter
                 _timecontrolConsumer.OnConsumeError += Adapter_ConsumeError;
                 _timecontrolConsumer.OnLog += Adapter_Log;
                 _timecontrolConsumer.OnMessage += TimecontrolConsumer_Message;
-                _topicInviteConsumer = new Consumer<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TopicInvite>());
-                _topicInviteConsumer.OnError += Adapter_Error;
-                _topicInviteConsumer.OnConsumeError += Adapter_ConsumeError;
-                _topicInviteConsumer.OnLog += Adapter_Log;
-                _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken token = _cancellationTokenSource.Token;
 
                 // Start listening to the topics
-                _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
+                // Whenever bypassing the adming tool, don't listen to the admin tool control topics
+                if (!_configuration.Settings.directconnect)
+                {
+                    _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
+                    _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
+                }
                 _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
                 _timecontrolConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time-control"], 0, Offset.End) });
-                _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
 
-                Task.Factory.StartNew((cancelToken) => { AdminCheck((CancellationToken)cancelToken); }, token, token);
+                // Whenever bypassing the adming tool, don't listen to the admin tool control topics
+                if (!_configuration.Settings.directconnect)
+                {
+                    Task.Factory.StartNew((cancelToken) => { AdminCheck((CancellationToken)cancelToken); }, token, token);
+                }
                 Task.Factory.StartNew((cancelToken) => { Consume((CancellationToken)cancelToken); }, token, token);
 
                 // Start the heart beat to indicate the connector is still alive
@@ -290,6 +302,12 @@ namespace eu.driver.CSharpTestBedAdapter
 
                 _allowedTopicsSend = new List<string>();
                 _allowedTopicsReceive = new List<string>();
+
+                // When we are directly connecting, ignoring the admin tool, go right into DEBUG mode
+                if (_configuration.Settings.directconnect)
+                {
+                    _state = States.Debug;
+                }
             }
             catch (Exception e)
             {
@@ -573,7 +591,11 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 _timeConsumer.Poll(100);
                 _timecontrolConsumer.Poll(100);
-                _topicInviteConsumer.Poll(100);
+                // Only listen to the topic invites whenever we are taking into account the Admin tool
+                if (!_configuration.Settings.directconnect)
+                {
+                    _topicInviteConsumer.Poll(100);
+                }
             }
         }
 

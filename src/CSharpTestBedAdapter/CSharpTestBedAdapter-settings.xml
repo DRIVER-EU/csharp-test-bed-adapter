@@ -21,4 +21,6 @@
   <retry.count>3</retry.count>
   <!-- The time (in ms) between the retries -->
   <retry.time>1000</retry.time>
+  <!-- Indication if this adapter is allowed to send and receive messages without waiting for the DRIVER+ Test-bed Admin tool-->
+  <direct.connect>false</direct.connect>
 </settings>

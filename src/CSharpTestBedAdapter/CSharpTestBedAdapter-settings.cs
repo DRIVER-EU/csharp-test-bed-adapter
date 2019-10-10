@@ -25,8 +25,8 @@ namespace Schemas {
         
         private string clientidField;
         
-        private ushort heartbeatintervalField;
-
+        private int heartbeatintervalField;
+        
         private string securityprotocolField;
         
         private string securitycertificatepathField;
@@ -41,12 +41,14 @@ namespace Schemas {
         
         private bool sendsyncField;
         
-        private byte retrycountField;
+        private int retrycountField;
         
-        private ushort retrytimeField;
+        private int retrytimeField;
+        
+        private bool directconnectField;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("client.id")]
+        [System.Xml.Serialization.XmlElementAttribute("client.id", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public string clientid {
             get {
                 return this.clientidField;
@@ -57,8 +59,8 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("heartbeat.interval")]
-        public ushort heartbeatinterval {
+        [System.Xml.Serialization.XmlElementAttribute("heartbeat.interval", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public int heartbeatinterval {
             get {
                 return this.heartbeatintervalField;
             }
@@ -66,23 +68,20 @@ namespace Schemas {
                 this.heartbeatintervalField = value;
             }
         }
-
+        
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("security.protocol")]
-        public string securityprotocol
-        {
-            get
-            {
+        [System.Xml.Serialization.XmlElementAttribute("security.protocol", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string securityprotocol {
+            get {
                 return this.securityprotocolField;
             }
-            set
-            {
+            set {
                 this.securityprotocolField = value;
             }
         }
-
+        
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("security.certificate.path")]
+        [System.Xml.Serialization.XmlElementAttribute("security.certificate.path", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public string securitycertificatepath {
             get {
                 return this.securitycertificatepathField;
@@ -93,7 +92,7 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("security.keystore.path")]
+        [System.Xml.Serialization.XmlElementAttribute("security.keystore.path", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public string securitykeystorepath {
             get {
                 return this.securitykeystorepathField;
@@ -104,7 +103,7 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("security.keystore.password")]
+        [System.Xml.Serialization.XmlElementAttribute("security.keystore.password", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public string securitykeystorepassword {
             get {
                 return this.securitykeystorepasswordField;
@@ -115,7 +114,7 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("broker.url")]
+        [System.Xml.Serialization.XmlElementAttribute("broker.url", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public string brokerurl {
             get {
                 return this.brokerurlField;
@@ -126,7 +125,7 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("schema.url")]
+        [System.Xml.Serialization.XmlElementAttribute("schema.url", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public string schemaurl {
             get {
                 return this.schemaurlField;
@@ -137,7 +136,7 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("send.sync")]
+        [System.Xml.Serialization.XmlElementAttribute("send.sync", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public bool sendsync {
             get {
                 return this.sendsyncField;
@@ -148,8 +147,8 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("retry.count")]
-        public byte retrycount {
+        [System.Xml.Serialization.XmlElementAttribute("retry.count", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public int retrycount {
             get {
                 return this.retrycountField;
             }
@@ -159,13 +158,47 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("retry.time")]
-        public ushort retrytime {
+        [System.Xml.Serialization.XmlElementAttribute("retry.time", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public int retrytime {
             get {
                 return this.retrytimeField;
             }
             set {
                 this.retrytimeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("direct.connect", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public bool directconnect {
+            get {
+                return this.directconnectField;
+            }
+            set {
+                this.directconnectField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "0.0.0.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace="", IsNullable=false)]
+    public partial class NewDataSet {
+        
+        private settings itemField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("settings")]
+        public settings Item {
+            get {
+                return this.itemField;
+            }
+            set {
+                this.itemField = value;
             }
         }
     }
