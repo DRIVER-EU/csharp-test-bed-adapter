@@ -792,9 +792,14 @@ namespace eu.driver.CSharpTestBedAdapter
         public void SendMessage<T>(T message, string topic)
             where T : Avro.Specific.ISpecificRecord
         {
-            // Make sure we are not sending out messages to standard topics via this method
-            if (Configuration.StandardTopics.ContainsValue(topic))
-                throw new CommunicationException($"topic ({topic}) is already part of the standard test-bed topics! Choose another topic name");
+            // Make sure that you cannot send a different message format over a standard topic
+            foreach (KeyValuePair<Type, string> kvp in Configuration.StandardTopics)
+            {
+                if (kvp.Value == topic && kvp.Key != typeof(T))
+                {
+                    throw new CommunicationException($"could not create producer type {typeof(T)} for stadard topic ({topic}), since it is not conform the initial standard message type {kvp.Key}");
+                }
+            }
 
             DoSendMessage<T>(message, topic);
         }
@@ -873,7 +878,7 @@ namespace eu.driver.CSharpTestBedAdapter
             }
 
             // Create a new consumer listening to the given topic
-            AbstractConsumer<T> newConsumer = new AbstractConsumer<T>(_configuration, handler, topic, offset);
+            AbstractConsumer<T> newConsumer = new AbstractConsumer<T>(_configuration, handler, topic, offset, _cancellationTokenSource);
             newConsumer.OnError += Adapter_Error;
             newConsumer.OnLog += Adapter_Log;
             if (_consumers.ContainsKey(topic))
@@ -909,13 +914,11 @@ namespace eu.driver.CSharpTestBedAdapter
             // Dispose all created producers
             foreach (IAbstractProducer producer in _producers.Values)
             {
-                // TODO: unsubsribe from error and log events
                 ((IDisposable)producer).Dispose();
             }
             // Dispose all created consumers
             foreach (IAbstractConsumer consumer in _consumers.Values)
             {
-                // TODO: unsubsribe from error and log events
                 ((IDisposable)consumer).Dispose();
             }
 
