@@ -2,11 +2,6 @@
 
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
-__PLEASE NOTICE: The latest version might not be this master. Newer versions are available as release branches (but might be unstable).__
-__For implementation of trial 1 (Poland), please use the branch [release/trial_1](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_1).__
-__For implementation of trial 2 (France), please use the branch [release/trial_2](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_2).__
-__For implementation of trial 4 (Netherlands), please use the branch [release/trial_4](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/release/trial_4).__
-
 The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.6)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
 
 * Sending and receiving Avro schema's and messages: both producer and consumer use Avro schema's for their message key and value.
@@ -45,6 +40,21 @@ This example listens to both the test messages from `CSharpExampleProducerCustom
 Project that is used in the examples only, containing a simple test Avro schema that is used for transmitting messages of that type from producer to consumer.
 Inside the [examples\common\CommonMessages\data](https://github.com/DRIVER-EU/csharp-test-bed-adapter/tree/master/examples/common/CommonMessages/data) folder you'll find a README regarding the conversion from Avro schema to C# class file(s).
 
+### src\CoreMessages
+
+The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas/tree/master/core). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
+
+* Heartbeat: sending to topic `system_heartbeat`
+This allows the adapter to indicate it is still alive for all other adapters in the test-bed.
+* Log: sending to topic `system_logging`
+Both the adapter as your application can send log messages to the test-bed to inform operators on what is going on inside the application.
+* Admin heartbeat: receiving from topic `system_admin_heartbeat`
+The adapter checks if the admin tool inside the test-bed is alive. If not during the first 10 seconds of this adapters existence, the adapter will enter `DEBUG` mode. If the admin tool was present but connection is lost somehow, the adapter will enter `DISABLED` mode until the admin tool comes back alive, re-sending and re-receiving all messages that were queued during being disabled.
+* Timing: receiving from topic `system_timing`
+The [time service](https://github.com/DRIVER-EU/test-bed-time-service) updates all adapters for setting a global time frame. Current time information can be retrieved from the `GetTimeInfo` method.
+* Time control: receiving from topic `system_timing_control`
+The [Trial Management Tool](https://github.com/DRIVER-EU/scenario-manager) notifies all adapters on time changes, for instance whenever a running trial is paused.
+
 ### src\StandardMessages
 
 The code project that bundles all standard message formats defined for the Common Information Space (CIS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas/tree/master/standard). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
@@ -55,20 +65,9 @@ The code project that bundles all standard message formats defined for the Commo
 * [Mobile Location Protocol (MLP)](https://en.wikipedia.org/wiki/Mobile_Location_Protocol)
 * [Test-bed large data update messages](https://github.com/DRIVER-EU/avro-schemas/tree/master/core/large-data)
 
-### src\CoreMessages
+### src\SimMessages
 
-The code project that bundles all system/core message formats defined for the DRIVER-EU Test-bed. These schemas can also be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas/tree/master/core). This project is required for `CSharpTestBedAdapter` to run. The following message formats are currently implemented:
-
-* Heartbeat: sending to topic `system_heartbeat`
-This allows the adapter to indicate it is still alive for all other adapters in the test-bed.
-* Log: sending to topic `system_loggin`
-Both the adapter as your application can send log messages to the test-bed to inform operators on what is going on inside the application.
-* Admin heartbeat: receiving from topic `system_admin_heartbeat`
-The adapter checks if the admin tool inside the test-bed is alive. If not during the first 10 seconds of this adapters existence, the adapter will enter `DEBUG` mode. If the admin tool was present but connection is lost somehow, the adapter will enter `DISABLED` mode until the admin tool comes back alive, re-sending and re-receiving all messages that were queued during being disabled.
-* Timing: receiving from topic `system_timing`
-The [time service](https://github.com/DRIVER-EU/test-bed-time-service) updates all adapters for setting a global time frame. Current time information can be retrieved from the `GetTimeInfo` method.
-* Time control: receiving from topic `system_timing_control`
-The [time service](https://github.com/DRIVER-EU/test-bed-time-service) also notifies all adapters on time changes, for instance whenever a running trial is paused. Currently, this is only changing the time state in the current time information.
+The code project that bundles all simulation message formats defined for the Common Simulation Space (CSS) of the DRIVER-EU Test-bed. All these Avro schemas can be found at [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas/tree/master/sim). This project is not required for `CSharpTestBedAdapter` to run.
 
 ### Dependencies
 
@@ -81,20 +80,21 @@ In order to use the `csharp-test-bed-adapter`, you are also required to download
 ## Usage
 
 The C# test-bed adapter is available as [Nuget package](https://www.nuget.org/packages/CSharpTestBedAdapter/).
-You can also manually build `CSharpTestBedAdapter` and reference the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
+You can also manually build `CSharpTestBedAdapter` and include the compiled DLLs `CSharpTestBedAdapter.dll`, `CoreMessages.dll` & `StandardMessages.dll` into your own application.
 
 Next to the compiled `CSharpTestBedAdapter.dll`, there is a [CSharpTestBedAdapter-settings.xml](https://github.com/DRIVER-EU/csharp-test-bed-adapter/blob/release/trial_4/src/CSharpTestBedAdapter/CSharpTestBedAdapter-settings.xml), where you can change the following adapter settings:
 * __client.id__: the name of the application that uses this adapter
 * __heartbeat.interval__: the time (in ms) between sending a heartbeat
 * __security.protocol__: the security protocol this adapter is using (PLAINTEXT or SSL)
-* __security.certificate.path__: the path of the authentication certificate; this is the client's public key (PEM) :: only needed when `security.protocol = SSL`
+* __security.certificate.path__: the path of the issuer certificate :: only needed when `security.protocol = SSL`
 * __security.keystore.path__: the path of the PKCS#12 keystore (client keypair + certificate) for client authentication :: only needed when `security.protocol = SSL`
 * __security.keystore.password__: the password for the PKCS#12 keystore :: only needed when `security.protocol = SSL`
 * __broker.url__: the URL of the Kafka broker to connect to
-* __schema.url__: the URL of the schema registry to use
-* __send.sync__: (a)synchronized sending of messages (not implemented yet)
-* __retry.count__: number of retries, before reporting an error (not implemented yet)
-* __retry.time__: the retry interval in between retries (not implemented yet)
+* __schema.url__: the URL of the schema registry service to use
+* __send.sync__: indication if the adapter needs to stall the application thread until the message is sent
+* __retry.count__: number of retries before timing out when sending messages
+* __retry.time__: amount of time (in ms) before timing out when sending messages
+* __direct.connect__: indication if this adapter is allowed to send and receive messages without waiting for the admin tool
 
 See the 3 example projects for further implementation of this adapter.
 
@@ -102,9 +102,9 @@ See the 3 example projects for further implementation of this adapter.
 
 This functionality ensures proper conversion from Avro schemas to C# classes. It uses the `avrogen.exe` that is built from the [Apache Avro GitHub](https://github.com/apache/avro).
 
-## Core and Standard Avro schemas
+## Core, Standard & Sim Avro schemas
 
-Within this adapter, all core and standard Avro schemas defined in the [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas) repository are already converted for ease of use. If you want to re-convert these schemas, you can run the `convert.bat` Windows batch file in the folder `src\CoreMessages\data\avro-schemas` for the core adapter messages and `src\StandardMessages\data\avro-schemas` for the standard messages.
+Within this adapter, all core, standard and sim Avro schemas defined in the [DRIVER-EU avro-schemas](https://github.com/DRIVER-EU/avro-schemas) repository are already converted for ease of use. If you want to re-convert these schemas, you can run the `convert.bat` Windows batch file in the folder `src\CoreMessages\data\avro-schemas` for the core adapter messages, `src\StandardMessages\data\avro-schemas` for the standard messages, and `src\SimMessages\data\avro-schemas` for the simulation messages.
 
 ## Conversion of custom schemas
 
