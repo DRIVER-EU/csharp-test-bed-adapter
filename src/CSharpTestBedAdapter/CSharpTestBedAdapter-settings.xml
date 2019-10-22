@@ -5,7 +5,7 @@
   <heartbeat.interval>5000</heartbeat.interval>
   <!-- The security protocol this adapter is using (PLAINTEXT or SSL) -->
   <security.protocol>PLAINTEXT</security.protocol>
-  <!-- The path of the authentication certificate; this is the client's public key (PEM) -->
+  <!-- The path of the issuer certificate -->
   <security.certificate.path>./ssl/ca-crt.pem</security.certificate.path>
   <!-- The path of the PKCS#12 keystore (client keypair + certificate) for client authentication -->
   <security.keystore.path>./ssl/other-tool-1-client.p12</security.keystore.path>
@@ -18,9 +18,9 @@
   <!-- Indication if the adapter needs to stall the application thread until the message is sent -->
   <send.sync>false</send.sync>
   <!-- Amount of retries before timing out when sending messages -->
-  <retry.count>3</retry.count>
-  <!-- The time (in ms) between the retries -->
-  <retry.time>1000</retry.time>
+  <retry.count>10000000</retry.count>
+  <!-- Amount of time (in ms) before timing out when sending messages -->
+  <retry.time>120000</retry.time>
   <!-- Indication if this adapter is allowed to send and receive messages without waiting for the DRIVER+ Test-bed Admin tool-->
   <direct.connect>false</direct.connect>
 </settings>

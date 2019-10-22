@@ -104,7 +104,6 @@ namespace eu.driver.CSharpTestBedAdapter
             // Only send the message whenever the adapter is enabled
             if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Enabled || TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug)
             {
-                // TODO: implement time out mechanism
                 // Make sure this message is allowed to be sent on the topic
                 if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopicsSend.Contains(topic))
                 {
