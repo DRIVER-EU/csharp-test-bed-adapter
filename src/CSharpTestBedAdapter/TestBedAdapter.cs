@@ -312,7 +312,6 @@ namespace eu.driver.CSharpTestBedAdapter
             catch (Exception e)
             {
                 Log(log4net.Core.Level.Critical, e.ToString());
-                throw e;
             }
         }
 
@@ -390,7 +389,14 @@ namespace eu.driver.CSharpTestBedAdapter
                     alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
                 };
 
-                _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
+                try
+                {
+                    _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
+                }
+                catch (Exception e)
+                {
+                    Log(log4net.Core.Level.Error, e.ToString());
+                }
 
                 // Wait for the specified amount of milliseconds
                 Task wait = Task.Delay(_configuration.Settings.heartbeatinterval);
@@ -407,7 +413,6 @@ namespace eu.driver.CSharpTestBedAdapter
         /// </summary>
         /// <param name="level">The <see cref="log4net.Core.Level"/> indicating the severity of the message</param>
         /// <param name="msg">The message to be logged</param>
-        // TODO: Think about creating own log levels and putting them into the schema
         public void Log(log4net.Core.Level level, string msg)
         {
             // Send the message to the callback function
@@ -422,9 +427,12 @@ namespace eu.driver.CSharpTestBedAdapter
                 EDXLDistribution key = CreateCoreKey();
                 Log log = new Log() { id = _configuration.Settings.clientid, log = msg };
 
-                _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
+                try
+                {
+                    _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
+                }
+                catch { }
             }
-            else throw new NullReferenceException($"Could not create the log producer that should send the following log:\n{msg}");
         }
 
         /// <summary>
@@ -466,7 +474,6 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="error">The actual log from the producer or consumer</param>
         private void Adapter_Log(object sender, LogMessage log)
         {
-            // TODO: Possibly map log.Level to log4net.Core.Level?
             Log(log4net.Core.Level.Info, $"{sender.GetType()} {log.Name}: {log.Message}");
         }
 
@@ -889,7 +896,10 @@ namespace eu.driver.CSharpTestBedAdapter
         public void Dispose()
         {
             // Stop all running tasks
-            _cancellationTokenSource.Cancel();
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+            }
             // Stop the connection with the large file service
             if (_fileServiceClient != null)
             {
