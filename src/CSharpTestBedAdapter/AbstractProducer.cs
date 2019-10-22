@@ -113,7 +113,6 @@ namespace eu.driver.CSharpTestBedAdapter
                     // Wait for sending this message if the settings property was set
                     if (_configuration.Settings.sendsync)
                     {
-                        Console.WriteLine("waiting");
                         task.Wait();
                     }
                 }
