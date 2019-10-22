@@ -11,6 +11,7 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Confluent.Kafka;
@@ -61,7 +62,7 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="handler">The callback function to invoke whenever a new message has been consumed</param>
         /// <param name="topic">The name of the topci to listen to</param>
         /// <param name="offset">The topic offset to start listening at the correct index</param>
-        internal AbstractConsumer(Configuration configuration, TestBedAdapter.ConsumerHandler<T> handler, string topic, Offset offset)
+        internal AbstractConsumer(Configuration configuration, TestBedAdapter.ConsumerHandler<T> handler, string topic, Offset offset, CancellationTokenSource tokenSource)
         {
             _consumer = new Consumer<EDXLDistribution, T>(configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<T>());
             _consumerHandler = handler;
@@ -83,16 +84,17 @@ namespace eu.driver.CSharpTestBedAdapter
 
             // Start listening to the topic from the given offset
             _consumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(topic, 0, offset) });
-            // TODO: Add CancellationToken to stop on dispose
-            Task.Factory.StartNew(() => { Consume(); });
+
+            CancellationToken token = tokenSource.Token;
+            Task.Factory.StartNew((cancelToken) => { Consume((CancellationToken)cancelToken); }, token, token);
         }
 
         /// <summary>
         /// Method being used inside a new task to keep polling for new messages to consume
         /// </summary>
-        private void Consume()
+        private void Consume(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 _consumer.Poll(100);
             }
