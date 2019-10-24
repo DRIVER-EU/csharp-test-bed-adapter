@@ -11,6 +11,7 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Confluent.Kafka;
 using Confluent.Kafka.Serialization;
@@ -27,9 +28,9 @@ namespace eu.driver.CSharpTestBedAdapter
         /// </summary>
         private Producer<EDXLDistribution, T> _producer;
         /// <summary>
-        /// The name of the sending application
+        /// The configuration of this test-bed adapter
         /// </summary>
-        private string _sender;
+        private Configuration _configuration;
 
         /// <summary>
         /// Event being triggered whenever an error occurred
@@ -59,8 +60,8 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="configuration">The test-bed adapter configuration information</param>
         internal AbstractProducer(Configuration configuration)
         {
-            _producer = new Producer<EDXLDistribution, T>(configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
-            _sender = configuration.Settings.clientid;
+            _configuration = configuration;
+            _producer = new Producer<EDXLDistribution, T>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
 
             // Raised on critical errors, e.g. connection failures or all brokers down.
             _producer.OnError += (sender, error) =>
@@ -84,7 +85,7 @@ namespace eu.driver.CSharpTestBedAdapter
         {
             return new EDXLDistribution()
             {
-                senderID = _sender,
+                senderID = _configuration.Settings.clientid,
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Unknown,
                 distributionStatus = DistributionStatus.Unknown,
@@ -103,12 +104,16 @@ namespace eu.driver.CSharpTestBedAdapter
             // Only send the message whenever the adapter is enabled
             if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Enabled || TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug)
             {
-                // TODO: implement waiting for response or not
-                // TODO: implement time out mechanism
                 // Make sure this message is allowed to be sent on the topic
-                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopics.Contains(topic))
+                if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopicsSend.Contains(topic))
                 {
-                    _producer.ProduceAsync(topic, CreateKey(), message);
+                    // Send the message
+                    Task<Message<EDXLDistribution, T>> task = _producer.ProduceAsync(topic, CreateKey(), message);
+                    // Wait for sending this message if the settings property was set
+                    if (_configuration.Settings.sendsync)
+                    {
+                        task.Wait();
+                    }
                 }
                 else throw new CommunicationException($"cannot send message, since the topic ({topic}) is restricted");
             }
