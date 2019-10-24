@@ -104,7 +104,11 @@ With regards to the security aspect of this adapter, the __security.ca.path__ pr
 * if your certificate is issued by a Root CA, then this .pem file should contain only the Root CA certificate
 * if your certificate is issued by an Intermediate CA, which is issued by a Root CA (this is currently the case within the DRIVER+ Test-bed), then this .pem file should contain the Root CA certificate and the Intermediate CA certificate
 
-For more information on security within the DRIVER+ Test-bed, please the (this repository)[https://github.com/DRIVER-EU/test-bed-security-authorization-service].
+Because of a [flaw](https://github.com/edenhill/librdkafka/issues/1814) inside the librdkafka DLL used inside the C# adapter, this complete chain needs to be generated manually in order to work with Intermediate CA certificates inside the .pem file. You can create this .pem file by extracting the certificate chain from the .p12, with a key management tool like openssl (or keytool): 
+  
+`$ openssl pkcs12 -in <your p12 keystore> -cacerts -nokeys -chain > ca_certs.pem`
+
+For more information on security within the DRIVER+ Test-bed, please see [this repository](https://github.com/DRIVER-EU/test-bed-security-authorization-service).
 
 ## Data conversion between Avro and C#
 
