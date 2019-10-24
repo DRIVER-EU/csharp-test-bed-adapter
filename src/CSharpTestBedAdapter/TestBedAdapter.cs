@@ -31,6 +31,11 @@ namespace eu.driver.CSharpTestBedAdapter
         #region Definitions
 
         /// <summary>
+        /// The UNIX Epoch defined as 1970-01-01T00:00:00Z
+        /// </summary>
+        public static readonly DateTime UNIXEpoch = DateTimeOffset.FromUnixTimeMilliseconds(0).DateTime;
+
+        /// <summary>
         /// The different states this adapter can be in
         /// </summary>
         public enum States
@@ -135,10 +140,6 @@ namespace eu.driver.CSharpTestBedAdapter
         /// </summary>
         private Consumer<EDXLDistribution, TimingControl> _timecontrolConsumer;
         /// <summary>
-        /// The producer this connector is using to send out a request for creating a topic
-        /// </summary>
-        private Producer<EDXLDistribution, TopicCreate> _topicCreateProducer;
-        /// <summary>
         /// The consumer this connector is using to receive invitations to listen to a certain topic
         /// </summary>
         private Consumer<EDXLDistribution, TopicInvite> _topicInviteConsumer;
@@ -197,13 +198,21 @@ namespace eu.driver.CSharpTestBedAdapter
         private HttpClient _fileServiceClient = null;
 
         /// <summary>
-        /// The list of topics that this adapter received an invitation to
+        /// The list of topics that this adapter received an invitation for sending messages
         /// </summary>
-        public List<string> AllowedTopics
+        public List<string> AllowedTopicsSend
         {
-            get { return new List<string>(_allowedTopics); }
+            get { return new List<string>(_allowedTopicsSend); }
         }
-        private List<string> _allowedTopics;
+        private List<string> _allowedTopicsSend;
+        /// <summary>
+        /// The list of topics that this adapter received an invitation for receiving messages
+        /// </summary>
+        public List<string> AllowedTopicsReceive
+        {
+            get { return new List<string>(_allowedTopicsReceive); }
+        }
+        private List<string> _allowedTopicsReceive;
 
         #endregion Properties & variables
 
@@ -230,16 +239,22 @@ namespace eu.driver.CSharpTestBedAdapter
                 _logProducer = new Producer<EDXLDistribution, Log>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
                 _logProducer.OnError += Adapter_Error;
                 _logProducer.OnLog += Adapter_Log;
-                _topicCreateProducer = new Producer<EDXLDistribution, TopicCreate>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<TopicCreate>());
-                _topicCreateProducer.OnError += Adapter_Error;
-                _topicCreateProducer.OnLog += Adapter_Log;
 
                 // Initialize the consumers for the system topics
-                _heartbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
-                _heartbeatConsumer.OnError += Adapter_Error;
-                _heartbeatConsumer.OnConsumeError += Adapter_ConsumeError;
-                _heartbeatConsumer.OnLog += Adapter_Log;
-                _heartbeatConsumer.OnMessage += HeartbeatConsumer_Message;
+                // Whenever bypassing the adming tool, don't listen to the admin tool control topics
+                if (!_configuration.Settings.directconnect)
+                {
+                    _heartbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
+                    _heartbeatConsumer.OnError += Adapter_Error;
+                    _heartbeatConsumer.OnConsumeError += Adapter_ConsumeError;
+                    _heartbeatConsumer.OnLog += Adapter_Log;
+                    _heartbeatConsumer.OnMessage += HeartbeatConsumer_Message;
+                    _topicInviteConsumer = new Consumer<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TopicInvite>());
+                    _topicInviteConsumer.OnError += Adapter_Error;
+                    _topicInviteConsumer.OnConsumeError += Adapter_ConsumeError;
+                    _topicInviteConsumer.OnLog += Adapter_Log;
+                    _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
+                }
                 _timeConsumer = new Consumer<EDXLDistribution, Timing>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<Timing>());
                 _timeConsumer.OnError += Adapter_Error;
                 _timeConsumer.OnConsumeError += Adapter_ConsumeError;
@@ -250,22 +265,25 @@ namespace eu.driver.CSharpTestBedAdapter
                 _timecontrolConsumer.OnConsumeError += Adapter_ConsumeError;
                 _timecontrolConsumer.OnLog += Adapter_Log;
                 _timecontrolConsumer.OnMessage += TimecontrolConsumer_Message;
-                _topicInviteConsumer = new Consumer<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TopicInvite>());
-                _topicInviteConsumer.OnError += Adapter_Error;
-                _topicInviteConsumer.OnConsumeError += Adapter_ConsumeError;
-                _topicInviteConsumer.OnLog += Adapter_Log;
-                _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken token = _cancellationTokenSource.Token;
 
                 // Start listening to the topics
-                _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
+                // Whenever bypassing the adming tool, don't listen to the admin tool control topics
+                if (!_configuration.Settings.directconnect)
+                {
+                    _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
+                    _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
+                }
                 _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
                 _timecontrolConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time-control"], 0, Offset.End) });
-                _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
 
-                Task.Factory.StartNew((cancelToken) => { AdminCheck((CancellationToken)cancelToken); }, token, token);
+                // Whenever bypassing the adming tool, don't listen to the admin tool control topics
+                if (!_configuration.Settings.directconnect)
+                {
+                    Task.Factory.StartNew((cancelToken) => { AdminCheck((CancellationToken)cancelToken); }, token, token);
+                }
                 Task.Factory.StartNew((cancelToken) => { Consume((CancellationToken)cancelToken); }, token, token);
 
                 // Start the heart beat to indicate the connector is still alive
@@ -282,23 +300,18 @@ namespace eu.driver.CSharpTestBedAdapter
                     TimeState = model.core.State.Initialized
                 };
 
-                _allowedTopics = new List<string>()
+                _allowedTopicsSend = new List<string>();
+                _allowedTopicsReceive = new List<string>();
+
+                // When we are directly connecting, ignoring the admin tool, go right into DEBUG mode
+                if (_configuration.Settings.directconnect)
                 {
-                    "csharp-test",
-                    "simulation_timecontrol",
-                    "simulation_object_deleted",
-                    "simulation_entity_item",
-                    "simulation_entity_station",
-                    "simulation_entity_post",
-                    "simulation_connection_unit",
-                    "simulation_connection_unit_connection",
-                    "simulation_request_unittransport",
-                };
+                    _state = States.Debug;
+                }
             }
             catch (Exception e)
             {
                 Log(log4net.Core.Level.Critical, e.ToString());
-                throw e;
             }
         }
 
@@ -346,6 +359,17 @@ namespace eu.driver.CSharpTestBedAdapter
             return _currentTime;
         }
 
+        /// <summary>
+        /// Method for adding a callback function to the time control events of this adapter
+        /// </summary>
+        /// <param name="handler">The function that will be called once a timing control message is sent</param>
+        public void AddTimingControlCallback(TimingControlHandler handler)
+        {
+            _timingControlHandler = handler;
+        }
+        public delegate void TimingControlHandler();
+        private TimingControlHandler _timingControlHandler = null;
+
         #endregion Time
 
         #region Heartbeat
@@ -365,7 +389,14 @@ namespace eu.driver.CSharpTestBedAdapter
                     alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
                 };
 
-                _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
+                try
+                {
+                    _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
+                }
+                catch (Exception e)
+                {
+                    Log(log4net.Core.Level.Error, e.ToString());
+                }
 
                 // Wait for the specified amount of milliseconds
                 Task wait = Task.Delay(_configuration.Settings.heartbeatinterval);
@@ -382,7 +413,6 @@ namespace eu.driver.CSharpTestBedAdapter
         /// </summary>
         /// <param name="level">The <see cref="log4net.Core.Level"/> indicating the severity of the message</param>
         /// <param name="msg">The message to be logged</param>
-        // TODO: Think about creating own log levels and putting them into the schema
         public void Log(log4net.Core.Level level, string msg)
         {
             // Send the message to the callback function
@@ -397,9 +427,12 @@ namespace eu.driver.CSharpTestBedAdapter
                 EDXLDistribution key = CreateCoreKey();
                 Log log = new Log() { id = _configuration.Settings.clientid, log = msg };
 
-                _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
+                try
+                {
+                    _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
+                }
+                catch { }
             }
-            else throw new NullReferenceException($"Could not create the log producer that should send the following log:\n{msg}");
         }
 
         /// <summary>
@@ -441,7 +474,6 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="error">The actual log from the producer or consumer</param>
         private void Adapter_Log(object sender, LogMessage log)
         {
-            // TODO: Possibly map log.Level to log4net.Core.Level?
             Log(log4net.Core.Level.Info, $"{sender.GetType()} {log.Name}: {log.Message}");
         }
 
@@ -566,7 +598,11 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 _timeConsumer.Poll(100);
                 _timecontrolConsumer.Poll(100);
-                _topicInviteConsumer.Poll(100);
+                // Only listen to the topic invites whenever we are taking into account the Admin tool
+                if (!_configuration.Settings.directconnect)
+                {
+                    _topicInviteConsumer.Poll(100);
+                }
             }
         }
 
@@ -631,14 +667,13 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void TimeConsumer_Message(object sender, Message<EDXLDistribution, Timing> message)
         {
-            DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             TimeSpan updatedAt = TimeSpan.FromMilliseconds(message.Value.updatedAt);
             TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime);
 
             // Update the values of the time info
             _currentTime.ElapsedTime = TimeSpan.FromMilliseconds(message.Value.timeElapsed);
-            _currentTime.UpdatedAt = baseTime.Add(updatedAt);
-            _currentTime.TrialTime = baseTime.Add(trialTime);
+            _currentTime.UpdatedAt = UNIXEpoch.Add(updatedAt);
+            _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
             _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed;
             _currentTime.TimeState = message.Value.state;
         }
@@ -650,43 +685,43 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void TimecontrolConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
         {
-            DateTime baseTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             // Update the values of the time info
+            switch (message.Value.command)
+            {
+                case Command.Init:
+                    _currentTime.TimeState = model.core.State.Initialized;
+                    break;
+                case Command.Start:
+                    _currentTime.TimeState = model.core.State.Started;
+                    break;
+                case Command.Update:
+                    break;
+                case Command.Pause:
+                    _currentTime.TimeState = model.core.State.Paused;
+                    break;
+                case Command.Stop:
+                    _currentTime.TimeState = model.core.State.Stopped;
+                    break;
+                case Command.Reset:
+                    _currentTime.TimeState = model.core.State.Idle;
+                    break;
+            }
             if (message.Value.trialTime.HasValue)
             {
                 TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime.Value);
-                _currentTime.TrialTime = baseTime.Add(trialTime);
+                _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
             }
             if (message.Value.trialTimeSpeed.HasValue)
             {
                 _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
             }
 
-            // FIXME: This last functionality should be replaced with a separate state to disable/enable the adapter sending and receiving messages
-            //// Update the state of this adapter, based on the time service command
-            //// This will only have effect on the adapter whenever it recognized the test-bed admin tool present (DEBUG mode doesn't deal with time control)
-            //switch (_currentTime.TimeState)
-            //{
-            //    // Whenever starting or updating the time control, this adapter is allowed to send/receive messages
-            //    case Command.Start:
-            //    case Command.Update:
-            //        if (State == States.Init)
-            //        {
-            //            State = States.Enabled;
-            //        }
-            //        break;
-            //    // Whenever a pause, stop or reset is issued, this adapter should stop sending/receiving messages
-            //    case Command.Pause:
-            //    case Command.Stop:
-            //    case Command.Reset:
-            //        if (State == States.Enabled)
-            //        {
-            //            State = States.Disabled;
-            //        }
-            //        break;
-            //}
-            // END_OF_FIXME
-                    }
+            // If the callback handler was provided, notify the application of the timing control change
+            if (_timingControlHandler != null)
+            {
+                _timingControlHandler.Invoke();
+            }
+        }
 
         /// <summary>
         /// Delegate being called once a new message is consumed on the system topic for topic invitations
@@ -695,12 +730,35 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="message">The message that was received</param>
         private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
         {
-            // Add the topic name to the list to check for sending/receiving messages
-            string topic = message.Value.topicName;
-            if (!_allowedTopics.Contains(topic))
+            // Check if this message is directed to us
+            if (message.Value.id == _configuration.Settings.clientid)
             {
-                Log(log4net.Core.Level.Debug, $"Adapter is allowed to send/receive on topic {topic}");
-                _allowedTopics.Add(topic);
+                // Retrieve the topic name that this invitation applies to
+                string topic = message.Value.topicName;
+
+                // Check for publishing rights
+                if (message.Value.publishAllowed && !_allowedTopicsSend.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is allowed to send on topic {topic}");
+                    _allowedTopicsSend.Add(topic);
+                }
+                else if(_allowedTopicsSend.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is restricted from sending on topic {topic}");
+                    _allowedTopicsSend.Remove(topic);
+                }
+
+                // Check for subscription rights
+                if (message.Value.subscribeAllowed && !_allowedTopicsReceive.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is allowed to receive on topic {topic}");
+                    _allowedTopicsReceive.Add(topic);
+                }
+                else if(_allowedTopicsReceive.Contains(topic))
+                {
+                    Log(log4net.Core.Level.Debug, $"Adapter is restricted from receiving on topic {topic}");
+                    _allowedTopicsReceive.Remove(topic);
+                }
             }
         }
 
@@ -734,9 +792,14 @@ namespace eu.driver.CSharpTestBedAdapter
         public void SendMessage<T>(T message, string topic)
             where T : Avro.Specific.ISpecificRecord
         {
-            // Make sure we are not sending out messages to standard topics via this method
-            if (Configuration.StandardTopics.ContainsValue(topic))
-                throw new CommunicationException($"topic ({topic}) is already part of the standard test-bed topics! Choose another topic name");
+            // Make sure that you cannot send a different message format over a standard topic
+            foreach (KeyValuePair<Type, string> kvp in Configuration.StandardTopics)
+            {
+                if (kvp.Value == topic && kvp.Key != typeof(T))
+                {
+                    throw new CommunicationException($"could not create producer type {typeof(T)} for stadard topic ({topic}), since it is not conform the initial standard message type {kvp.Key}");
+                }
+            }
 
             DoSendMessage<T>(message, topic);
         }
@@ -815,7 +878,7 @@ namespace eu.driver.CSharpTestBedAdapter
             }
 
             // Create a new consumer listening to the given topic
-            AbstractConsumer<T> newConsumer = new AbstractConsumer<T>(_configuration, handler, topic, offset);
+            AbstractConsumer<T> newConsumer = new AbstractConsumer<T>(_configuration, handler, topic, offset, _cancellationTokenSource);
             newConsumer.OnError += Adapter_Error;
             newConsumer.OnLog += Adapter_Log;
             if (_consumers.ContainsKey(topic))
@@ -838,7 +901,10 @@ namespace eu.driver.CSharpTestBedAdapter
         public void Dispose()
         {
             // Stop all running tasks
-            _cancellationTokenSource.Cancel();
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+            }
             // Stop the connection with the large file service
             if (_fileServiceClient != null)
             {
@@ -848,13 +914,11 @@ namespace eu.driver.CSharpTestBedAdapter
             // Dispose all created producers
             foreach (IAbstractProducer producer in _producers.Values)
             {
-                // TODO: unsubsribe from error and log events
                 ((IDisposable)producer).Dispose();
             }
             // Dispose all created consumers
             foreach (IAbstractConsumer consumer in _consumers.Values)
             {
-                // TODO: unsubsribe from error and log events
                 ((IDisposable)consumer).Dispose();
             }
 
@@ -870,12 +934,6 @@ namespace eu.driver.CSharpTestBedAdapter
                 _logProducer.OnError -= Adapter_Error;
                 _logProducer.OnLog -= Adapter_Log;
                 _logProducer.Dispose();
-            }
-            if (_topicCreateProducer != null)
-            {
-                _topicCreateProducer.OnError -= Adapter_Error;
-                _topicCreateProducer.OnLog -= Adapter_Log;
-                _topicCreateProducer.Dispose();
             }
 
             // Dispose all system consumers

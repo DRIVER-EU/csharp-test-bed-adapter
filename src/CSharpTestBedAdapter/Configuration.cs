@@ -52,9 +52,6 @@ namespace eu.driver.CSharpTestBedAdapter
             { typeof(eu.driver.model.emsi.TSO_2_0), "standard_emsi" },
             { typeof(eu.driver.model.core.LargeDataUpdate), "large_data_update" },
             { typeof(eu.driver.model.core.MapLayerUpdate), "large_data_update" },
-            // TODO: For listening to the sim updates, one Avro schema is mapped to multiple topics. Since this is currently only for listening we don't
-            // have to deal with this standard topic right away, but a better solution might be useful (<standard name>, {<type>, <topic>} or something)
-            //{ typeof(eu.driver.model.geojson.sim.FeatureCollection), "standard_geojson_sim_item", "standard_geojson_sim_unit", "standard_geojson_sim_unitgroup", "standard_geojson_sim_station" },
         };
 
         /// <summary>
@@ -82,7 +79,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
                     { "security.protocol", _settings.securityprotocol },
-                    { "ssl.ca.location", _settings.securitycertificatepath },
+                    { "ssl.ca.location", _settings.securitycapath },
                     { "ssl.keystore.location", _settings.securitykeystorepath },
                     { "ssl.keystore.password", _settings.securitykeystorepassword },
 
@@ -99,7 +96,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
                     { "security.protocol", _settings.securityprotocol },
-                    { "ssl.ca.location", _settings.securitycertificatepath },
+                    { "ssl.ca.location", _settings.securitycapath },
                     { "ssl.keystore.location", _settings.securitykeystorepath },
                     { "ssl.keystore.password", _settings.securitykeystorepassword },
                 };

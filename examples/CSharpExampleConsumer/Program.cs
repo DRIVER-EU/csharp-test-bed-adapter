@@ -39,6 +39,7 @@ namespace CSharpExampleConsumer
             try
             {
                 TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
+                TestBedAdapter.GetInstance().AddTimingControlCallback(Adapter_TimingControl);
                 TestBedAdapter.GetInstance().AddCallback<Test>(Adapter_TestMessage, CustomTopicName, Offset.Beginning);
                 TestBedAdapter.GetInstance().AddCallback<Alert>(Adapter_AlertMessage, Configuration.StandardTopics[typeof(Alert)], Offset.Beginning);
                 TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to messages...");
@@ -94,6 +95,14 @@ namespace CSharpExampleConsumer
         private static void Adapter_Log(string message)
         {
             Console.WriteLine(message);
+        }
+
+        /// <summary>
+        /// Delegate being called once the adapter has a timing control to report
+        /// </summary>
+        private static void Adapter_TimingControl()
+        {
+            Console.WriteLine(TestBedAdapter.GetInstance().GetTimeInfo());
         }
     }
 }
