@@ -29,7 +29,7 @@ namespace Schemas {
         
         private string securityprotocolField;
         
-        private string securitycertificatepathField;
+        private string securitycapathField;
         
         private string securitykeystorepathField;
         
@@ -81,13 +81,13 @@ namespace Schemas {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("security.certificate.path", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public string securitycertificatepath {
+        [System.Xml.Serialization.XmlElementAttribute("security.ca.path", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string securitycapath {
             get {
-                return this.securitycertificatepathField;
+                return this.securitycapathField;
             }
             set {
-                this.securitycertificatepathField = value;
+                this.securitycapathField = value;
             }
         }
         

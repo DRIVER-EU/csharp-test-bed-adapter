@@ -86,7 +86,7 @@ Next to the compiled `CSharpTestBedAdapter.dll`, there is a [CSharpTestBedAdapte
 * __client.id__: the name of the application that uses this adapter
 * __heartbeat.interval__: the time (in ms) between sending a heartbeat
 * __security.protocol__: the security protocol this adapter is using (PLAINTEXT or SSL)
-* __security.certificate.path__: the path of the issuer certificate :: only needed when `security.protocol = SSL`
+* __security.ca.path__: the path of the issuer certificate :: only needed when `security.protocol = SSL`
 * __security.keystore.path__: the path of the PKCS#12 keystore (client keypair + certificate) for client authentication :: only needed when `security.protocol = SSL`
 * __security.keystore.password__: the password for the PKCS#12 keystore :: only needed when `security.protocol = SSL`
 * __broker.url__: the URL of the Kafka broker to connect to
@@ -98,7 +98,15 @@ Next to the compiled `CSharpTestBedAdapter.dll`, there is a [CSharpTestBedAdapte
 
 See the 3 example projects for further implementation of this adapter.
 
-# Data conversion between Avro and C#
+## Security
+
+With regards to the security aspect of this adapter, the __security.ca.path__ property must contain a .pem file. This is a text file that contains the concatenated PEM-encoded Certificate Authority (CA) certificate(s) in your adapter’s complete certificate chain. Bear in mind that for this to work properly it is containing the complete chain of the CA:
+* if your certificate is issued by a Root CA, then this .pem file should contain only the Root CA certificate
+* if your certificate is issued by an Intermediate CA, which is issued by a Root CA (this is currently the case within the DRIVER+ Test-bed), then this .pem file should contain the Root CA certificate and the Intermediate CA certificate
+
+For more information on security within the DRIVER+ Test-bed, please the (this repository)[https://github.com/DRIVER-EU/test-bed-security-authorization-service].
+
+## Data conversion between Avro and C#
 
 This functionality ensures proper conversion from Avro schemas to C# classes. It uses the `avrogen.exe` that is built from the [Apache Avro GitHub](https://github.com/apache/avro).
 

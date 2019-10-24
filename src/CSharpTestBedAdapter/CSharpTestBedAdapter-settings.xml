@@ -6,7 +6,7 @@
   <!-- The security protocol this adapter is using (PLAINTEXT or SSL) -->
   <security.protocol>PLAINTEXT</security.protocol>
   <!-- The path of the issuer certificate -->
-  <security.certificate.path>./ssl/ca-crt.pem</security.certificate.path>
+  <security.ca.path>./ssl/ca-crt.pem</security.ca.path>
   <!-- The path of the PKCS#12 keystore (client keypair + certificate) for client authentication -->
   <security.keystore.path>./ssl/other-tool-1-client.p12</security.keystore.path>
   <!-- The password for the PKCS#12 keystore -->

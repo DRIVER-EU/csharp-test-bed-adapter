@@ -79,7 +79,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
                     { "security.protocol", _settings.securityprotocol },
-                    { "ssl.ca.location", _settings.securitycertificatepath },
+                    { "ssl.ca.location", _settings.securitycapath },
                     { "ssl.keystore.location", _settings.securitykeystorepath },
                     { "ssl.keystore.password", _settings.securitykeystorepassword },
 
@@ -96,7 +96,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     { "schema.registry.connection.timeout.ms", 5000 },
                     { "schema.registry.max.cached.schemas", 10 },
                     { "security.protocol", _settings.securityprotocol },
-                    { "ssl.ca.location", _settings.securitycertificatepath },
+                    { "ssl.ca.location", _settings.securitycapath },
                     { "ssl.keystore.location", _settings.securitykeystorepath },
                     { "ssl.keystore.password", _settings.securitykeystorepassword },
                 };

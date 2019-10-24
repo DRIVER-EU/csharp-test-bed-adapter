@@ -6,7 +6,7 @@
         <xs:element name="client.id" type="xs:string" minOccurs="1" maxOccurs="1" />
         <xs:element name="heartbeat.interval" type="xs:int" minOccurs="1" maxOccurs="1" />
         <xs:element name="security.protocol" type="xs:string" minOccurs="1" maxOccurs="1" />
-        <xs:element name="security.certificate.path" type="xs:string" minOccurs="1" maxOccurs="1" />
+        <xs:element name="security.ca.path" type="xs:string" minOccurs="1" maxOccurs="1" />
         <xs:element name="security.keystore.path" type="xs:string" minOccurs="1" maxOccurs="1" />
         <xs:element name="security.keystore.password" type="xs:string" minOccurs="1" maxOccurs="1" />
         <xs:element name="broker.url" type="xs:string" minOccurs="1" maxOccurs="1" />
