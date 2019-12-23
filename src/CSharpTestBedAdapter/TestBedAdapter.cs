@@ -11,7 +11,9 @@
  *************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -104,6 +106,11 @@ namespace eu.driver.CSharpTestBedAdapter
         #endregion Definitions
 
         #region Properties & variables
+
+        /// <summary>
+        /// The origin of this application
+        /// </summary>
+        private string _appOrigin;
 
         /// <summary>
         /// Configuration class, including internal setup information and external settings
@@ -313,6 +320,33 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 Log(log4net.Core.Level.Critical, e.ToString());
             }
+
+            // Try to derive the origin of this app, first checking IP address, then local machine name.
+            // If that even fails, origin will be the application identifier
+            try
+            {
+                IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+                foreach (var ip in host.AddressList)
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        _appOrigin += ip.ToString() + "    ";
+                    }
+                }
+            }
+            catch
+            {
+                Log(log4net.Core.Level.Info, "Could not obtain IP address for application origin");
+            }
+            try
+            {
+                _appOrigin += Environment.MachineName;
+            }
+            catch
+            {
+                Log(log4net.Core.Level.Info, "Could not obtain local machine name for application origin");
+                _appOrigin += _configuration.Settings.clientid;
+            }
         }
 
         /// <summary>
@@ -387,6 +421,7 @@ namespace eu.driver.CSharpTestBedAdapter
                 {
                     id = _configuration.Settings.clientid,
                     alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
+                    origin = _appOrigin,
                 };
 
                 try
@@ -742,7 +777,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     Log(log4net.Core.Level.Debug, $"Adapter is allowed to send on topic {topic}");
                     _allowedTopicsSend.Add(topic);
                 }
-                else if(_allowedTopicsSend.Contains(topic))
+                else if (_allowedTopicsSend.Contains(topic))
                 {
                     Log(log4net.Core.Level.Debug, $"Adapter is restricted from sending on topic {topic}");
                     _allowedTopicsSend.Remove(topic);
@@ -754,7 +789,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     Log(log4net.Core.Level.Debug, $"Adapter is allowed to receive on topic {topic}");
                     _allowedTopicsReceive.Add(topic);
                 }
-                else if(_allowedTopicsReceive.Contains(topic))
+                else if (_allowedTopicsReceive.Contains(topic))
                 {
                     Log(log4net.Core.Level.Debug, $"Adapter is restricted from receiving on topic {topic}");
                     _allowedTopicsReceive.Remove(topic);
