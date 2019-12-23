@@ -16,133 +16,90 @@ namespace eu.driver.model.sim.entity
 	public partial class Item : ISpecificRecord
 	{
 		public static Schema _SCHEMA = Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"Item\",\"namespace\":\"eu.driver.model.sim.entity\",\"fields\":" +
-				"[{\"name\":\"guid\",\"doc\":\"Globally unique identifier for this entity\",\"type\":\"strin" +
-				"g\"},{\"name\":\"name\",\"doc\":\"Name of this entity\",\"type\":\"string\"},{\"name\":\"owner\"," +
-				"\"doc\":\"Identifier of the simulator currently responsible for this entity\",\"type\"" +
-				":\"string\"},{\"name\":\"location\",\"doc\":\"Location of this item\",\"type\":{\"type\":\"reco" +
-				"rd\",\"name\":\"Location\",\"namespace\":\"eu.driver.model.sim.geo\",\"fields\":[{\"name\":\"l" +
-				"atitude\",\"doc\":\"Latitude in degrees (-90, 90] - 0 is equator\",\"type\":\"double\"},{" +
-				"\"name\":\"longitude\",\"doc\":\"Longitude in degrees (-180, 180] - 0 is line [geograph" +
-				"ic north - Greenwich - geographic south]\",\"type\":\"double\"},{\"name\":\"altitude\",\"d" +
-				"oc\":\"Altitude in meters - 0 is surface of WGS84-based ellipsoid\",\"default\":null," +
-				"\"type\":[\"null\",\"double\"]}]}},{\"name\":\"orientation\",\"doc\":\"Orientation of this it" +
-				"em\",\"type\":{\"type\":\"record\",\"name\":\"Orientation\",\"namespace\":\"eu.driver.model.si" +
-				"m.geo\",\"fields\":[{\"name\":\"yaw\",\"doc\":\"Yaw or heading in degrees [0, 360) - 0 is " +
-				"pointing towards geographic north - yaw of 90 is EAST, yaw of 270 is WEST\",\"type" +
-				"\":\"double\"},{\"name\":\"pitch\",\"doc\":\"Pitch in degrees (-90, 90] - 0 is perpendicul" +
-				"ar to line [origin of item - centre of WGS84-based ellipsoid] - pitch of +45 is " +
-				"45 degrees pointing upwards, -45 is 45 degrees pointing downwards\",\"type\":\"doubl" +
-				"e\"},{\"name\":\"roll\",\"doc\":\"Roll or bank in degrees (-180, 180] - 0 is perpendicul" +
-				"ar to line [origin of item - centre of WGS84-based ellipsoid] - bank of +45 is 4" +
-				"5 degrees roll to the right, -45 is 45 degrees roll to the left\",\"type\":\"double\"" +
-				"}]}},{\"name\":\"velocity\",\"doc\":\"Movement vector of the item, including the magnit" +
-				"ude\",\"type\":{\"type\":\"record\",\"name\":\"Velocity\",\"namespace\":\"eu.driver.model.sim." +
-				"geo\",\"fields\":[{\"name\":\"yaw\",\"doc\":\"Yaw or heading in degrees [0, 360) - 0 is po" +
-				"inting towards geographic north - yaw of 90 is EAST, yaw of 270 is WEST\",\"type\":" +
-				"\"double\"},{\"name\":\"pitch\",\"doc\":\"Pitch in degrees (-90, 90] - 0 is perpendicular" +
-				" to line [origin of item - centre of WGS84-based ellipsoid] - pitch of +45 is 45" +
-				" degrees pointing upwards, -45 is 45 degrees pointing downwards\",\"type\":\"double\"" +
-				"},{\"name\":\"magnitude\",\"doc\":\"Velocity in meter per second [0, inf) - 0 is standi" +
-				"ng still relative to the earth\",\"type\":\"double\"}]}},{\"name\":\"visibleForParticipa" +
-				"nt\",\"doc\":\"Indication whether or not this item is visible for all participants\"," +
-				"\"type\":\"boolean\"},{\"name\":\"movable\",\"doc\":\"Indication whether or not this item i" +
-				"s movable in the simulation world\",\"type\":\"boolean\"},{\"name\":\"itemType\",\"doc\":\"C" +
-				"oncrete type of this item - can be of type ObjectType, PersonType or VehicleType" +
-				"\",\"default\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ObjectType\",\"namespace\"" +
-				":\"eu.driver.model.sim.entity.item\",\"fields\":[{\"name\":\"subType\",\"doc\":\"Sub type o" +
-				"f objects that this item is\",\"type\":{\"type\":\"enum\",\"name\":\"ObjectSubType\",\"names" +
-				"pace\":\"eu.driver.model.sim.entity.item\",\"symbols\":[\"PROP\",\"TOOL\"]}}]},{\"type\":\"r" +
-				"ecord\",\"name\":\"PersonType\",\"namespace\":\"eu.driver.model.sim.entity.item\",\"fields" +
-				"\":[{\"name\":\"gender\",\"doc\":\"Gender of the person\",\"type\":{\"type\":\"enum\",\"name\":\"P" +
-				"ersonSubType\",\"namespace\":\"eu.driver.model.sim.entity.item\",\"symbols\":[\"MALE\",\"F" +
-				"EMALE\",\"UNKNOWN\"]}}]},{\"type\":\"record\",\"name\":\"VehicleType\",\"namespace\":\"eu.driv" +
-				"er.model.sim.entity.item\",\"fields\":[{\"name\":\"subType\",\"doc\":\"Sub type of vehicle" +
-				"s that this item is\",\"type\":{\"type\":\"enum\",\"name\":\"VehicleSubType\",\"namespace\":\"" +
-				"eu.driver.model.sim.entity.item\",\"symbols\":[\"CAR\",\"VAN\",\"TRUCK\",\"BOAT\",\"PLANE\",\"" +
-				"HELICOPTER\",\"MOTORCYCLE\"]}}]}]},{\"name\":\"scenarioLabel\",\"doc\":\"Scenario type of " +
-				"this item - can be of type EnvironmentLabel, IncidentLabel or RescueLabel\",\"defa" +
-				"ult\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"EnvironmentLabel\",\"namespace\":" +
-				"\"eu.driver.model.sim.entity.item\",\"fields\":[{\"name\":\"subLabel\",\"doc\":\"Sub label " +
-				"of environment that this item has\",\"type\":{\"type\":\"enum\",\"name\":\"EnvironmentSubL" +
-				"abel\",\"namespace\":\"eu.driver.model.sim.entity.item\",\"symbols\":[\"FOLIAGE\",\"ROAD\"]" +
-				"}}]},{\"type\":\"record\",\"name\":\"IncidentLabel\",\"namespace\":\"eu.driver.model.sim.en" +
-				"tity.item\",\"fields\":[{\"name\":\"subLabel\",\"doc\":\"Sub label of incident that this i" +
-				"tem has\",\"type\":{\"type\":\"enum\",\"name\":\"IncidentSubLabel\",\"namespace\":\"eu.driver." +
-				"model.sim.entity.item\",\"symbols\":[\"FIRE\",\"CRASH\"]}}]},{\"type\":\"record\",\"name\":\"R" +
-				"escueLabel\",\"namespace\":\"eu.driver.model.sim.entity.item\",\"fields\":[{\"name\":\"sub" +
-				"Label\",\"doc\":\"Sub label of rescue that this item has\",\"type\":{\"type\":\"enum\",\"nam" +
-				"e\":\"RescueSubLabel\",\"namespace\":\"eu.driver.model.sim.entity.item\",\"symbols\":[\"PO" +
-				"LICE\",\"MEDICAL\",\"FIRE\",\"SECURITY\",\"MILITARY\"]}}]}]},{\"name\":\"userTags\",\"doc\":\"Li" +
-				"st of all tags the user provided associated with this item\",\"default\":null,\"type" +
-				"\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"physicalConnections\",\"doc" +
-				"\":\"List of physical connection entities references (represented by their GUIDs) " +
-				"this item has\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]}" +
-				",{\"name\":\"group\",\"doc\":\"Reference to the group connection entity (represented by" +
-				" its GUID) this item is part of\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"name" +
-				"\":\"formation\",\"doc\":\"Reference to the formation connection entity (represented b" +
-				"y its GUID) this item is part of\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"nam" +
-				"e\":\"unit\",\"doc\":\"Reference to the unit connection entity (represented by its GUI" +
-				"D) this item is part of\",\"default\":null,\"type\":[\"null\",\"string\"]}]}");
+				"[{\"name\":\"id\",\"doc\":\"Unique identifier of the item\",\"type\":\"string\"},{\"name\":\"lo" +
+				"cation\",\"doc\":\"Location of the item\",\"type\":{\"type\":\"record\",\"name\":\"Location\",\"" +
+				"namespace\":\"eu.driver.model.sim.support\",\"fields\":[{\"name\":\"latitude\",\"doc\":\"In " +
+				"decimal degrees, ranging from [-90, 90] where 0 is the equator\",\"type\":\"double\"}" +
+				",{\"name\":\"longitude\",\"doc\":\"In decimal degrees, ranging from (-180, 180] where 0" +
+				" is the Prime Meridian (line going through the geographic north, Greenwich, and " +
+				"the geographic south)\",\"type\":\"double\"},{\"name\":\"altitude\",\"doc\":\"Optional in me" +
+				"ters, where 0 is the surface of the WGS84-based ellipsoid\",\"default\":null,\"type\"" +
+				":[\"null\",\"double\"]}]}},{\"name\":\"name\",\"doc\":\"Name of the item\",\"default\":null,\"t" +
+				"ype\":[\"null\",\"string\"]},{\"name\":\"itemType\",\"doc\":\"Optional type of the item\",\"de" +
+				"fault\":null,\"type\":[\"null\",\"string\"]},{\"name\":\"owner\",\"doc\":\"Optional unique ide" +
+				"ntifier of the connected application owning the item\",\"default\":null,\"type\":[\"nu" +
+				"ll\",\"string\"]},{\"name\":\"timestamp\",\"doc\":\"Optional UNIX Epoch time in millisecon" +
+				"ds marking the time the update was performed\",\"default\":null,\"type\":[\"null\",\"lon" +
+				"g\"],\"logicalType\":\"timestamp-millis\"},{\"name\":\"tags\",\"doc\":\"Optional map contain" +
+				"ing item specific information: key – unique name of the specific property; value" +
+				" – value of that property\",\"default\":null,\"type\":[\"null\",{\"type\":\"map\",\"values\":" +
+				"\"string\"}]},{\"name\":\"orientation\",\"doc\":\"Optional orientation of the item\",\"defa" +
+				"ult\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Orientation\",\"namespace\":\"eu.d" +
+				"river.model.sim.support\",\"fields\":[{\"name\":\"yaw\",\"doc\":\"In decimal degrees, rang" +
+				"ing from [0, 360) where 0 is pointing towards the geographic north. The yaw valu" +
+				"e is applied in a clockwise rotation over the item’s heading/yaw-axis. A yaw val" +
+				"ue of 90 makes the item face east, while a yaw of 270 makes it face west\",\"type\"" +
+				":\"double\"},{\"name\":\"pitch\",\"doc\":\"In decimal degrees, ranging from [-90, 90] whe" +
+				"re 0 is perpendicular to the line between the item’s location and the centre of " +
+				"the WGS84-based ellipsoid. The pitch value is applied in a counter-clockwise rot" +
+				"ation over the item’s pitch-axis. A pitch value of 45 makes the item face 45 deg" +
+				"rees upwards, while a pitch of -20 makes it face 20 degrees downwards\",\"type\":\"d" +
+				"ouble\"},{\"name\":\"roll\",\"doc\":\"In decimal degrees, ranging from (-180, 180] where" +
+				" 0 is perpendicular to the line between the item’s location and the centre of th" +
+				"e WGS84-based ellipsoid. The roll value is applied in a clockwise rotation over " +
+				"the item’s roll/bank-axis. A roll value of 45 makes the item roll 45 degrees to " +
+				"the right, while a roll of -50 makes it roll 50 degrees to the left\",\"type\":\"dou" +
+				"ble\"}]}]},{\"name\":\"velocity\",\"doc\":\"Optional velocity of the item\",\"default\":nul" +
+				"l,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Velocity\",\"namespace\":\"eu.driver.model" +
+				".sim.support\",\"fields\":[{\"name\":\"yaw\",\"doc\":\"In decimal degrees, ranging from [0" +
+				", 360) where 0 is pointing towards the geographic north. The yaw value is applie" +
+				"d in a clockwise rotation over the item’s heading/yaw-axis. A yaw value of 90 ma" +
+				"kes the item face east, while a yaw of 270 makes it face west\",\"type\":\"double\"}," +
+				"{\"name\":\"pitch\",\"doc\":\"In decimal degrees, ranging from [-90, 90] where 0 is per" +
+				"pendicular to the line between the item’s location and the centre of the WGS84-b" +
+				"ased ellipsoid. The pitch value is applied in a counter-clockwise rotation over " +
+				"the item’s pitch-axis. A pitch value of 45 makes the item face 45 degrees upward" +
+				"s, while a pitch of -20 makes it face 20 degrees downwards\",\"type\":\"double\"},{\"n" +
+				"ame\":\"magnitude\",\"doc\":\"In meter per seconds, ranging from [0, infinity) where 0" +
+				" is standing still relative to the earth’s rotation\",\"type\":\"double\"}]}]}],\"_com" +
+				"ment\":\"TODO: Include itemType property into tags? Do we want to include children" +
+				" (items that belong to this main time) to facilitate items inside items?\"}");
 		/// <summary>
-		/// Globally unique identifier for this entity
+		/// Unique identifier of the item
 		/// </summary>
-		private string _guid;
+		private string _id;
 		/// <summary>
-		/// Name of this entity
+		/// Location of the item
+		/// </summary>
+		private eu.driver.model.sim.support.Location _location;
+		/// <summary>
+		/// Name of the item
 		/// </summary>
 		private string _name;
 		/// <summary>
-		/// Identifier of the simulator currently responsible for this entity
+		/// Optional type of the item
+		/// </summary>
+		private string _itemType;
+		/// <summary>
+		/// Optional unique identifier of the connected application owning the item
 		/// </summary>
 		private string _owner;
 		/// <summary>
-		/// Location of this item
+		/// Optional UNIX Epoch time in milliseconds marking the time the update was performed
 		/// </summary>
-		private eu.driver.model.sim.geo.Location _location;
+		private System.Nullable<long> _timestamp;
 		/// <summary>
-		/// Orientation of this item
+		/// Optional map containing item specific information: key – unique name of the specific property; value – value of that property
 		/// </summary>
-		private eu.driver.model.sim.geo.Orientation _orientation;
+		private IDictionary<string,System.String> _tags;
 		/// <summary>
-		/// Movement vector of the item, including the magnitude
+		/// Optional orientation of the item
 		/// </summary>
-		private eu.driver.model.sim.geo.Velocity _velocity;
+		private eu.driver.model.sim.support.Orientation _orientation;
 		/// <summary>
-		/// Indication whether or not this item is visible for all participants
+		/// Optional velocity of the item
 		/// </summary>
-		private bool _visibleForParticipant;
-		/// <summary>
-		/// Indication whether or not this item is movable in the simulation world
-		/// </summary>
-		private bool _movable;
-		/// <summary>
-		/// Concrete type of this item - can be of type ObjectType, PersonType or VehicleType
-		/// </summary>
-		private object _itemType;
-		/// <summary>
-		/// Scenario type of this item - can be of type EnvironmentLabel, IncidentLabel or RescueLabel
-		/// </summary>
-		private object _scenarioLabel;
-		/// <summary>
-		/// List of all tags the user provided associated with this item
-		/// </summary>
-		private IList<System.String> _userTags;
-		/// <summary>
-		/// List of physical connection entities references (represented by their GUIDs) this item has
-		/// </summary>
-		private IList<System.String> _physicalConnections;
-		/// <summary>
-		/// Reference to the group connection entity (represented by its GUID) this item is part of
-		/// </summary>
-		private string _group;
-		/// <summary>
-		/// Reference to the formation connection entity (represented by its GUID) this item is part of
-		/// </summary>
-		private string _formation;
-		/// <summary>
-		/// Reference to the unit connection entity (represented by its GUID) this item is part of
-		/// </summary>
-		private string _unit;
+		private eu.driver.model.sim.support.Velocity _velocity;
 		public virtual Schema Schema
 		{
 			get
@@ -151,21 +108,35 @@ namespace eu.driver.model.sim.entity
 			}
 		}
 		/// <summary>
-		/// Globally unique identifier for this entity
+		/// Unique identifier of the item
 		/// </summary>
-		public string guid
+		public string id
 		{
 			get
 			{
-				return this._guid;
+				return this._id;
 			}
 			set
 			{
-				this._guid = value;
+				this._id = value;
 			}
 		}
 		/// <summary>
-		/// Name of this entity
+		/// Location of the item
+		/// </summary>
+		public eu.driver.model.sim.support.Location location
+		{
+			get
+			{
+				return this._location;
+			}
+			set
+			{
+				this._location = value;
+			}
+		}
+		/// <summary>
+		/// Name of the item
 		/// </summary>
 		public string name
 		{
@@ -179,7 +150,21 @@ namespace eu.driver.model.sim.entity
 			}
 		}
 		/// <summary>
-		/// Identifier of the simulator currently responsible for this entity
+		/// Optional type of the item
+		/// </summary>
+		public string itemType
+		{
+			get
+			{
+				return this._itemType;
+			}
+			set
+			{
+				this._itemType = value;
+			}
+		}
+		/// <summary>
+		/// Optional unique identifier of the connected application owning the item
 		/// </summary>
 		public string owner
 		{
@@ -193,23 +178,37 @@ namespace eu.driver.model.sim.entity
 			}
 		}
 		/// <summary>
-		/// Location of this item
+		/// Optional UNIX Epoch time in milliseconds marking the time the update was performed
 		/// </summary>
-		public eu.driver.model.sim.geo.Location location
+		public System.Nullable<long> timestamp
 		{
 			get
 			{
-				return this._location;
+				return this._timestamp;
 			}
 			set
 			{
-				this._location = value;
+				this._timestamp = value;
 			}
 		}
 		/// <summary>
-		/// Orientation of this item
+		/// Optional map containing item specific information: key – unique name of the specific property; value – value of that property
 		/// </summary>
-		public eu.driver.model.sim.geo.Orientation orientation
+		public IDictionary<string,System.String> tags
+		{
+			get
+			{
+				return this._tags;
+			}
+			set
+			{
+				this._tags = value;
+			}
+		}
+		/// <summary>
+		/// Optional orientation of the item
+		/// </summary>
+		public eu.driver.model.sim.support.Orientation orientation
 		{
 			get
 			{
@@ -221,9 +220,9 @@ namespace eu.driver.model.sim.entity
 			}
 		}
 		/// <summary>
-		/// Movement vector of the item, including the magnitude
+		/// Optional velocity of the item
 		/// </summary>
-		public eu.driver.model.sim.geo.Velocity velocity
+		public eu.driver.model.sim.support.Velocity velocity
 		{
 			get
 			{
@@ -234,151 +233,19 @@ namespace eu.driver.model.sim.entity
 				this._velocity = value;
 			}
 		}
-		/// <summary>
-		/// Indication whether or not this item is visible for all participants
-		/// </summary>
-		public bool visibleForParticipant
-		{
-			get
-			{
-				return this._visibleForParticipant;
-			}
-			set
-			{
-				this._visibleForParticipant = value;
-			}
-		}
-		/// <summary>
-		/// Indication whether or not this item is movable in the simulation world
-		/// </summary>
-		public bool movable
-		{
-			get
-			{
-				return this._movable;
-			}
-			set
-			{
-				this._movable = value;
-			}
-		}
-		/// <summary>
-		/// Concrete type of this item - can be of type ObjectType, PersonType or VehicleType
-		/// </summary>
-		public object itemType
-		{
-			get
-			{
-				return this._itemType;
-			}
-			set
-			{
-				this._itemType = value;
-			}
-		}
-		/// <summary>
-		/// Scenario type of this item - can be of type EnvironmentLabel, IncidentLabel or RescueLabel
-		/// </summary>
-		public object scenarioLabel
-		{
-			get
-			{
-				return this._scenarioLabel;
-			}
-			set
-			{
-				this._scenarioLabel = value;
-			}
-		}
-		/// <summary>
-		/// List of all tags the user provided associated with this item
-		/// </summary>
-		public IList<System.String> userTags
-		{
-			get
-			{
-				return this._userTags;
-			}
-			set
-			{
-				this._userTags = value;
-			}
-		}
-		/// <summary>
-		/// List of physical connection entities references (represented by their GUIDs) this item has
-		/// </summary>
-		public IList<System.String> physicalConnections
-		{
-			get
-			{
-				return this._physicalConnections;
-			}
-			set
-			{
-				this._physicalConnections = value;
-			}
-		}
-		/// <summary>
-		/// Reference to the group connection entity (represented by its GUID) this item is part of
-		/// </summary>
-		public string group
-		{
-			get
-			{
-				return this._group;
-			}
-			set
-			{
-				this._group = value;
-			}
-		}
-		/// <summary>
-		/// Reference to the formation connection entity (represented by its GUID) this item is part of
-		/// </summary>
-		public string formation
-		{
-			get
-			{
-				return this._formation;
-			}
-			set
-			{
-				this._formation = value;
-			}
-		}
-		/// <summary>
-		/// Reference to the unit connection entity (represented by its GUID) this item is part of
-		/// </summary>
-		public string unit
-		{
-			get
-			{
-				return this._unit;
-			}
-			set
-			{
-				this._unit = value;
-			}
-		}
 		public virtual object Get(int fieldPos)
 		{
 			switch (fieldPos)
 			{
-			case 0: return this.guid;
-			case 1: return this.name;
-			case 2: return this.owner;
-			case 3: return this.location;
-			case 4: return this.orientation;
-			case 5: return this.velocity;
-			case 6: return this.visibleForParticipant;
-			case 7: return this.movable;
-			case 8: return this.itemType;
-			case 9: return this.scenarioLabel;
-			case 10: return this.userTags;
-			case 11: return this.physicalConnections;
-			case 12: return this.group;
-			case 13: return this.formation;
-			case 14: return this.unit;
+			case 0: return this.id;
+			case 1: return this.location;
+			case 2: return this.name;
+			case 3: return this.itemType;
+			case 4: return this.owner;
+			case 5: return this.timestamp;
+			case 6: return this.tags;
+			case 7: return this.orientation;
+			case 8: return this.velocity;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -386,21 +253,15 @@ namespace eu.driver.model.sim.entity
 		{
 			switch (fieldPos)
 			{
-			case 0: this.guid = (System.String)fieldValue; break;
-			case 1: this.name = (System.String)fieldValue; break;
-			case 2: this.owner = (System.String)fieldValue; break;
-			case 3: this.location = (eu.driver.model.sim.geo.Location)fieldValue; break;
-			case 4: this.orientation = (eu.driver.model.sim.geo.Orientation)fieldValue; break;
-			case 5: this.velocity = (eu.driver.model.sim.geo.Velocity)fieldValue; break;
-			case 6: this.visibleForParticipant = (System.Boolean)fieldValue; break;
-			case 7: this.movable = (System.Boolean)fieldValue; break;
-			case 8: this.itemType = (System.Object)fieldValue; break;
-			case 9: this.scenarioLabel = (System.Object)fieldValue; break;
-			case 10: this.userTags = (IList<System.String>)fieldValue; break;
-			case 11: this.physicalConnections = (IList<System.String>)fieldValue; break;
-			case 12: this.group = (System.String)fieldValue; break;
-			case 13: this.formation = (System.String)fieldValue; break;
-			case 14: this.unit = (System.String)fieldValue; break;
+			case 0: this.id = (System.String)fieldValue; break;
+			case 1: this.location = (eu.driver.model.sim.support.Location)fieldValue; break;
+			case 2: this.name = (System.String)fieldValue; break;
+			case 3: this.itemType = (System.String)fieldValue; break;
+			case 4: this.owner = (System.String)fieldValue; break;
+			case 5: this.timestamp = (System.Nullable<long>)fieldValue; break;
+			case 6: this.tags = (IDictionary<string,System.String>)fieldValue; break;
+			case 7: this.orientation = (eu.driver.model.sim.support.Orientation)fieldValue; break;
+			case 8: this.velocity = (eu.driver.model.sim.support.Velocity)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

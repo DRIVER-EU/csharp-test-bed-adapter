@@ -89,16 +89,26 @@
     <Compile Include="schemas\eu\driver\model\core\Heartbeat.cs" />
     <Compile Include="schemas\eu\driver\model\core\Level.cs" />
     <Compile Include="schemas\eu\driver\model\core\Log.cs" />
+    <Compile Include="schemas\eu\driver\model\core\ObserverToolAnswer.cs" />
+    <Compile Include="schemas\eu\driver\model\core\PhaseMessage.cs" />
     <Compile Include="schemas\eu\driver\model\core\publishedAllowed.cs" />
+    <Compile Include="schemas\eu\driver\model\core\Question.cs" />
+    <Compile Include="schemas\eu\driver\model\core\RequestChangeOfTrialStage.cs" />
+    <Compile Include="schemas\eu\driver\model\core\RolePlayerMessage.cs" />
+    <Compile Include="schemas\eu\driver\model\core\SessionMgmt.cs" />
     <Compile Include="schemas\eu\driver\model\core\State.cs" />
     <Compile Include="schemas\eu\driver\model\core\subscribeAllowed.cs" />
     <Compile Include="schemas\eu\driver\model\core\Timing.cs" />
     <Compile Include="schemas\eu\driver\model\core\TimingControl.cs" />
     <Compile Include="schemas\eu\driver\model\core\TopicCreate.cs" />
     <Compile Include="schemas\eu\driver\model\core\TopicInvite.cs" />
+    <Compile Include="schemas\eu\driver\model\core\TypeOfQuestion.cs" />
     <Compile Include="schemas\eu\driver\model\edxl\DistributionKind.cs" />
     <Compile Include="schemas\eu\driver\model\edxl\DistributionStatus.cs" />
     <Compile Include="schemas\eu\driver\model\edxl\EDXLDistribution.cs" />
+    <Compile Include="schemas\eu\driver\model\tm\Phase.cs" />
+    <Compile Include="schemas\eu\driver\model\tm\SessionState.cs" />
+    <Compile Include="schemas\eu\driver\model\tm\Type.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

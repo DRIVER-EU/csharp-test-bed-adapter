@@ -16,94 +16,84 @@ namespace eu.driver.model.sim.entity
 	public partial class Post : ISpecificRecord
 	{
 		public static Schema _SCHEMA = Avro.Schema.Parse("{\"type\":\"record\",\"name\":\"Post\",\"namespace\":\"eu.driver.model.sim.entity\",\"fields\":" +
-				"[{\"name\":\"guid\",\"doc\":\"Globally unique identifier for this post\",\"type\":\"string\"" +
-				"},{\"name\":\"name\",\"doc\":\"Name of this post\",\"type\":\"string\"},{\"name\":\"owner\",\"doc" +
-				"\":\"Identifier of the simulator currently responsible for this post\",\"type\":\"stri" +
-				"ng\"},{\"name\":\"mediumType\",\"doc\":\"Type of crisis media medium this post was place" +
-				"d on/in\",\"type\":{\"type\":\"enum\",\"name\":\"MediumTypes\",\"namespace\":\"eu.driver.model" +
-				".sim.entity.post\",\"symbols\":[\"CHAT\",\"INCIDENT_REPORT\",\"MAIL\",\"MICROBLOG\",\"NEWS\"," +
-				"\"SITUATION_REPORT\",\"SOCIAL_NETWORK\",\"VIDEO\"]}},{\"name\":\"mediumName\",\"doc\":\"Name " +
-				"of the medium this post was placed on/in\",\"type\":\"string\"},{\"name\":\"header\",\"doc" +
-				"\":\"Title of this post\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"name\":\"intro\"," +
-				"\"doc\":\"Introduction of this post\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"nam" +
-				"e\":\"body\",\"doc\":\"The body text of this post\",\"type\":\"string\"},{\"name\":\"files\",\"d" +
-				"oc\":\"Links to files attached to this post\",\"default\":null,\"type\":[\"null\",{\"type\"" +
-				":\"array\",\"items\":\"string\"}]},{\"name\":\"visibleForParticipant\",\"doc\":\"Indication w" +
-				"hether or not this post is visible for any participant\",\"type\":\"boolean\"},{\"name" +
-				"\":\"senderName\",\"doc\":\"Name of the sender sending this post\",\"type\":\"string\"},{\"n" +
-				"ame\":\"senderRole\",\"doc\":\"Reference to the role sending this post\",\"default\":null" +
-				",\"type\":[\"null\",\"string\"]},{\"name\":\"recipients\",\"doc\":\"List of references to the" +
-				" roles that should receive this post personally\",\"default\":null,\"type\":[\"null\",{" +
-				"\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"date\",\"doc\":\"The fictive creation da" +
-				"te and time of this post as the number of milliseconds from the unix epoch, 1 Ja" +
-				"nuary 1970 00:00:00.000 UTC.\",\"type\":\"long\",\"logicalType\":\"timestamp-millis\"},{\"" +
-				"name\":\"location\",\"doc\":\"Location of this item\",\"default\":null,\"type\":[\"null\",{\"t" +
-				"ype\":\"record\",\"name\":\"Location\",\"namespace\":\"eu.driver.model.sim.geo\",\"fields\":[" +
-				"{\"name\":\"latitude\",\"doc\":\"Latitude in degrees (-90, 90] - 0 is equator\",\"type\":\"" +
-				"double\"},{\"name\":\"longitude\",\"doc\":\"Longitude in degrees (-180, 180] - 0 is line" +
-				" [geographic north - Greenwich - geographic south]\",\"type\":\"double\"},{\"name\":\"al" +
-				"titude\",\"doc\":\"Altitude in meters - 0 is surface of WGS84-based ellipsoid\",\"defa" +
-				"ult\":null,\"type\":[\"null\",\"double\"]}]}]}]}");
+				"[{\"name\":\"id\",\"doc\":\"Unique identifier of the post\",\"type\":\"string\"},{\"name\":\"bo" +
+				"dy\",\"doc\":\"Body text of the post\",\"type\":\"string\"},{\"name\":\"header\",\"doc\":\"Optio" +
+				"nal header information of the post\",\"default\":null,\"type\":[\"null\",{\"type\":\"recor" +
+				"d\",\"name\":\"Header\",\"namespace\":\"eu.driver.model.sim.support\",\"fields\":[{\"name\":\"" +
+				"from\",\"doc\":\"Sender of the post\",\"type\":\"string\"},{\"name\":\"date\",\"doc\":\"UNIX Epo" +
+				"ch time in milliseconds marking the time the post was published/updated\",\"type\":" +
+				"\"long\",\"logicalType\":\"timestamp-millis\"},{\"name\":\"to\",\"doc\":\"Optional list of re" +
+				"cipients of the post\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":\"str" +
+				"ing\"}]},{\"name\":\"cc\",\"doc\":\"Optional list of recipients in carbon copy of the po" +
+				"st\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"b" +
+				"cc\",\"doc\":\"Optional list of recipients in blind carbon copy of the post\",\"defaul" +
+				"t\":null,\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"subject\",\"do" +
+				"c\":\"Optional Subject of the post\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"nam" +
+				"e\":\"intro\",\"doc\":\"Optional introductory text of the post\",\"default\":null,\"type\":" +
+				"[\"null\",\"string\"]},{\"name\":\"attachments\",\"doc\":\"Optional list of (references to)" +
+				" attachments inside the post\",\"default\":null,\"type\":[\"null\",{\"type\":\"array\",\"ite" +
+				"ms\":\"string\"}]},{\"name\":\"location\",\"doc\":\"optional location the post is attached" +
+				" to\",\"default\":null,\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Location\",\"namespace" +
+				"\":\"eu.driver.model.sim.support\",\"fields\":[{\"name\":\"latitude\",\"doc\":\"In decimal d" +
+				"egrees, ranging from [-90, 90] where 0 is the equator\",\"type\":\"double\"},{\"name\":" +
+				"\"longitude\",\"doc\":\"In decimal degrees, ranging from (-180, 180] where 0 is the P" +
+				"rime Meridian (line going through the geographic north, Greenwich, and the geogr" +
+				"aphic south)\",\"type\":\"double\"},{\"name\":\"altitude\",\"doc\":\"Optional in meters, whe" +
+				"re 0 is the surface of the WGS84-based ellipsoid\",\"default\":null,\"type\":[\"null\"," +
+				"\"double\"]}]}]}]}]},{\"name\":\"name\",\"doc\":\"Optional name of the post\",\"default\":nu" +
+				"ll,\"type\":[\"null\",\"string\"]},{\"name\":\"type\",\"doc\":\"Optional type of the post\",\"d" +
+				"efault\":null,\"type\":[\"null\",\"string\"]},{\"name\":\"owner\",\"doc\":\"Optional unique id" +
+				"entifier of the connected application owning the post\",\"default\":null,\"type\":[\"n" +
+				"ull\",\"string\"]},{\"name\":\"timestamp\",\"doc\":\"Optional UNIX Epoch time in milliseco" +
+				"nds marking the time the update was performed\",\"default\":null,\"type\":[\"null\",\"lo" +
+				"ng\"],\"logicalType\":\"timestamp-millis\"},{\"name\":\"tags\",\"doc\":\"Optional map contai" +
+				"ning post specific information: key – unique name of the specific property; valu" +
+				"e – value of that property\",\"default\":null,\"type\":[\"null\",{\"type\":\"map\",\"values\"" +
+				":\"string\"}]},{\"name\":\"mediumType\",\"doc\":\"Optional type of the medium the post is" +
+				" published on\",\"default\":null,\"type\":[\"null\",\"string\"]},{\"name\":\"mediumName\",\"do" +
+				"c\":\"Optional name of the medium the post is published on\",\"default\":null,\"type\":" +
+				"[\"null\",\"string\"]}],\"_comment\":\"TODO: Include type property into tags? Can heade" +
+				"r become null?\"}");
 		/// <summary>
-		/// Globally unique identifier for this post
+		/// Unique identifier of the post
 		/// </summary>
-		private string _guid;
+		private string _id;
 		/// <summary>
-		/// Name of this post
-		/// </summary>
-		private string _name;
-		/// <summary>
-		/// Identifier of the simulator currently responsible for this post
-		/// </summary>
-		private string _owner;
-		/// <summary>
-		/// Type of crisis media medium this post was placed on/in
-		/// </summary>
-		private eu.driver.model.sim.entity.post.MediumTypes _mediumType;
-		/// <summary>
-		/// Name of the medium this post was placed on/in
-		/// </summary>
-		private string _mediumName;
-		/// <summary>
-		/// Title of this post
-		/// </summary>
-		private string _header;
-		/// <summary>
-		/// Introduction of this post
-		/// </summary>
-		private string _intro;
-		/// <summary>
-		/// The body text of this post
+		/// Body text of the post
 		/// </summary>
 		private string _body;
 		/// <summary>
-		/// Links to files attached to this post
+		/// Optional header information of the post
 		/// </summary>
-		private IList<System.String> _files;
+		private eu.driver.model.sim.support.Header _header;
 		/// <summary>
-		/// Indication whether or not this post is visible for any participant
+		/// Optional name of the post
 		/// </summary>
-		private bool _visibleForParticipant;
+		private string _name;
 		/// <summary>
-		/// Name of the sender sending this post
+		/// Optional type of the post
 		/// </summary>
-		private string _senderName;
+		private string _type;
 		/// <summary>
-		/// Reference to the role sending this post
+		/// Optional unique identifier of the connected application owning the post
 		/// </summary>
-		private string _senderRole;
+		private string _owner;
 		/// <summary>
-		/// List of references to the roles that should receive this post personally
+		/// Optional UNIX Epoch time in milliseconds marking the time the update was performed
 		/// </summary>
-		private IList<System.String> _recipients;
+		private System.Nullable<long> _timestamp;
 		/// <summary>
-		/// The fictive creation date and time of this post as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
+		/// Optional map containing post specific information: key – unique name of the specific property; value – value of that property
 		/// </summary>
-		private long _date;
+		private IDictionary<string,System.String> _tags;
 		/// <summary>
-		/// Location of this item
+		/// Optional type of the medium the post is published on
 		/// </summary>
-		private eu.driver.model.sim.geo.Location _location;
+		private string _mediumType;
+		/// <summary>
+		/// Optional name of the medium the post is published on
+		/// </summary>
+		private string _mediumName;
 		public virtual Schema Schema
 		{
 			get
@@ -112,105 +102,21 @@ namespace eu.driver.model.sim.entity
 			}
 		}
 		/// <summary>
-		/// Globally unique identifier for this post
+		/// Unique identifier of the post
 		/// </summary>
-		public string guid
+		public string id
 		{
 			get
 			{
-				return this._guid;
+				return this._id;
 			}
 			set
 			{
-				this._guid = value;
+				this._id = value;
 			}
 		}
 		/// <summary>
-		/// Name of this post
-		/// </summary>
-		public string name
-		{
-			get
-			{
-				return this._name;
-			}
-			set
-			{
-				this._name = value;
-			}
-		}
-		/// <summary>
-		/// Identifier of the simulator currently responsible for this post
-		/// </summary>
-		public string owner
-		{
-			get
-			{
-				return this._owner;
-			}
-			set
-			{
-				this._owner = value;
-			}
-		}
-		/// <summary>
-		/// Type of crisis media medium this post was placed on/in
-		/// </summary>
-		public eu.driver.model.sim.entity.post.MediumTypes mediumType
-		{
-			get
-			{
-				return this._mediumType;
-			}
-			set
-			{
-				this._mediumType = value;
-			}
-		}
-		/// <summary>
-		/// Name of the medium this post was placed on/in
-		/// </summary>
-		public string mediumName
-		{
-			get
-			{
-				return this._mediumName;
-			}
-			set
-			{
-				this._mediumName = value;
-			}
-		}
-		/// <summary>
-		/// Title of this post
-		/// </summary>
-		public string header
-		{
-			get
-			{
-				return this._header;
-			}
-			set
-			{
-				this._header = value;
-			}
-		}
-		/// <summary>
-		/// Introduction of this post
-		/// </summary>
-		public string intro
-		{
-			get
-			{
-				return this._intro;
-			}
-			set
-			{
-				this._intro = value;
-			}
-		}
-		/// <summary>
-		/// The body text of this post
+		/// Body text of the post
 		/// </summary>
 		public string body
 		{
@@ -224,122 +130,131 @@ namespace eu.driver.model.sim.entity
 			}
 		}
 		/// <summary>
-		/// Links to files attached to this post
+		/// Optional header information of the post
 		/// </summary>
-		public IList<System.String> files
+		public eu.driver.model.sim.support.Header header
 		{
 			get
 			{
-				return this._files;
+				return this._header;
 			}
 			set
 			{
-				this._files = value;
+				this._header = value;
 			}
 		}
 		/// <summary>
-		/// Indication whether or not this post is visible for any participant
+		/// Optional name of the post
 		/// </summary>
-		public bool visibleForParticipant
+		public string name
 		{
 			get
 			{
-				return this._visibleForParticipant;
+				return this._name;
 			}
 			set
 			{
-				this._visibleForParticipant = value;
+				this._name = value;
 			}
 		}
 		/// <summary>
-		/// Name of the sender sending this post
+		/// Optional type of the post
 		/// </summary>
-		public string senderName
+		public string type
 		{
 			get
 			{
-				return this._senderName;
+				return this._type;
 			}
 			set
 			{
-				this._senderName = value;
+				this._type = value;
 			}
 		}
 		/// <summary>
-		/// Reference to the role sending this post
+		/// Optional unique identifier of the connected application owning the post
 		/// </summary>
-		public string senderRole
+		public string owner
 		{
 			get
 			{
-				return this._senderRole;
+				return this._owner;
 			}
 			set
 			{
-				this._senderRole = value;
+				this._owner = value;
 			}
 		}
 		/// <summary>
-		/// List of references to the roles that should receive this post personally
+		/// Optional UNIX Epoch time in milliseconds marking the time the update was performed
 		/// </summary>
-		public IList<System.String> recipients
+		public System.Nullable<long> timestamp
 		{
 			get
 			{
-				return this._recipients;
+				return this._timestamp;
 			}
 			set
 			{
-				this._recipients = value;
+				this._timestamp = value;
 			}
 		}
 		/// <summary>
-		/// The fictive creation date and time of this post as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
+		/// Optional map containing post specific information: key – unique name of the specific property; value – value of that property
 		/// </summary>
-		public long date
+		public IDictionary<string,System.String> tags
 		{
 			get
 			{
-				return this._date;
+				return this._tags;
 			}
 			set
 			{
-				this._date = value;
+				this._tags = value;
 			}
 		}
 		/// <summary>
-		/// Location of this item
+		/// Optional type of the medium the post is published on
 		/// </summary>
-		public eu.driver.model.sim.geo.Location location
+		public string mediumType
 		{
 			get
 			{
-				return this._location;
+				return this._mediumType;
 			}
 			set
 			{
-				this._location = value;
+				this._mediumType = value;
+			}
+		}
+		/// <summary>
+		/// Optional name of the medium the post is published on
+		/// </summary>
+		public string mediumName
+		{
+			get
+			{
+				return this._mediumName;
+			}
+			set
+			{
+				this._mediumName = value;
 			}
 		}
 		public virtual object Get(int fieldPos)
 		{
 			switch (fieldPos)
 			{
-			case 0: return this.guid;
-			case 1: return this.name;
-			case 2: return this.owner;
-			case 3: return this.mediumType;
-			case 4: return this.mediumName;
-			case 5: return this.header;
-			case 6: return this.intro;
-			case 7: return this.body;
-			case 8: return this.files;
-			case 9: return this.visibleForParticipant;
-			case 10: return this.senderName;
-			case 11: return this.senderRole;
-			case 12: return this.recipients;
-			case 13: return this.date;
-			case 14: return this.location;
+			case 0: return this.id;
+			case 1: return this.body;
+			case 2: return this.header;
+			case 3: return this.name;
+			case 4: return this.type;
+			case 5: return this.owner;
+			case 6: return this.timestamp;
+			case 7: return this.tags;
+			case 8: return this.mediumType;
+			case 9: return this.mediumName;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -347,21 +262,16 @@ namespace eu.driver.model.sim.entity
 		{
 			switch (fieldPos)
 			{
-			case 0: this.guid = (System.String)fieldValue; break;
-			case 1: this.name = (System.String)fieldValue; break;
-			case 2: this.owner = (System.String)fieldValue; break;
-			case 3: this.mediumType = (eu.driver.model.sim.entity.post.MediumTypes)fieldValue; break;
-			case 4: this.mediumName = (System.String)fieldValue; break;
-			case 5: this.header = (System.String)fieldValue; break;
-			case 6: this.intro = (System.String)fieldValue; break;
-			case 7: this.body = (System.String)fieldValue; break;
-			case 8: this.files = (IList<System.String>)fieldValue; break;
-			case 9: this.visibleForParticipant = (System.Boolean)fieldValue; break;
-			case 10: this.senderName = (System.String)fieldValue; break;
-			case 11: this.senderRole = (System.String)fieldValue; break;
-			case 12: this.recipients = (IList<System.String>)fieldValue; break;
-			case 13: this.date = (System.Int64)fieldValue; break;
-			case 14: this.location = (eu.driver.model.sim.geo.Location)fieldValue; break;
+			case 0: this.id = (System.String)fieldValue; break;
+			case 1: this.body = (System.String)fieldValue; break;
+			case 2: this.header = (eu.driver.model.sim.support.Header)fieldValue; break;
+			case 3: this.name = (System.String)fieldValue; break;
+			case 4: this.type = (System.String)fieldValue; break;
+			case 5: this.owner = (System.String)fieldValue; break;
+			case 6: this.timestamp = (System.Nullable<long>)fieldValue; break;
+			case 7: this.tags = (IDictionary<string,System.String>)fieldValue; break;
+			case 8: this.mediumType = (System.String)fieldValue; break;
+			case 9: this.mediumName = (System.String)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

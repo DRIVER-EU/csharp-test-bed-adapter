@@ -15,15 +15,19 @@ namespace eu.driver.model.core
 	
 	public partial class Heartbeat : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Heartbeat"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""ID of the client"",""type"":""string""},{""name"":""alive"",""doc"":""The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC."",""type"":""long"",""logicalType"":""timestamp-millis""}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Heartbeat"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Unique identifier of the connected application sending out this message"",""type"":""string""},{""name"":""alive"",""doc"":""UNIX Epoch time in milliseconds marking the time the connected application was last responding"",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""origin"",""doc"":""Optional identifier from which device or location this message was sent (e.g. IP address, machine name)"",""default"":null,""type"":[""null"",""string""]}]}");
 		/// <summary>
-		/// ID of the client
+		/// Unique identifier of the connected application sending out this message
 		/// </summary>
 		private string _id;
 		/// <summary>
-		/// The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
+		/// UNIX Epoch time in milliseconds marking the time the connected application was last responding
 		/// </summary>
 		private long _alive;
+		/// <summary>
+		/// Optional identifier from which device or location this message was sent (e.g. IP address, machine name)
+		/// </summary>
+		private string _origin;
 		public virtual Schema Schema
 		{
 			get
@@ -32,7 +36,7 @@ namespace eu.driver.model.core
 			}
 		}
 		/// <summary>
-		/// ID of the client
+		/// Unique identifier of the connected application sending out this message
 		/// </summary>
 		public string id
 		{
@@ -46,7 +50,7 @@ namespace eu.driver.model.core
 			}
 		}
 		/// <summary>
-		/// The date and time the distribution message was sent as the number of milliseconds from the unix epoch, 1 January 1970 00:00:00.000 UTC.
+		/// UNIX Epoch time in milliseconds marking the time the connected application was last responding
 		/// </summary>
 		public long alive
 		{
@@ -59,12 +63,27 @@ namespace eu.driver.model.core
 				this._alive = value;
 			}
 		}
+		/// <summary>
+		/// Optional identifier from which device or location this message was sent (e.g. IP address, machine name)
+		/// </summary>
+		public string origin
+		{
+			get
+			{
+				return this._origin;
+			}
+			set
+			{
+				this._origin = value;
+			}
+		}
 		public virtual object Get(int fieldPos)
 		{
 			switch (fieldPos)
 			{
 			case 0: return this.id;
 			case 1: return this.alive;
+			case 2: return this.origin;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -74,6 +93,7 @@ namespace eu.driver.model.core
 			{
 			case 0: this.id = (System.String)fieldValue; break;
 			case 1: this.alive = (System.Int64)fieldValue; break;
+			case 2: this.origin = (System.String)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

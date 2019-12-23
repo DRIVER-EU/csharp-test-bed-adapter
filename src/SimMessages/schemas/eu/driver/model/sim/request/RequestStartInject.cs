@@ -15,19 +15,23 @@ namespace eu.driver.model.sim.request
 	
 	public partial class RequestStartInject : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""RequestStartInject"",""namespace"":""eu.driver.model.sim.request"",""fields"":[{""name"":""guid"",""doc"":""Globally unique identifier for this request"",""type"":""string""},{""name"":""owner"",""doc"":""Identifier of the simulator currently responsible for this request"",""type"":""string""},{""name"":""inject"",""doc"":""Name of the inject that needs to be started"",""type"":""string""}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""RequestStartInject"",""namespace"":""eu.driver.model.sim.request"",""fields"":[{""name"":""id"",""doc"":""Unique identifier of the request"",""type"":""string""},{""name"":""applicant"",""doc"":""Unique identifier of the connected application sending the request"",""type"":""string""},{""name"":""inject"",""doc"":""Name of the inject that is requested to start"",""type"":""string""},{""name"":""response"",""doc"":""Optional response of a connected application receiving this request"",""default"":null,""type"":[""null"",{""type"":""record"",""name"":""Response"",""namespace"":""eu.driver.model.sim.support"",""fields"":[{""name"":""code"",""doc"":""Status code that best serves the response of the respondent, possibly similar to a HTTP response status code."",""type"":""int""},{""name"":""message"",""doc"":""Optional information accompanying the response code"",""default"":null,""type"":[""null"",""string""]},{""name"":""timestamp"",""doc"":""Optional UNIX Epoch time in milliseconds marking the time the respond was given"",""default"":null,""type"":[""null"",""long""],""logicalType"":""timestamp-millis""}]}]}],""_comment"":""""}");
 		/// <summary>
-		/// Globally unique identifier for this request
+		/// Unique identifier of the request
 		/// </summary>
-		private string _guid;
+		private string _id;
 		/// <summary>
-		/// Identifier of the simulator currently responsible for this request
+		/// Unique identifier of the connected application sending the request
 		/// </summary>
-		private string _owner;
+		private string _applicant;
 		/// <summary>
-		/// Name of the inject that needs to be started
+		/// Name of the inject that is requested to start
 		/// </summary>
 		private string _inject;
+		/// <summary>
+		/// Optional response of a connected application receiving this request
+		/// </summary>
+		private eu.driver.model.sim.support.Response _response;
 		public virtual Schema Schema
 		{
 			get
@@ -36,35 +40,35 @@ namespace eu.driver.model.sim.request
 			}
 		}
 		/// <summary>
-		/// Globally unique identifier for this request
+		/// Unique identifier of the request
 		/// </summary>
-		public string guid
+		public string id
 		{
 			get
 			{
-				return this._guid;
+				return this._id;
 			}
 			set
 			{
-				this._guid = value;
+				this._id = value;
 			}
 		}
 		/// <summary>
-		/// Identifier of the simulator currently responsible for this request
+		/// Unique identifier of the connected application sending the request
 		/// </summary>
-		public string owner
+		public string applicant
 		{
 			get
 			{
-				return this._owner;
+				return this._applicant;
 			}
 			set
 			{
-				this._owner = value;
+				this._applicant = value;
 			}
 		}
 		/// <summary>
-		/// Name of the inject that needs to be started
+		/// Name of the inject that is requested to start
 		/// </summary>
 		public string inject
 		{
@@ -77,13 +81,28 @@ namespace eu.driver.model.sim.request
 				this._inject = value;
 			}
 		}
+		/// <summary>
+		/// Optional response of a connected application receiving this request
+		/// </summary>
+		public eu.driver.model.sim.support.Response response
+		{
+			get
+			{
+				return this._response;
+			}
+			set
+			{
+				this._response = value;
+			}
+		}
 		public virtual object Get(int fieldPos)
 		{
 			switch (fieldPos)
 			{
-			case 0: return this.guid;
-			case 1: return this.owner;
+			case 0: return this.id;
+			case 1: return this.applicant;
 			case 2: return this.inject;
+			case 3: return this.response;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -91,9 +110,10 @@ namespace eu.driver.model.sim.request
 		{
 			switch (fieldPos)
 			{
-			case 0: this.guid = (System.String)fieldValue; break;
-			case 1: this.owner = (System.String)fieldValue; break;
+			case 0: this.id = (System.String)fieldValue; break;
+			case 1: this.applicant = (System.String)fieldValue; break;
 			case 2: this.inject = (System.String)fieldValue; break;
+			case 3: this.response = (eu.driver.model.sim.support.Response)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}
