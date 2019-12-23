@@ -11,8 +11,8 @@
     <icon>images\icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Final release, including clean-up and resolving all open issues (except transfer to Confluent Kafka Client 1.0)</releaseNotes>
-    <copyright>Copyright (C) 2017-2019 XVR Simulation B.V., Delft, The Netherlands; Martijn Hendriks "hendriks @ xvrsim.com"; part of "DRIVER+ WP923 Test-bed infrastructure" project; licensed under the MIT license : https://github.com/DRIVER-EU/test-bed/blob/master/LICENSE</copyright>
+    <releaseNotes>Update of all avro schemas used within this C# test-bed adapter</releaseNotes>
+    <copyright>Copyright (C) 2017-2020 XVR Simulation B.V., Delft, The Netherlands; Martijn Hendriks "hendriks @ xvrsim.com"; part of "DRIVER+ WP923 Test-bed infrastructure" project; licensed under the MIT license : https://github.com/DRIVER-EU/test-bed/blob/master/LICENSE</copyright>
     <tags>DRIVER+ Test-bed</tags>
   </metadata>
 	<files>
