@@ -83,14 +83,49 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\config\SessionManagement.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\config\SessionState.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\config\TimeManagement.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\config\TimeState.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\entity\Area.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\entity\Item.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\entity\Line.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\entity\PointOfInterest.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\entity\Post.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\entity\Unit.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\request\RequestAreaOfInterest.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\request\RequestInformation.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\request\RequestOwnership.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\request\RequestStartInject.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\request\RequestTransport.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\Address.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\AggregationArea.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\AggregationItem.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\AggregationLine.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\AggregationPOI.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\AggregationPost.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\AggregationUnit.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\aggr\AggrArea.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\aggr\AggrItem.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\aggr\AggrLine.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\aggr\AggrPOI.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\aggr\AggrPost.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\aggr\AggrUnit.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\EntityDeleted.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\Header.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\Location.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\Orientation.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\OwnershipType.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\RequestCancelled.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\Response.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\UnitLocation.cs" />
+    <Compile Include="schemas\eu\driver\model\sim\support\Velocity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="schemas\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
