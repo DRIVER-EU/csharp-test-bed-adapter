@@ -112,6 +112,10 @@
       <Project>{42e6b653-9531-4a59-9dd8-f22289587a92}</Project>
       <Name>CoreMessages</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SimMessages\SimMessages.csproj">
+      <Project>{676f11f8-f956-4499-ba68-d4e7f81c34dc}</Project>
+      <Name>SimMessages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StandardMessages\StandardMessages.csproj">
       <Project>{ad423bf6-84c1-497b-b453-e85ac665ef8a}</Project>
       <Name>StandardMessages</Name>
