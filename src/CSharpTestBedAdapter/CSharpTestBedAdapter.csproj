@@ -45,6 +45,9 @@
     <Reference Include="Confluent.SchemaRegistry, Version=0.11.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Confluent.SchemaRegistry.0.11.6\lib\net452\Confluent.SchemaRegistry.dll</HintPath>
     </Reference>
+    <Reference Include="CssMessages, Version=1.0.2020.115, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\CssMessages.1.0.2020.115\lib\net46\CssMessages.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
@@ -111,10 +114,6 @@
     <ProjectReference Include="..\CoreMessages\CoreMessages.csproj">
       <Project>{42e6b653-9531-4a59-9dd8-f22289587a92}</Project>
       <Name>CoreMessages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SimMessages\SimMessages.csproj">
-      <Project>{676f11f8-f956-4499-ba68-d4e7f81c34dc}</Project>
-      <Name>SimMessages</Name>
     </ProjectReference>
     <ProjectReference Include="..\StandardMessages\StandardMessages.csproj">
       <Project>{ad423bf6-84c1-497b-b453-e85ac665ef8a}</Project>
