@@ -30,97 +30,93 @@ namespace CSharpExampleProducerStandard
         /// <param name="args">Additional method call parameters</param>
         static void Main(string[] args)
         {
-            try
-            {
-                TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
-                TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
+            TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
+            TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
 
-                Console.WriteLine($"Please type in any text to be send over the standard CAP topic; q to exit");
-                string text;
-                // Whenever a new text has been entered by the user, create a new test message, or quit the application if the text is 'q'
-                while ((text = Console.ReadLine()) != "q")
+            Console.WriteLine($"Please type in any text to be send over the standard CAP topic; q to exit");
+            string text;
+            // Whenever a new text has been entered by the user, create a new test message, or quit the application if the text is 'q'
+            while ((text = Console.ReadLine()) != "q")
+            {
+                // Create a new Alert message, with the given text as info[0].@event
+                Alert newMsg = new Alert
                 {
-                    // Create a new Alert message, with the given text as info[0].@event
-                    Alert newMsg = new Alert
+                    identifier = "test",
+                    sender = "CSharpExampleProducerStandard",
+                    sent = DateTime.UtcNow.ToString("o"),
+                    status = Status.Test,
+                    msgType = MsgType.Alert,
+                    source = "null",
+                    scope = Scope.Public,
+                    restriction = "null",
+                    addresses = "null",
+                    code = new string[] { "a", "b", "c" },
+                    note = "null",
+                    references = "null",
+                    incidents = "null",
+                    info = new Info[]
                     {
-                        identifier = "test",
-                        sender = "CSharpExampleProducerStandard",
-                        sent = DateTime.UtcNow.ToString("o"),
-                        status = Status.Test,
-                        msgType = MsgType.Alert,
-                        source = "null",
-                        scope = Scope.Public,
-                        restriction = "null",
-                        addresses = "null",
-                        code = new string[] { "a", "b", "c" },
-                        note = "null",
-                        references = "null",
-                        incidents = "null",
-                        info = new Info[]
-                        {
-                            new Info {
-                                language = "en-US",
-                                category = new Category[] { Category.Env, Category.Transport },
-                                @event = text,
-                                responseType = new ResponseType[] { ResponseType.Assess, ResponseType.Execute },
-                                urgency = Urgency.Unknown,
-                                severity = Severity.Minor,
-                                certainty = Certainty.Likely,
-                                audience = "null",
-                                eventCode = new ValueNamePair[]
+                        new Info {
+                            language = "en-US",
+                            category = new Category[] { Category.Env, Category.Transport },
+                            @event = text,
+                            responseType = new ResponseType[] { ResponseType.Assess, ResponseType.Execute },
+                            urgency = Urgency.Unknown,
+                            severity = Severity.Minor,
+                            certainty = Certainty.Likely,
+                            audience = "null",
+                            eventCode = new ValueNamePair[]
+                            {
+                                new ValueNamePair { valueName = "test", value = "OK" },
+                            },
+                            effective = "null",
+                            onset = "null",
+                            expires = "null",
+                            senderName = "null",
+                            headline = "null",
+                            description = "null",
+                            instruction = "null",
+                            web = "null",
+                            contact = "null",
+                            parameter = new ValueNamePair[]
+                            {
+                                new ValueNamePair { valueName = "test2", value = "OK2" },
+                            },
+                            resource = new Resource[]
+                            {
+                                new Resource
                                 {
-                                    new ValueNamePair { valueName = "test", value = "OK" },
-                                },
-                                effective = "null",
-                                onset = "null",
-                                expires = "null",
-                                senderName = "null",
-                                headline = "null",
-                                description = "null",
-                                instruction = "null",
-                                web = "null",
-                                contact = "null",
-                                parameter = new ValueNamePair[]
-                                {
-                                    new ValueNamePair { valueName = "test2", value = "OK2" },
-                                },
-                                resource = new Resource[]
-                                {
-                                    new Resource
-                                    {
-                                        resourceDesc = "testResource",
-                                        //size = null,
-                                        uri = "null",
-                                        deferUri = "null",
-                                        digest = "null",
-                                        mimeType = "null",
-                                    },
-                                },
-                                area = new Area
-                                {
-                                    areaDesc = "testArea",
-                                    polygon = "null",
-                                    circle = "null",
-                                    geocode = null,
-                                    //altitude = null,
-                                    //ceiling = null,
+                                    resourceDesc = "testResource",
+                                    //size = null,
+                                    uri = "null",
+                                    deferUri = "null",
+                                    digest = "null",
+                                    mimeType = "null",
                                 },
                             },
+                            area = new Area
+                            {
+                                areaDesc = "testArea",
+                                polygon = "null",
+                                circle = "null",
+                                geocode = null,
+                                //altitude = null,
+                                //ceiling = null,
+                            },
                         },
-                    };
+                    },
+                };
 
+                try
+                {
                     // Send the message over the standard topic
                     TestBedAdapter.GetInstance().SendMessage<Alert>(newMsg);
                     Console.WriteLine(TestBedAdapter.GetInstance().GetTimeInfo());
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                TestBedAdapter.GetInstance().Dispose();
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 

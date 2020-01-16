@@ -14,7 +14,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Confluent.Kafka;
-using Confluent.Kafka.Serialization;
+using Confluent.SchemaRegistry;
+using Confluent.SchemaRegistry.Serdes;
 
 using eu.driver.model.edxl;
 
@@ -26,7 +27,7 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <summary>
         /// The concrete producer to send messages with
         /// </summary>
-        private Producer<EDXLDistribution, T> _producer;
+        private IProducer<EDXLDistribution, T> _producer;
         /// <summary>
         /// The configuration of this test-bed adapter
         /// </summary>
@@ -52,7 +53,7 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <summary>
         /// The message queue to be sent as soon as the adapter is enabled
         /// </summary>
-        private Queue<KeyValuePair<T, string>> messageQueue;
+        private Queue<KeyValuePair<T, string>> _messageQueue;
 
         /// <summary>
         /// Default constructor
@@ -61,20 +62,19 @@ namespace eu.driver.CSharpTestBedAdapter
         internal AbstractProducer(Configuration configuration)
         {
             _configuration = configuration;
-            _producer = new Producer<EDXLDistribution, T>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<T>());
-
-            // Raised on critical errors, e.g. connection failures or all brokers down.
-            _producer.OnError += (sender, error) =>
+            using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(configuration.SchemaRegistryConfig))
             {
-                OnError?.Invoke(sender, error);
-            };
-            // Raised when there is information that should be logged.
-            _producer.OnLog += (sender, log) =>
-            {
-                OnLog?.Invoke(sender, log);
-            };
+                _producer = new ProducerBuilder<EDXLDistribution, T>(_configuration.ProducerConfig)
+                    .SetKeySerializer(new AvroSerializer<EDXLDistribution>(csrc))
+                    .SetValueSerializer(new AvroSerializer<T>(csrc))
+                    // Raised on critical errors, e.g. connection failures or all brokers down.
+                    .SetErrorHandler( (sender, error) => OnError?.Invoke(sender, error) )
+                    // Raised when there is information that should be logged.
+                    .SetLogHandler( (sender, log) => OnLog?.Invoke(sender, log) )
+                    .Build();
+            }
 
-            messageQueue = new Queue<KeyValuePair<T, string>>();
+            _messageQueue = new Queue<KeyValuePair<T, string>>();
         }
 
         /// <summary>
@@ -89,8 +89,8 @@ namespace eu.driver.CSharpTestBedAdapter
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Unknown,
                 distributionStatus = DistributionStatus.Unknown,
-                dateTimeSent = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
-                dateTimeExpires = (long)((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)) + new TimeSpan(0, 0, 10, 0, 0)).TotalMilliseconds,
+                dateTimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                dateTimeExpires = (DateTimeOffset.UtcNow + new TimeSpan(0, 0, 10, 0, 0)).ToUnixTimeMilliseconds(),
             };
         }
 
@@ -108,7 +108,16 @@ namespace eu.driver.CSharpTestBedAdapter
                 if (TestBedAdapter.GetInstance().State == TestBedAdapter.States.Debug || TestBedAdapter.GetInstance().AllowedTopicsSend.Contains(topic))
                 {
                     // Send the message
-                    Task<Message<EDXLDistribution, T>> task = _producer.ProduceAsync(topic, CreateKey(), message);
+                    Message<EDXLDistribution, T> m = new Message<EDXLDistribution, T>()
+                    {
+                        Key = CreateKey(),
+                        Value = message,
+                    };
+                    Task<DeliveryResult<EDXLDistribution, T>> task = _producer.ProduceAsync(topic, m);
+                    task.ContinueWith(t =>
+                    {
+                        if (t.IsFaulted) OnError?.Invoke(this, new Error(ErrorCode.Local_Fail, t.Exception.ToString()));
+                    });
                     // Wait for sending this message if the settings property was set
                     if (_configuration.Settings.sendsync)
                     {
@@ -121,7 +130,7 @@ namespace eu.driver.CSharpTestBedAdapter
             {
                 // If this isn't the case, report and queue the message for sending later
                 TestBedAdapter.GetInstance().Log(log4net.Core.Level.Notice, $"Could not send message to topic {topic}, because adapter is disabled! Enqueuing message for sending later.");
-                messageQueue.Enqueue(new KeyValuePair<T, string>(message, topic));
+                _messageQueue.Enqueue(new KeyValuePair<T, string>(message, topic));
             }
         }
 
@@ -129,10 +138,10 @@ namespace eu.driver.CSharpTestBedAdapter
         public void FlushQueue()
         {
             // Make sure that we are not getting in an endless loop of message sending if the adapter is somehow disabled again
-            int totalMessages = messageQueue.Count;
+            int totalMessages = _messageQueue.Count;
             for (int i = 0; i < totalMessages; i++)
             {
-                KeyValuePair<T, string> message = messageQueue.Dequeue();
+                KeyValuePair<T, string> message = _messageQueue.Dequeue();
                 SendMessage(message.Key, message.Value);
             }
         }

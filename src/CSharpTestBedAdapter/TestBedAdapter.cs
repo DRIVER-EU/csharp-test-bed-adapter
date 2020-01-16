@@ -18,7 +18,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Confluent.Kafka;
-using Confluent.Kafka.Serialization;
+using Confluent.Kafka.SyncOverAsync;
+using Confluent.SchemaRegistry;
+using Confluent.SchemaRegistry.Serdes;
 
 using eu.driver.model.core;
 using eu.driver.model.edxl;
@@ -128,28 +130,28 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <summary>
         /// The producer this connector is using to send heartbeats
         /// </summary>
-        private Producer<EDXLDistribution, Heartbeat> _heartbeatProducer;
+        private IProducer<EDXLDistribution, Heartbeat> _heartbeatProducer;
         /// <summary>
         /// The consumer this connector is using to check if the admin tool is still alive
         /// </summary>
-        private Consumer<EDXLDistribution, AdminHeartbeat> _heartbeatConsumer;
+        private IConsumer<EDXLDistribution, AdminHeartbeat> _heartbeatConsumer;
         /// <summary>
         /// The producer this connector is using to send logs
         /// </summary>
-        private Producer<EDXLDistribution, Log> _logProducer;
+        private IProducer<EDXLDistribution, Log> _logProducer;
 
         /// <summary>
         /// The consumer this connector is using to receive time messages
         /// </summary>
-        private Consumer<EDXLDistribution, Timing> _timeConsumer;
+        private IConsumer<EDXLDistribution, Timing> _timeConsumer;
         /// <summary>
         /// The consumer this connector is using to receive time control changes
         /// </summary>
-        private Consumer<EDXLDistribution, TimingControl> _timecontrolConsumer;
+        private IConsumer<EDXLDistribution, TimingControl> _timeControlConsumer;
         /// <summary>
         /// The consumer this connector is using to receive invitations to listen to a certain topic
         /// </summary>
-        private Consumer<EDXLDistribution, TopicInvite> _topicInviteConsumer;
+        private IConsumer<EDXLDistribution, TopicInvite> _topicInviteConsumer;
 
         /// <summary>
         /// The general cancellation token for all tasks running in this adapter
@@ -240,38 +242,76 @@ namespace eu.driver.CSharpTestBedAdapter
                 _consumers = new Dictionary<string, List<IAbstractConsumer>>();
 
                 // Create the producers for the system topics
-                _heartbeatProducer = new Producer<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Heartbeat>());
-                _heartbeatProducer.OnError += Adapter_Error;
-                _heartbeatProducer.OnLog += Adapter_Log;
-                _logProducer = new Producer<EDXLDistribution, Log>(_configuration.ProducerConfig, new AvroSerializer<EDXLDistribution>(), new AvroSerializer<Log>());
-                _logProducer.OnError += Adapter_Error;
-                _logProducer.OnLog += Adapter_Log;
+                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
+                {
+                    _heartbeatProducer = new ProducerBuilder<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig)
+                        .SetKeySerializer(new AvroSerializer<EDXLDistribution>(csrc))
+                        .SetValueSerializer(new AvroSerializer<Heartbeat>(csrc))
+                        // Raised on critical errors, e.g.connection failures or all brokers down.
+                        .SetErrorHandler(Adapter_Error)
+                        .SetLogHandler(Adapter_Log)
+                        .Build();
+                }
+                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
+                {
+                    _logProducer = new ProducerBuilder<EDXLDistribution, Log>(_configuration.ProducerConfig)
+                        .SetKeySerializer(new AvroSerializer<EDXLDistribution>(csrc))
+                        .SetValueSerializer(new AvroSerializer<Log>(csrc))
+                        // Raised on critical errors, e.g.connection failures or all brokers down.
+                        .SetErrorHandler(Adapter_Error)
+                        .SetLogHandler(Adapter_Log)
+                        .Build();
+                }
 
                 // Initialize the consumers for the system topics
                 // Whenever bypassing the adming tool, don't listen to the admin tool control topics
                 if (!_configuration.Settings.directconnect)
                 {
-                    _heartbeatConsumer = new Consumer<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<AdminHeartbeat>());
-                    _heartbeatConsumer.OnError += Adapter_Error;
-                    _heartbeatConsumer.OnConsumeError += Adapter_ConsumeError;
-                    _heartbeatConsumer.OnLog += Adapter_Log;
-                    _heartbeatConsumer.OnMessage += HeartbeatConsumer_Message;
-                    _topicInviteConsumer = new Consumer<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TopicInvite>());
-                    _topicInviteConsumer.OnError += Adapter_Error;
-                    _topicInviteConsumer.OnConsumeError += Adapter_ConsumeError;
-                    _topicInviteConsumer.OnLog += Adapter_Log;
-                    _topicInviteConsumer.OnMessage += TopicInviteConsumer_Message;
+                    using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
+                    {
+                        _heartbeatConsumer = new ConsumerBuilder<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig)
+                            .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
+                            .SetValueDeserializer(new AvroDeserializer<AdminHeartbeat>(csrc).AsSyncOverAsync())
+                            // Raised on critical errors, e.g.connection failures or all brokers down.
+                            .SetErrorHandler(Adapter_Error)
+                            // Raised when there is information that should be logged.
+                            .SetLogHandler(Adapter_Log)
+                            .Build();
+                    }
+                    using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
+                    {
+                        _topicInviteConsumer = new ConsumerBuilder<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig)
+                            .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
+                            .SetValueDeserializer(new AvroDeserializer<TopicInvite>(csrc).AsSyncOverAsync())
+                            // Raised on critical errors, e.g.connection failures or all brokers down.
+                            .SetErrorHandler(Adapter_Error)
+                            // Raised when there is information that should be logged.
+                            .SetLogHandler(Adapter_Log)
+                            .Build();
+                    }
                 }
-                _timeConsumer = new Consumer<EDXLDistribution, Timing>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<Timing>());
-                _timeConsumer.OnError += Adapter_Error;
-                _timeConsumer.OnConsumeError += Adapter_ConsumeError;
-                _timeConsumer.OnLog += Adapter_Log;
-                _timeConsumer.OnMessage += TimeConsumer_Message;
-                _timecontrolConsumer = new Consumer<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig, new AvroDeserializer<EDXLDistribution>(), new AvroDeserializer<TimingControl>());
-                _timecontrolConsumer.OnError += Adapter_Error;
-                _timecontrolConsumer.OnConsumeError += Adapter_ConsumeError;
-                _timecontrolConsumer.OnLog += Adapter_Log;
-                _timecontrolConsumer.OnMessage += TimecontrolConsumer_Message;
+                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
+                {
+                    _timeConsumer = new ConsumerBuilder<EDXLDistribution, Timing>(_configuration.ConsumerConfig)
+                        .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
+                        .SetValueDeserializer(new AvroDeserializer<Timing>(csrc).AsSyncOverAsync())
+                        // Raised on critical errors, e.g.connection failures or all brokers down.
+                        .SetErrorHandler(Adapter_Error)
+                        // Raised when there is information that should be logged.
+                        .SetLogHandler(Adapter_Log)
+                        .Build();
+                }
+                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
+                {
+                    _timeControlConsumer = new ConsumerBuilder<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig)
+                        .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
+                        .SetValueDeserializer(new AvroDeserializer<TimingControl>(csrc).AsSyncOverAsync())
+                        // Raised on critical errors, e.g.connection failures or all brokers down.
+                        .SetErrorHandler(Adapter_Error)
+                        // Raised when there is information that should be logged.
+                        .SetLogHandler(Adapter_Log)
+                        .Build();
+                }
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken token = _cancellationTokenSource.Token;
@@ -280,18 +320,21 @@ namespace eu.driver.CSharpTestBedAdapter
                 // Whenever bypassing the adming tool, don't listen to the admin tool control topics
                 if (!_configuration.Settings.directconnect)
                 {
-                    _heartbeatConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["admin-heartbeat"], 0, Offset.End) });
-                    _topicInviteConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["topic-access-invite"], 0, Offset.End) });
+                    _heartbeatConsumer.Subscribe(Configuration.CoreTopics["admin-heartbeat"]);
+                    _topicInviteConsumer.Subscribe(Configuration.CoreTopics["topic-access-invite"]);
                 }
-                _timeConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time"], 0, Offset.End) });
-                _timecontrolConsumer.Assign(new List<TopicPartitionOffset> { new TopicPartitionOffset(Configuration.CoreTopics["time-control"], 0, Offset.End) });
+                _timeConsumer.Subscribe(Configuration.CoreTopics["time"]);
+                _timeControlConsumer.Subscribe(Configuration.CoreTopics["time-control"]);
 
                 // Whenever bypassing the adming tool, don't listen to the admin tool control topics
                 if (!_configuration.Settings.directconnect)
                 {
                     Task.Factory.StartNew((cancelToken) => { AdminCheck((CancellationToken)cancelToken); }, token, token);
+                    Task.Factory.StartNew((cancelToken) => { ConsumeHeartbeatMessage((CancellationToken)cancelToken); }, token, token);
+                    Task.Factory.StartNew((cancelToken) => { ConsumeTopicInviteMessage((CancellationToken)cancelToken); }, token, token);
                 }
-                Task.Factory.StartNew((cancelToken) => { Consume((CancellationToken)cancelToken); }, token, token);
+                Task.Factory.StartNew((cancelToken) => { ConsumeTimeMessage((CancellationToken)cancelToken); }, token, token);
+                Task.Factory.StartNew((cancelToken) => { ConsumeTimeControlMessage((CancellationToken)cancelToken); }, token, token);
 
                 // Start the heart beat to indicate the connector is still alive
                 Task.Factory.StartNew((cancelToken) => { Heartbeat((CancellationToken)cancelToken); }, token, token);
@@ -375,8 +418,8 @@ namespace eu.driver.CSharpTestBedAdapter
                 distributionID = Guid.NewGuid().ToString(),
                 distributionKind = DistributionKind.Update,
                 distributionStatus = DistributionStatus.System,
-                dateTimeSent = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
-                dateTimeExpires = (long)((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)) + new TimeSpan(0, 0, 10, 0, 0)).TotalMilliseconds,
+                dateTimeSent = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                dateTimeExpires = (DateTimeOffset.UtcNow + new TimeSpan(0, 0, 10, 0, 0)).ToUnixTimeMilliseconds(),
             };
         }
 
@@ -416,17 +459,20 @@ namespace eu.driver.CSharpTestBedAdapter
             while (!token.IsCancellationRequested)
             {
                 // Send out the heart beat that this connector is still alive
-                EDXLDistribution key = CreateCoreKey();
-                Heartbeat beat = new Heartbeat
+                Message<EDXLDistribution, Heartbeat> message = new Message<EDXLDistribution, Heartbeat>()
                 {
-                    id = _configuration.Settings.clientid,
-                    alive = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds,
-                    origin = _appOrigin,
+                    Key = CreateCoreKey(),
+                    Value = new Heartbeat
+                    {
+                        id = _configuration.Settings.clientid,
+                        alive = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        origin = _appOrigin,
+                    },
                 };
 
                 try
                 {
-                    _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], key, beat);
+                    _heartbeatProducer.ProduceAsync(Configuration.CoreTopics["heartbeat"], message);
                 }
                 catch (Exception e)
                 {
@@ -459,15 +505,18 @@ namespace eu.driver.CSharpTestBedAdapter
             // Send out the log towards the core log topic
             if (_logProducer != null)
             {
-                EDXLDistribution key = CreateCoreKey();
-                Log log = new Log() { id = _configuration.Settings.clientid, log = msg };
-
-                try
+                Message<EDXLDistribution, Log> message = new Message<EDXLDistribution, Log>()
                 {
-                    _logProducer.ProduceAsync(Configuration.CoreTopics["log"], key, log);
-                }
-                catch { }
+                    Key = CreateCoreKey(),
+                    Value = new Log()
+                    {
+                        id = _configuration.Settings.clientid,
+                        log = msg,
+                    },
+                };
+                _logProducer.ProduceAsync(Configuration.CoreTopics["log"], message);
             }
+            else throw new NullReferenceException($"Could not create the log producer that should send the following log:\n{msg}");
         }
 
         /// <summary>
@@ -490,16 +539,6 @@ namespace eu.driver.CSharpTestBedAdapter
         private void Adapter_Error(object sender, Error error)
         {
             Log(log4net.Core.Level.Error, $"{sender.GetType()} {error.Code}: {error.Reason}");
-        }
-
-        /// <summary>
-        /// Collective delegate to report all errors created by consumers when receiving a message
-        /// </summary>
-        /// <param name="sender">The consumer sending the error</param>
-        /// <param name="error">The message being consumed</param>
-        private void Adapter_ConsumeError(object sender, Message msg)
-        {
-            Log(log4net.Core.Level.Error, $"{sender.GetType()} {msg.Error.Code}: {msg.Error.Reason}");
         }
 
         /// <summary>
@@ -612,7 +651,7 @@ namespace eu.driver.CSharpTestBedAdapter
                     {
                         url = url,
                         title = fileName,
-                        description = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString(),
+                        description = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(),
                         dataType = dataType,
                     };
                     SendMessage<LargeDataUpdate>(message);
@@ -625,30 +664,12 @@ namespace eu.driver.CSharpTestBedAdapter
         #region System consumers
 
         /// <summary>
-        /// Method being used inside a new task to keep polling for new system messages to consume
-        /// </summary>
-        private void Consume(CancellationToken token)
-        {
-            while (!token.IsCancellationRequested)
-            {
-                _timeConsumer.Poll(100);
-                _timecontrolConsumer.Poll(100);
-                // Only listen to the topic invites whenever we are taking into account the Admin tool
-                if (!_configuration.Settings.directconnect)
-                {
-                    _topicInviteConsumer.Poll(100);
-                }
-            }
-        }
-
-        /// <summary>
         /// Method for checking the admin tool heartbeat
         /// </summary>
         private void AdminCheck(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
-                _heartbeatConsumer.Poll(5000);
                 DateTime now = DateTime.UtcNow;
 
                 if (_lastAdminHeartbeat != DateTime.MinValue)
@@ -678,122 +699,196 @@ namespace eu.driver.CSharpTestBedAdapter
                         break;
                     }
                 }
+
+                // Wait for the specified amount of milliseconds
+                Task wait = Task.Delay(5000, token);
+                wait.Wait();
             }
         }
 
         /// <summary>
-        /// Delegate being called once a new message is consumed on the system topic admin heartbeat
+        /// Method for consuming a new message on the system topic admin heartbeat
         /// </summary>
-        /// <param name="sender">The consumer that has received the message</param>
-        /// <param name="message">The message that was received</param>
-        private void HeartbeatConsumer_Message(object sender, Message<EDXLDistribution, AdminHeartbeat> message)
+        /// <param name="cancelToken">The cancellation token to give to the consumer</param>
+        private void ConsumeHeartbeatMessage(CancellationToken cancelToken)
         {
-            TimeSpan span = TimeSpan.FromMilliseconds(message.Value.alive);
-            DateTime timestamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(span);
-
-            // Store the latest timestamp
-            _lastAdminHeartbeat = timestamp;
-        }
-
-        /// <summary>
-        /// Delegate being called once a new message is consumed on the system topic time
-        /// </summary>
-        /// <param name="sender">The consumer that has received the message</param>
-        /// <param name="message">The message that was received</param>
-        private void TimeConsumer_Message(object sender, Message<EDXLDistribution, Timing> message)
-        {
-            TimeSpan updatedAt = TimeSpan.FromMilliseconds(message.Value.updatedAt);
-            TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime);
-
-            // Update the values of the time info
-            _currentTime.ElapsedTime = TimeSpan.FromMilliseconds(message.Value.timeElapsed);
-            _currentTime.UpdatedAt = UNIXEpoch.Add(updatedAt);
-            _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
-            _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed;
-            _currentTime.TimeState = message.Value.state;
-        }
-
-        /// <summary>
-        /// Delegate being called once a new message is consumed on the system topic time
-        /// </summary>
-        /// <param name="sender">The consumer that has received the message</param>
-        /// <param name="message">The message that was received</param>
-        private void TimecontrolConsumer_Message(object sender, Message<EDXLDistribution, TimingControl> message)
-        {
-            // Update the values of the time info
-            switch (message.Value.command)
+            try
             {
-                case Command.Init:
-                    _currentTime.TimeState = model.core.State.Initialized;
-                    break;
-                case Command.Start:
-                    _currentTime.TimeState = model.core.State.Started;
-                    break;
-                case Command.Update:
-                    break;
-                case Command.Pause:
-                    _currentTime.TimeState = model.core.State.Paused;
-                    break;
-                case Command.Stop:
-                    _currentTime.TimeState = model.core.State.Stopped;
-                    break;
-                case Command.Reset:
-                    _currentTime.TimeState = model.core.State.Idle;
-                    break;
+                while (true)
+                {
+                    try
+                    {
+                        ConsumeResult<EDXLDistribution, AdminHeartbeat> res = _heartbeatConsumer.Consume(cancelToken);
+
+                        TimeSpan span = TimeSpan.FromMilliseconds(res.Value.alive);
+                        DateTime timestamp = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Add(span);
+
+                        // Store the latest timestamp
+                        _lastAdminHeartbeat = timestamp;
+                    }
+                    catch (ConsumeException e)
+                    {
+                        throw new CommunicationException($"consume error, {e.Error.Reason}");
+                    }
+                }
             }
-            if (message.Value.trialTime.HasValue)
+            catch (OperationCanceledException)
             {
-                TimeSpan trialTime = TimeSpan.FromMilliseconds(message.Value.trialTime.Value);
-                _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
-            }
-            if (message.Value.trialTimeSpeed.HasValue)
-            {
-                _currentTime.TrialTimeSpeed = message.Value.trialTimeSpeed.Value;
-            }
-
-            // If the callback handler was provided, notify the application of the timing control change
-            if (_timingControlHandler != null)
-            {
-                _timingControlHandler.Invoke();
+                _heartbeatConsumer.Close();
             }
         }
 
         /// <summary>
-        /// Delegate being called once a new message is consumed on the system topic for topic invitations
+        /// Method for consuming a new message on the system topic time
         /// </summary>
-        /// <param name="sender">The consumer that has received the message</param>
-        /// <param name="message">The message that was received</param>
-        private void TopicInviteConsumer_Message(object sender, Message<EDXLDistribution, TopicInvite> message)
+        /// <param name="cancelToken">The cancellation token to give to the consumer</param>
+        private void ConsumeTimeMessage(CancellationToken cancelToken)
         {
-            // Check if this message is directed to us
-            if (message.Value.id == _configuration.Settings.clientid)
+            try
             {
-                // Retrieve the topic name that this invitation applies to
-                string topic = message.Value.topicName;
+                while (true)
+                {
+                    try
+                    {
+                        ConsumeResult<EDXLDistribution, Timing> res = _timeConsumer.Consume(cancelToken);
+                        TimeSpan updatedAt = TimeSpan.FromMilliseconds(res.Value.updatedAt);
+                        TimeSpan trialTime = TimeSpan.FromMilliseconds(res.Value.trialTime);
 
-                // Check for publishing rights
-                if (message.Value.publishAllowed && !_allowedTopicsSend.Contains(topic))
-                {
-                    Log(log4net.Core.Level.Debug, $"Adapter is allowed to send on topic {topic}");
-                    _allowedTopicsSend.Add(topic);
+                        // Update the values of the time info
+                        _currentTime.ElapsedTime = TimeSpan.FromMilliseconds(res.Value.timeElapsed);
+                        _currentTime.UpdatedAt = UNIXEpoch.Add(updatedAt);
+                        _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
+                        _currentTime.TrialTimeSpeed = res.Value.trialTimeSpeed;
+                        _currentTime.TimeState = res.Value.state;
+                    }
+                    catch (ConsumeException e)
+                    {
+                        throw new CommunicationException($"consume error, {e.Error.Reason}");
+                    }
                 }
-                else if (_allowedTopicsSend.Contains(topic))
-                {
-                    Log(log4net.Core.Level.Debug, $"Adapter is restricted from sending on topic {topic}");
-                    _allowedTopicsSend.Remove(topic);
-                }
+            }
+            catch (OperationCanceledException)
+            {
+                _timeConsumer.Close();
+            }
+        }
 
-                // Check for subscription rights
-                if (message.Value.subscribeAllowed && !_allowedTopicsReceive.Contains(topic))
+        /// <summary>
+        /// Method for consuming a new message on the system topic time
+        /// </summary>
+        /// <param name="cancelToken">The cancellation token to give to the consumer</param>
+        private void ConsumeTimeControlMessage(CancellationToken cancelToken)
+        {
+            try
+            {
+                while (true)
                 {
-                    Log(log4net.Core.Level.Debug, $"Adapter is allowed to receive on topic {topic}");
-                    _allowedTopicsReceive.Add(topic);
+                    try
+                    {
+                        ConsumeResult<EDXLDistribution, TimingControl> res = _timeControlConsumer.Consume(cancelToken);
+                        // Update the values of the time info
+                        switch (res.Value.command)
+                        {
+                            case Command.Init:
+                                _currentTime.TimeState = model.core.State.Initialized;
+                                break;
+                            case Command.Start:
+                                _currentTime.TimeState = model.core.State.Started;
+                                break;
+                            case Command.Update:
+                                break;
+                            case Command.Pause:
+                                _currentTime.TimeState = model.core.State.Paused;
+                                break;
+                            case Command.Stop:
+                                _currentTime.TimeState = model.core.State.Stopped;
+                                break;
+                            case Command.Reset:
+                                _currentTime.TimeState = model.core.State.Idle;
+                                break;
+                        }
+                        if (res.Value.trialTime.HasValue)
+                        {
+                            TimeSpan trialTime = TimeSpan.FromMilliseconds(res.Value.trialTime.Value);
+                            _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
+                        }
+                        if (res.Value.trialTimeSpeed.HasValue)
+                        {
+                            _currentTime.TrialTimeSpeed = res.Value.trialTimeSpeed.Value;
+                        }
+
+                        // If the callback handler was provided, notify the application of the timing control change
+                        if (_timingControlHandler != null)
+                        {
+                            _timingControlHandler.Invoke();
+                        }
+                    }
+                    catch (ConsumeException e)
+                    {
+                        throw new CommunicationException($"consume error, {e.Error.Reason}");
+                    }
                 }
-                else if (_allowedTopicsReceive.Contains(topic))
+            }
+            catch (OperationCanceledException)
+            {
+                _timeControlConsumer.Close();
+            }
+        }
+
+        /// <summary>
+        /// Method for consuming a new message on the system topic for topic invitations
+        /// </summary>
+        /// <param name="cancelToken">The cancellation token to give to the consumer</param>
+        private void ConsumeTopicInviteMessage(CancellationToken cancelToken)
+        {
+            try
+            {
+                while (true)
                 {
-                    Log(log4net.Core.Level.Debug, $"Adapter is restricted from receiving on topic {topic}");
-                    _allowedTopicsReceive.Remove(topic);
+                    try
+                    {
+                        ConsumeResult<EDXLDistribution, TopicInvite> res = _topicInviteConsumer.Consume(cancelToken);
+
+                        // Check if this message is directed to us
+                        if (res.Value.id == _configuration.Settings.clientid)
+                        {
+                            // Retrieve the topic name that this invitation applies to
+                            string topic = res.Value.topicName;
+
+                            // Check for publishing rights
+                            if (res.Value.publishAllowed && !_allowedTopicsSend.Contains(topic))
+                            {
+                                Log(log4net.Core.Level.Debug, $"Adapter is allowed to send on topic {topic}");
+                                _allowedTopicsSend.Add(topic);
+                            }
+                            else if (_allowedTopicsSend.Contains(topic))
+                            {
+                                Log(log4net.Core.Level.Debug, $"Adapter is restricted from sending on topic {topic}");
+                                _allowedTopicsSend.Remove(topic);
+                            }
+
+                            // Check for subscription rights
+                            if (res.Value.subscribeAllowed && !_allowedTopicsReceive.Contains(topic))
+                            {
+                                Log(log4net.Core.Level.Debug, $"Adapter is allowed to receive on topic {topic}");
+                                _allowedTopicsReceive.Add(topic);
+                            }
+                            else if (_allowedTopicsReceive.Contains(topic))
+                            {
+                                Log(log4net.Core.Level.Debug, $"Adapter is restricted from receiving on topic {topic}");
+                                _allowedTopicsReceive.Remove(topic);
+                            }
+                        }
+                    }
+                    catch (ConsumeException e)
+                    {
+                        throw new CommunicationException($"consume error, {e.Error.Reason}");
+                    }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _topicInviteConsumer.Close();
             }
         }
 
@@ -960,48 +1055,34 @@ namespace eu.driver.CSharpTestBedAdapter
             // Dispose all system producers
             if (_heartbeatProducer != null)
             {
-                _heartbeatProducer.OnError -= Adapter_Error;
-                _heartbeatProducer.OnLog -= Adapter_Log;
+                _heartbeatProducer.Flush();
                 _heartbeatProducer.Dispose();
             }
             if (_logProducer != null)
             {
-                _logProducer.OnError -= Adapter_Error;
-                _logProducer.OnLog -= Adapter_Log;
+                _logProducer.Flush();
                 _logProducer.Dispose();
             }
 
             // Dispose all system consumers
             if (_heartbeatConsumer != null)
             {
-                _heartbeatConsumer.OnError -= Adapter_Error;
-                _heartbeatConsumer.OnConsumeError -= Adapter_ConsumeError;
-                _heartbeatConsumer.OnLog -= Adapter_Log;
-                _heartbeatConsumer.OnMessage -= HeartbeatConsumer_Message;
+                _heartbeatConsumer.Close();
                 _heartbeatConsumer.Dispose();
             }
             if (_timeConsumer != null)
             {
-                _timeConsumer.OnError -= Adapter_Error;
-                _timeConsumer.OnConsumeError -= Adapter_ConsumeError;
-                _timeConsumer.OnLog -= Adapter_Log;
-                _timeConsumer.OnMessage -= TimeConsumer_Message;
+                _timeConsumer.Close();
                 _timeConsumer.Dispose();
             }
-            if (_timecontrolConsumer != null)
+            if (_timeControlConsumer != null)
             {
-                _timecontrolConsumer.OnError -= Adapter_Error;
-                _timecontrolConsumer.OnConsumeError -= Adapter_ConsumeError;
-                _timecontrolConsumer.OnLog -= Adapter_Log;
-                _timecontrolConsumer.OnMessage -= TimecontrolConsumer_Message;
-                _timecontrolConsumer.Dispose();
+                _timeControlConsumer.Close();
+                _timeControlConsumer.Dispose();
             }
             if (_topicInviteConsumer != null)
             {
-                _topicInviteConsumer.OnError -= Adapter_Error;
-                _topicInviteConsumer.OnConsumeError -= Adapter_ConsumeError;
-                _topicInviteConsumer.OnLog -= Adapter_Log;
-                _topicInviteConsumer.OnMessage -= TopicInviteConsumer_Message;
+                _topicInviteConsumer.Close();
                 _topicInviteConsumer.Dispose();
             }
 

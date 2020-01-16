@@ -34,37 +34,33 @@ namespace CSharpExampleProducerCustom
         /// <param name="args">Additional method call parameters</param>
         static void Main(string[] args)
         {
-            try
+            TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
+            TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
+
+            // Test the large file system access
+            //TestLargeFileService();
+
+            Console.WriteLine($"Please type in any text to be send over topic '{CustomTopicName}'; q to exit");
+            string text;
+            // Whenever a new text has been entered by the user, create a new test message, or quit the application if the text is 'q'
+            while ((text = Console.ReadLine()) != "q")
             {
-                TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
-                TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to input...");
-
-                // Test the large file system access
-                TestLargeFileService();
-
-                Console.WriteLine($"Please type in any text to be send over topic '{CustomTopicName}'; q to exit");
-                string text;
-                // Whenever a new text has been entered by the user, create a new test message, or quit the application if the text is 'q'
-                while ((text = Console.ReadLine()) != "q")
+                Test newMsg = new Test()
                 {
-                    Test newMsg = new Test()
-                    {
-                        sender = SenderName,
-                        message = text,
-                    };
+                    sender = SenderName,
+                    message = text,
+                };
 
+                try
+                {
                     // Send the message over our custom topic
                     TestBedAdapter.GetInstance().SendMessage<Test>(newMsg, CustomTopicName);
                     Console.WriteLine(TestBedAdapter.GetInstance().GetTimeInfo());
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                TestBedAdapter.GetInstance().Dispose();
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 

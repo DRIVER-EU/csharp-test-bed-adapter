@@ -63,42 +63,42 @@ namespace eu.driver.CSharpTestBedAdapter
             Trace.WriteLine($"Loading settings from {_settingsPath}");
             using (StreamReader reader = new StreamReader(_settingsPath))
             {
-                _settings = (Schemas.settings)serializer.Deserialize(reader);
+                Settings = (Schemas.settings)serializer.Deserialize(reader);
 
-                _producerConfig = new Dictionary<string, object>
+                _producerConfig = new Dictionary<string, string>
                 {
-                    { "bootstrap.servers", _settings.brokerurl },
-                    { "schema.registry.url", _settings.schemaurl },
-                    //{ "compression.type", "none" },
+                    { "bootstrap.servers", Settings.brokerurl },
                     { "acks", "all" },
-                    { "retries", _settings.retrycount },
-                    { "request.timeout.ms", _settings.retrytime },
+                    { "retries", Settings.retrycount.ToString() },
+                    { "request.timeout.ms", Settings.retrytime.ToString() },
                     // optional avro / schema registry client properties for C#:
-                    { "avro.serializer.buffer.bytes", 50 },
-                    { "avro.serializer.auto.register.schemas", true },
-                    { "schema.registry.connection.timeout.ms", 5000 },
-                    { "schema.registry.max.cached.schemas", 10 },
-                    { "security.protocol", _settings.securityprotocol },
-                    { "ssl.ca.location", _settings.securitycapath },
-                    { "ssl.keystore.location", _settings.securitykeystorepath },
-                    { "ssl.keystore.password", _settings.securitykeystorepassword },
+                //    { "avro.serializer.buffer.bytes", 50.ToString() },
+                //    { "avro.serializer.auto.register.schemas", true.ToString() },
+                    { "security.protocol", Settings.securityprotocol },
+                    { "ssl.ca.location", Settings.securitycapath },
+                    { "ssl.keystore.location", Settings.securitykeystorepath },
+                    { "ssl.keystore.password", Settings.securitykeystorepassword },
 
                 };
 
-                _consumerConfig = new Dictionary<string, object>
+                _consumerConfig = new Dictionary<string, string>
                 {
-                    { "bootstrap.servers", _settings.brokerurl },
-                    { "schema.registry.url", _settings.schemaurl },
-                    { "group.id", _settings.clientid },
-                    { "enable.auto.commit", true },
+                    { "bootstrap.servers", Settings.brokerurl },
+                    { "group.id", Settings.clientid },
+                    { "enable.auto.commit", true.ToString() },
                     { "auto.offset.reset", "latest" },
                     // optional avro / schema registry client properties for C#:
-                    { "schema.registry.connection.timeout.ms", 5000 },
-                    { "schema.registry.max.cached.schemas", 10 },
-                    { "security.protocol", _settings.securityprotocol },
-                    { "ssl.ca.location", _settings.securitycapath },
-                    { "ssl.keystore.location", _settings.securitykeystorepath },
-                    { "ssl.keystore.password", _settings.securitykeystorepassword },
+                    { "security.protocol", Settings.securityprotocol },
+                    { "ssl.ca.location", Settings.securitycapath },
+                    { "ssl.keystore.location", Settings.securitykeystorepath },
+                    { "ssl.keystore.password", Settings.securitykeystorepassword },
+                };
+
+                SchemaRegistryConfig = new Confluent.SchemaRegistry.SchemaRegistryConfig()
+                {
+                    Url = Settings.schemaurl,
+                    RequestTimeoutMs = 5000,
+                    MaxCachedSchemas = 10,
                 };
             }
         }
@@ -108,26 +108,33 @@ namespace eu.driver.CSharpTestBedAdapter
         /// </summary>
         internal Schemas.settings Settings
         {
-            get { return _settings; }
+            get; private set;
         }
-        private Schemas.settings _settings = null;
 
         /// <summary>
         /// The Kafka producer configuration
         /// </summary>
-        internal Dictionary<string, object> ProducerConfig
+        internal Dictionary<string, string> ProducerConfig
         {
-            get { return new Dictionary<string, object>(_producerConfig); }
+            get { return new Dictionary<string, string>(_producerConfig); }
         }
-        private Dictionary<string, object> _producerConfig;
+        private Dictionary<string, string> _producerConfig;
 
         /// <summary>
         /// The Kafka consumer configuration
         /// </summary>
-        internal Dictionary<string, object> ConsumerConfig
+        internal Dictionary<string, string> ConsumerConfig
         {
-            get { return new Dictionary<string, object>(_consumerConfig); }
+            get { return new Dictionary<string, string>(_consumerConfig); }
         }
-        private Dictionary<string, object> _consumerConfig;
+        private Dictionary<string, string> _consumerConfig;
+
+        /// <summary>
+        /// The Kafka schema registry configuration
+        /// </summary>
+        internal Confluent.SchemaRegistry.SchemaRegistryConfig SchemaRegistryConfig
+        {
+            get; private set;
+        }
     }
 }
