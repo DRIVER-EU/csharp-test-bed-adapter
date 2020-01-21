@@ -2,7 +2,7 @@
 
 This is the C# Apache Kafka adapter created for the DRIVER-EU [test-bed](https://github.com/DRIVER-EU/test-bed). This allows C# written programs to communicate over the test-bed.
 
-The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 0.11.6)](https://www.nuget.org/packages/confluent.kafka.avro)), and offers support for:
+The implementation is a wrapper around [Confluent's .NET Client for Apache Kafka<sup>TM</sup>](https://github.com/confluentinc/confluent-kafka-dotnet) with the additional NuGet package to support Avro serialization ([Confluent.Kafka.Avro (version 1.0.0-beta2)](https://www.nuget.org/packages/Confluent.Kafka.Avro/1.0.0-beta2)), and offers support for:
 
 * Sending and receiving Avro schema's and messages: both producer and consumer use Avro schema's for their message key and value.
 Methods for sending and receiving standard or custom messages are `SendMessage` & `AddCallback`
@@ -73,7 +73,7 @@ The code project that bundles all simulation message formats defined for the Com
 
 * All projects are build on the .NET Framework 4.6
 * All projects are dependent on one NuGet package from Confluent:
-  * pre-released [Confluent.Kafka.Avro 0.11.6](https://www.nuget.org/packages/Confluent.Kafka.Avro/0.11.6)
+  * pre-released [Confluent.Kafka.Avro (version 1.0.0-beta2)](https://www.nuget.org/packages/Confluent.Kafka.Avro/1.0.0-beta2)
 
 In order to use the `csharp-test-bed-adapter`, you are also required to download and install the above-mentioned NuGet package.
  

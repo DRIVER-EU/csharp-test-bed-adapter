@@ -62,17 +62,14 @@ namespace eu.driver.CSharpTestBedAdapter
         internal AbstractProducer(Configuration configuration)
         {
             _configuration = configuration;
-            using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(configuration.SchemaRegistryConfig))
-            {
-                _producer = new ProducerBuilder<EDXLDistribution, T>(_configuration.ProducerConfig)
-                    .SetKeySerializer(new AvroSerializer<EDXLDistribution>(csrc))
-                    .SetValueSerializer(new AvroSerializer<T>(csrc))
-                    // Raised on critical errors, e.g. connection failures or all brokers down.
-                    .SetErrorHandler( (sender, error) => OnError?.Invoke(sender, error) )
-                    // Raised when there is information that should be logged.
-                    .SetLogHandler( (sender, log) => OnLog?.Invoke(sender, log) )
-                    .Build();
-            }
+            _producer = new ProducerBuilder<EDXLDistribution, T>(_configuration.ProducerConfig)
+                .SetKeySerializer(new AvroSerializer<EDXLDistribution>(configuration.SchemaRegistryClient))
+                .SetValueSerializer(new AvroSerializer<T>(configuration.SchemaRegistryClient))
+                // Raised on critical errors, e.g. connection failures or all brokers down.
+                .SetErrorHandler( (sender, error) => OnError?.Invoke(sender, error) )
+                // Raised when there is information that should be logged.
+                .SetLogHandler( (sender, log) => OnLog?.Invoke(sender, log) )
+                .Build();
 
             _messageQueue = new Queue<KeyValuePair<T, string>>();
         }

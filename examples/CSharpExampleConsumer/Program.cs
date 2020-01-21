@@ -40,8 +40,8 @@ namespace CSharpExampleConsumer
             {
                 TestBedAdapter.GetInstance().AddLogCallback(Adapter_Log);
                 TestBedAdapter.GetInstance().AddTimingControlCallback(Adapter_TimingControl);
-                TestBedAdapter.GetInstance().AddCallback<Test>(Adapter_TestMessage, CustomTopicName, Offset.Beginning);
-                TestBedAdapter.GetInstance().AddCallback<Alert>(Adapter_AlertMessage, Configuration.StandardTopics[typeof(Alert)], Offset.Beginning);
+                TestBedAdapter.GetInstance().AddCallback<Test>(Adapter_TestMessage, CustomTopicName);
+                TestBedAdapter.GetInstance().AddCallback<Alert>(Adapter_AlertMessage, Configuration.StandardTopics[typeof(Alert)]);
                 TestBedAdapter.GetInstance().Log(Level.Debug, "adapter started, listening to messages...");
                 while (true)
                 { }

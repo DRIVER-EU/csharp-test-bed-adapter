@@ -63,25 +63,21 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <param name="configuration">The test-bed adapter configuration information</param>
         /// <param name="handler">The callback function to invoke whenever a new message has been consumed</param>
         /// <param name="topic">The name of the topci to listen to</param>
-        /// <param name="offset">The topic offset to start listening at the correct index</param>
-        internal AbstractConsumer(Configuration configuration, TestBedAdapter.ConsumerHandler<T> handler, string topic, Offset offset, CancellationTokenSource tokenSource)
+        internal AbstractConsumer(Configuration configuration, TestBedAdapter.ConsumerHandler<T> handler, string topic, CancellationTokenSource tokenSource)
         {
-            using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(configuration.SchemaRegistryConfig))
-            {
-                _consumer = new ConsumerBuilder<EDXLDistribution, T>(configuration.ConsumerConfig)
-                    .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
-                    .SetValueDeserializer(new AvroDeserializer<T>(csrc).AsSyncOverAsync())
-                    // Raised on critical errors, e.g. connection failures or all brokers down.
-                    .SetErrorHandler((sender, error) => OnError?.Invoke(sender, error))
-                    // Raised when there is information that should be logged.
-                    .SetLogHandler((sender, log) => OnLog?.Invoke(sender, log))
-                    .Build();
-            }
+            _consumer = new ConsumerBuilder<EDXLDistribution, T>(configuration.ConsumerConfig)
+                .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(configuration.SchemaRegistryClient).AsSyncOverAsync())
+                .SetValueDeserializer(new AvroDeserializer<T>(configuration.SchemaRegistryClient).AsSyncOverAsync())
+                // Raised on critical errors, e.g. connection failures or all brokers down.
+                .SetErrorHandler((sender, error) => OnError?.Invoke(sender, error))
+                // Raised when there is information that should be logged.
+                .SetLogHandler((sender, log) => OnLog?.Invoke(sender, log))
+                .Build();
             _consumerHandler = handler;
 
             _messageQueue = new Queue<ConsumeResult<EDXLDistribution, T>>();
 
-            // Start listening to the topic from the given offset
+            // Start listening to the topic
             _consumer.Subscribe(topic);
 
             CancellationToken token = tokenSource.Token;

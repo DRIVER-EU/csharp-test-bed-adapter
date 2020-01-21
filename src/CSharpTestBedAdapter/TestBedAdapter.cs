@@ -242,76 +242,64 @@ namespace eu.driver.CSharpTestBedAdapter
                 _consumers = new Dictionary<string, List<IAbstractConsumer>>();
 
                 // Create the producers for the system topics
-                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
-                {
-                    _heartbeatProducer = new ProducerBuilder<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig)
-                        .SetKeySerializer(new AvroSerializer<EDXLDistribution>(csrc))
-                        .SetValueSerializer(new AvroSerializer<Heartbeat>(csrc))
-                        // Raised on critical errors, e.g.connection failures or all brokers down.
-                        .SetErrorHandler(Adapter_Error)
-                        .SetLogHandler(Adapter_Log)
-                        .Build();
-                }
-                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
-                {
-                    _logProducer = new ProducerBuilder<EDXLDistribution, Log>(_configuration.ProducerConfig)
-                        .SetKeySerializer(new AvroSerializer<EDXLDistribution>(csrc))
-                        .SetValueSerializer(new AvroSerializer<Log>(csrc))
-                        // Raised on critical errors, e.g.connection failures or all brokers down.
-                        .SetErrorHandler(Adapter_Error)
-                        .SetLogHandler(Adapter_Log)
-                        .Build();
-                }
+                _heartbeatProducer = new ProducerBuilder<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig)
+                    .SetKeySerializer(new AvroSerializer<EDXLDistribution>(_configuration.SchemaRegistryClient))
+                    .SetValueSerializer(new AvroSerializer<Heartbeat>(_configuration.SchemaRegistryClient))
+                    // Raised on critical errors, e.g.connection failures or all brokers down.
+                    .SetErrorHandler(Adapter_Error)
+                    // Raised when there is information that should be logged.
+                    .SetLogHandler(Adapter_Log)
+                    .Build();
+
+                _logProducer = new ProducerBuilder<EDXLDistribution, Log>(_configuration.ProducerConfig)
+                    .SetKeySerializer(new AvroSerializer<EDXLDistribution>(_configuration.SchemaRegistryClient))
+                    .SetValueSerializer(new AvroSerializer<Log>(_configuration.SchemaRegistryClient))
+                    // Raised on critical errors, e.g.connection failures or all brokers down.
+                    .SetErrorHandler(Adapter_Error)
+                    // Raised when there is information that should be logged.
+                    .SetLogHandler(Adapter_Log)
+                    .Build();
 
                 // Initialize the consumers for the system topics
                 // Whenever bypassing the adming tool, don't listen to the admin tool control topics
                 if (!_configuration.Settings.directconnect)
                 {
-                    using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
-                    {
-                        _heartbeatConsumer = new ConsumerBuilder<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig)
-                            .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
-                            .SetValueDeserializer(new AvroDeserializer<AdminHeartbeat>(csrc).AsSyncOverAsync())
-                            // Raised on critical errors, e.g.connection failures or all brokers down.
-                            .SetErrorHandler(Adapter_Error)
-                            // Raised when there is information that should be logged.
-                            .SetLogHandler(Adapter_Log)
-                            .Build();
-                    }
-                    using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
-                    {
-                        _topicInviteConsumer = new ConsumerBuilder<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig)
-                            .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
-                            .SetValueDeserializer(new AvroDeserializer<TopicInvite>(csrc).AsSyncOverAsync())
-                            // Raised on critical errors, e.g.connection failures or all brokers down.
-                            .SetErrorHandler(Adapter_Error)
-                            // Raised when there is information that should be logged.
-                            .SetLogHandler(Adapter_Log)
-                            .Build();
-                    }
-                }
-                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
-                {
-                    _timeConsumer = new ConsumerBuilder<EDXLDistribution, Timing>(_configuration.ConsumerConfig)
-                        .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
-                        .SetValueDeserializer(new AvroDeserializer<Timing>(csrc).AsSyncOverAsync())
+                    _heartbeatConsumer = new ConsumerBuilder<EDXLDistribution, AdminHeartbeat>(_configuration.ConsumerConfig)
+                        .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                        .SetValueDeserializer(new AvroDeserializer<AdminHeartbeat>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                        // Raised on critical errors, e.g.connection failures or all brokers down.
+                        .SetErrorHandler(Adapter_Error)
+                        // Raised when there is information that should be logged.
+                        .SetLogHandler(Adapter_Log)
+                        .Build();
+
+                    _topicInviteConsumer = new ConsumerBuilder<EDXLDistribution, TopicInvite>(_configuration.ConsumerConfig)
+                        .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                        .SetValueDeserializer(new AvroDeserializer<TopicInvite>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
                         // Raised on critical errors, e.g.connection failures or all brokers down.
                         .SetErrorHandler(Adapter_Error)
                         // Raised when there is information that should be logged.
                         .SetLogHandler(Adapter_Log)
                         .Build();
                 }
-                using (CachedSchemaRegistryClient csrc = new CachedSchemaRegistryClient(_configuration.SchemaRegistryConfig))
-                {
-                    _timeControlConsumer = new ConsumerBuilder<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig)
-                        .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(csrc).AsSyncOverAsync())
-                        .SetValueDeserializer(new AvroDeserializer<TimingControl>(csrc).AsSyncOverAsync())
-                        // Raised on critical errors, e.g.connection failures or all brokers down.
-                        .SetErrorHandler(Adapter_Error)
-                        // Raised when there is information that should be logged.
-                        .SetLogHandler(Adapter_Log)
-                        .Build();
-                }
+
+                _timeConsumer = new ConsumerBuilder<EDXLDistribution, Timing>(_configuration.ConsumerConfig)
+                    .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                    .SetValueDeserializer(new AvroDeserializer<Timing>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                    // Raised on critical errors, e.g.connection failures or all brokers down.
+                    .SetErrorHandler(Adapter_Error)
+                    // Raised when there is information that should be logged.
+                    .SetLogHandler(Adapter_Log)
+                    .Build();
+
+                _timeControlConsumer = new ConsumerBuilder<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig)
+                    .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                    .SetValueDeserializer(new AvroDeserializer<TimingControl>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                    // Raised on critical errors, e.g.connection failures or all brokers down.
+                    .SetErrorHandler(Adapter_Error)
+                    // Raised when there is information that should be logged.
+                    .SetLogHandler(Adapter_Log)
+                    .Build();
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken token = _cancellationTokenSource.Token;
@@ -980,8 +968,7 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <typeparam name="T">The type of the message, inherited from <see cref="Avro.Specific.ISpecificRecord"/></typeparam>
         /// <param name="handler">Delegate function to be called once a message is received</param>
         /// <param name="topic">The name of the topic to listen to</param>
-        /// <param name="offset">The <see cref="Confluent.Kafka.Offset"/> to indicate from where to start listening to new messages</param>
-        public void AddCallback<T>(ConsumerHandler<T> handler, string topic, Offset offset)
+        public void AddCallback<T>(ConsumerHandler<T> handler, string topic)
             where T : Avro.Specific.ISpecificRecord
         {
             // Make sure we are not requested to listen to core topics via this method
@@ -1008,7 +995,7 @@ namespace eu.driver.CSharpTestBedAdapter
             }
 
             // Create a new consumer listening to the given topic
-            AbstractConsumer<T> newConsumer = new AbstractConsumer<T>(_configuration, handler, topic, offset, _cancellationTokenSource);
+            AbstractConsumer<T> newConsumer = new AbstractConsumer<T>(_configuration, handler, topic, _cancellationTokenSource);
             newConsumer.OnError += Adapter_Error;
             newConsumer.OnLog += Adapter_Log;
             if (_consumers.ContainsKey(topic))

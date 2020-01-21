@@ -68,38 +68,32 @@ namespace eu.driver.CSharpTestBedAdapter
                 _producerConfig = new Dictionary<string, string>
                 {
                     { "bootstrap.servers", Settings.brokerurl },
-                    { "acks", "all" },
                     { "retries", Settings.retrycount.ToString() },
                     { "request.timeout.ms", Settings.retrytime.ToString() },
-                    // optional avro / schema registry client properties for C#:
-                //    { "avro.serializer.buffer.bytes", 50.ToString() },
-                //    { "avro.serializer.auto.register.schemas", true.ToString() },
                     { "security.protocol", Settings.securityprotocol },
                     { "ssl.ca.location", Settings.securitycapath },
                     { "ssl.keystore.location", Settings.securitykeystorepath },
                     { "ssl.keystore.password", Settings.securitykeystorepassword },
-
                 };
 
                 _consumerConfig = new Dictionary<string, string>
                 {
                     { "bootstrap.servers", Settings.brokerurl },
                     { "group.id", Settings.clientid },
-                    { "enable.auto.commit", true.ToString() },
-                    { "auto.offset.reset", "latest" },
-                    // optional avro / schema registry client properties for C#:
                     { "security.protocol", Settings.securityprotocol },
                     { "ssl.ca.location", Settings.securitycapath },
                     { "ssl.keystore.location", Settings.securitykeystorepath },
                     { "ssl.keystore.password", Settings.securitykeystorepassword },
                 };
 
-                SchemaRegistryConfig = new Confluent.SchemaRegistry.SchemaRegistryConfig()
-                {
-                    Url = Settings.schemaurl,
-                    RequestTimeoutMs = 5000,
-                    MaxCachedSchemas = 10,
-                };
+                SchemaRegistryClient = new Confluent.SchemaRegistry.CachedSchemaRegistryClient(
+                    new Confluent.SchemaRegistry.SchemaRegistryConfig()
+                    {
+                        Url = Settings.schemaurl,
+                        RequestTimeoutMs = 5000,
+                        MaxCachedSchemas = 10,
+                    }
+                );
             }
         }
 
@@ -130,9 +124,9 @@ namespace eu.driver.CSharpTestBedAdapter
         private Dictionary<string, string> _consumerConfig;
 
         /// <summary>
-        /// The Kafka schema registry configuration
+        /// The Kafka schema registry client containing the configuration
         /// </summary>
-        internal Confluent.SchemaRegistry.SchemaRegistryConfig SchemaRegistryConfig
+        internal Confluent.SchemaRegistry.CachedSchemaRegistryClient SchemaRegistryClient
         {
             get; private set;
         }

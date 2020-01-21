@@ -99,6 +99,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\CoreMessages\CoreMessages.csproj">
+      <Project>{42e6b653-9531-4a59-9dd8-f22289587a92}</Project>
+      <Name>CoreMessages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\CSharpTestBedAdapter\CSharpTestBedAdapter.csproj">
       <Project>{9fa5257a-bd49-43ee-8b48-b4bceb02122b}</Project>
       <Name>CSharpTestBedAdapter</Name>
