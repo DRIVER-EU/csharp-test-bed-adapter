@@ -48,8 +48,8 @@
     <Reference Include="Confluent.SchemaRegistry.Serdes, Version=1.3.0.0, Culture=neutral, PublicKeyToken=72eef0b27442ef0a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Confluent.SchemaRegistry.Serdes.1.3.0\lib\net452\Confluent.SchemaRegistry.Serdes.dll</HintPath>
     </Reference>
-    <Reference Include="CssMessages, Version=1.0.2020.115, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CssMessages.1.0.2020.115\lib\net46\CssMessages.dll</HintPath>
+    <Reference Include="CssMessages, Version=1.1.2020.309, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\CssMessages.1.1.2020.309\lib\net46\CssMessages.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
