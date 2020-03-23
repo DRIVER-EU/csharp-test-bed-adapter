@@ -19,11 +19,11 @@ using System.Threading.Tasks;
 
 using Confluent.Kafka;
 using Confluent.Kafka.SyncOverAsync;
-using Confluent.SchemaRegistry;
 using Confluent.SchemaRegistry.Serdes;
 
 using eu.driver.model.core;
 using eu.driver.model.edxl;
+using eu.driver.model.sim.config;
 
 namespace eu.driver.CSharpTestBedAdapter
 {
@@ -71,15 +71,15 @@ namespace eu.driver.CSharpTestBedAdapter
             /// The timestamp of the last update
             /// </summary>
             public DateTime UpdatedAt { get; set; }
-            /// <summary>
-            /// The time frame from the start of the trial to the current time
-            /// </summary>
-            public TimeSpan ElapsedTime
-            {
-                get { return _elapsedTime + (DateTime.UtcNow - UpdatedAt); }
-                set { _elapsedTime = value; }
-            }
-            private TimeSpan _elapsedTime;
+            ///// <summary>
+            ///// The time frame from the start of the trial to the current time
+            ///// </summary>
+            //public TimeSpan ElapsedTime
+            //{
+            //    get { return _elapsedTime + (DateTime.UtcNow - UpdatedAt); }
+            //    set { _elapsedTime = value; }
+            //}
+            //private TimeSpan _elapsedTime;
             /// <summary>
             /// The fictive date and time of the trial
             /// </summary>
@@ -96,12 +96,13 @@ namespace eu.driver.CSharpTestBedAdapter
             /// <summary>
             /// The current state of the time service
             /// </summary>
-            public State TimeState { get; set; }
+            public TimeState TimeState { get; set; }
 
             /// <summary><see cref="ValueType.ToString"/></summary>
             public override string ToString()
             {
-                return $"TimeInfo[ElapsedTime({ElapsedTime.ToString()}); UpdatedAt({UpdatedAt.ToString()}); TrialTime({TrialTime}); TrialTimeSpeed({TrialTimeSpeed}); TimeState({TimeState})]";
+                //return $"TimeInfo[ElapsedTime({ElapsedTime.ToString()}); UpdatedAt({UpdatedAt.ToString()}); TrialTime({TrialTime}); TrialTimeSpeed({TrialTimeSpeed}); TimeState({TimeState})]";
+                return $"TimeInfo[UpdatedAt({UpdatedAt.ToString()}); TrialTime({TrialTime}); TrialTimeSpeed({TrialTimeSpeed}); TimeState({TimeState})]";
             }
         }
 
@@ -130,7 +131,7 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <summary>
         /// The producer this connector is using to send heartbeats
         /// </summary>
-        private IProducer<EDXLDistribution, Heartbeat> _heartbeatProducer;
+        private IProducer<EDXLDistribution, eu.driver.model.core.Heartbeat> _heartbeatProducer;
         /// <summary>
         /// The consumer this connector is using to check if the admin tool is still alive
         /// </summary>
@@ -143,11 +144,11 @@ namespace eu.driver.CSharpTestBedAdapter
         /// <summary>
         /// The consumer this connector is using to receive time messages
         /// </summary>
-        private IConsumer<EDXLDistribution, Timing> _timeConsumer;
+        private IConsumer<EDXLDistribution, TimeManagement> _timeConsumer;
         /// <summary>
         /// The consumer this connector is using to receive time control changes
         /// </summary>
-        private IConsumer<EDXLDistribution, TimingControl> _timeControlConsumer;
+        private IConsumer<EDXLDistribution, TimeControl> _timeControlConsumer;
         /// <summary>
         /// The consumer this connector is using to receive invitations to listen to a certain topic
         /// </summary>
@@ -242,9 +243,9 @@ namespace eu.driver.CSharpTestBedAdapter
                 _consumers = new Dictionary<string, List<IAbstractConsumer>>();
 
                 // Create the producers for the system topics
-                _heartbeatProducer = new ProducerBuilder<EDXLDistribution, Heartbeat>(_configuration.ProducerConfig)
+                _heartbeatProducer = new ProducerBuilder<EDXLDistribution, eu.driver.model.core.Heartbeat>(_configuration.ProducerConfig)
                     .SetKeySerializer(new AvroSerializer<EDXLDistribution>(_configuration.SchemaRegistryClient))
-                    .SetValueSerializer(new AvroSerializer<Heartbeat>(_configuration.SchemaRegistryClient))
+                    .SetValueSerializer(new AvroSerializer<eu.driver.model.core.Heartbeat>(_configuration.SchemaRegistryClient))
                     // Raised on critical errors, e.g.connection failures or all brokers down.
                     .SetErrorHandler(Adapter_Error)
                     // Raised when there is information that should be logged.
@@ -283,18 +284,18 @@ namespace eu.driver.CSharpTestBedAdapter
                         .Build();
                 }
 
-                _timeConsumer = new ConsumerBuilder<EDXLDistribution, Timing>(_configuration.ConsumerConfig)
+                _timeConsumer = new ConsumerBuilder<EDXLDistribution, TimeManagement>(_configuration.ConsumerConfig)
                     .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
-                    .SetValueDeserializer(new AvroDeserializer<Timing>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                    .SetValueDeserializer(new AvroDeserializer<TimeManagement>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
                     // Raised on critical errors, e.g.connection failures or all brokers down.
                     .SetErrorHandler(Adapter_Error)
                     // Raised when there is information that should be logged.
                     .SetLogHandler(Adapter_Log)
                     .Build();
 
-                _timeControlConsumer = new ConsumerBuilder<EDXLDistribution, TimingControl>(_configuration.ConsumerConfig)
+                _timeControlConsumer = new ConsumerBuilder<EDXLDistribution, TimeControl>(_configuration.ConsumerConfig)
                     .SetKeyDeserializer(new AvroDeserializer<EDXLDistribution>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
-                    .SetValueDeserializer(new AvroDeserializer<TimingControl>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
+                    .SetValueDeserializer(new AvroDeserializer<TimeControl>(_configuration.SchemaRegistryClient).AsSyncOverAsync())
                     // Raised on critical errors, e.g.connection failures or all brokers down.
                     .SetErrorHandler(Adapter_Error)
                     // Raised when there is information that should be logged.
@@ -331,11 +332,11 @@ namespace eu.driver.CSharpTestBedAdapter
                 _startTime = DateTime.UtcNow;
                 _currentTime = new TimeInfo()
                 {
-                    ElapsedTime = TimeSpan.FromMilliseconds(0),
+                    //ElapsedTime = TimeSpan.FromMilliseconds(0),
                     UpdatedAt = DateTime.UtcNow,
                     TrialTime = DateTime.MinValue,
                     TrialTimeSpeed = 1f,
-                    TimeState = model.core.State.Initialized
+                    TimeState = TimeState.Initialization
                 };
 
                 _allowedTopicsSend = new List<string>();
@@ -447,10 +448,10 @@ namespace eu.driver.CSharpTestBedAdapter
             while (!token.IsCancellationRequested)
             {
                 // Send out the heart beat that this connector is still alive
-                Message<EDXLDistribution, Heartbeat> message = new Message<EDXLDistribution, Heartbeat>()
+                Message<EDXLDistribution, eu.driver.model.core.Heartbeat> message = new Message<EDXLDistribution, eu.driver.model.core.Heartbeat>()
                 {
                     Key = CreateCoreKey(),
-                    Value = new Heartbeat
+                    Value = new eu.driver.model.core.Heartbeat
                     {
                         id = _configuration.Settings.clientid,
                         alive = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
@@ -738,16 +739,24 @@ namespace eu.driver.CSharpTestBedAdapter
                 {
                     try
                     {
-                        ConsumeResult<EDXLDistribution, Timing> res = _timeConsumer.Consume(cancelToken);
-                        TimeSpan updatedAt = TimeSpan.FromMilliseconds(res.Value.updatedAt);
-                        TimeSpan trialTime = TimeSpan.FromMilliseconds(res.Value.trialTime);
+                        ConsumeResult<EDXLDistribution, TimeManagement> res = _timeConsumer.Consume(cancelToken);
 
                         // Update the values of the time info
-                        _currentTime.ElapsedTime = TimeSpan.FromMilliseconds(res.Value.timeElapsed);
-                        _currentTime.UpdatedAt = UNIXEpoch.Add(updatedAt);
-                        _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
-                        _currentTime.TrialTimeSpeed = res.Value.trialTimeSpeed;
                         _currentTime.TimeState = res.Value.state;
+                        if (res.Value.timestamp.HasValue)
+                        {
+                            TimeSpan updatedAt = TimeSpan.FromMilliseconds(res.Value.timestamp.Value);
+                            _currentTime.UpdatedAt = UNIXEpoch.Add(updatedAt);
+                        }
+                        if (res.Value.simulationTime.HasValue)
+                        {
+                            TimeSpan trialTime = TimeSpan.FromMilliseconds(res.Value.simulationTime.Value);
+                            _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
+                        }
+                        if(res.Value.simulationSpeed.HasValue)
+                        {
+                            _currentTime.TrialTimeSpeed = res.Value.simulationSpeed.Value;
+                        }
                     }
                     catch (ConsumeException e)
                     {
@@ -773,36 +782,36 @@ namespace eu.driver.CSharpTestBedAdapter
                 {
                     try
                     {
-                        ConsumeResult<EDXLDistribution, TimingControl> res = _timeControlConsumer.Consume(cancelToken);
+                        ConsumeResult<EDXLDistribution, TimeControl> res = _timeControlConsumer.Consume(cancelToken);
                         // Update the values of the time info
                         switch (res.Value.command)
                         {
-                            case Command.Init:
-                                _currentTime.TimeState = model.core.State.Initialized;
+                            case TimeCommand.Init:
+                                _currentTime.TimeState = TimeState.Initialization;
                                 break;
-                            case Command.Start:
-                                _currentTime.TimeState = model.core.State.Started;
+                            case TimeCommand.Start:
+                                _currentTime.TimeState = TimeState.Started;
                                 break;
-                            case Command.Update:
+                            case TimeCommand.Update:
                                 break;
-                            case Command.Pause:
-                                _currentTime.TimeState = model.core.State.Paused;
+                            case TimeCommand.Pause:
+                                _currentTime.TimeState = TimeState.Paused;
                                 break;
-                            case Command.Stop:
-                                _currentTime.TimeState = model.core.State.Stopped;
+                            case TimeCommand.Stop:
+                                _currentTime.TimeState = TimeState.Stopped;
                                 break;
-                            case Command.Reset:
-                                _currentTime.TimeState = model.core.State.Idle;
+                            case TimeCommand.Reset:
+                                _currentTime.TimeState = TimeState.Reset;
                                 break;
                         }
-                        if (res.Value.trialTime.HasValue)
+                        if (res.Value.simulationTime.HasValue)
                         {
-                            TimeSpan trialTime = TimeSpan.FromMilliseconds(res.Value.trialTime.Value);
+                            TimeSpan trialTime = TimeSpan.FromMilliseconds(res.Value.simulationTime.Value);
                             _currentTime.TrialTime = UNIXEpoch.Add(trialTime);
                         }
-                        if (res.Value.trialTimeSpeed.HasValue)
+                        if (res.Value.simulationSpeed.HasValue)
                         {
-                            _currentTime.TrialTimeSpeed = res.Value.trialTimeSpeed.Value;
+                            _currentTime.TrialTimeSpeed = res.Value.simulationSpeed.Value;
                         }
 
                         // If the callback handler was provided, notify the application of the timing control change

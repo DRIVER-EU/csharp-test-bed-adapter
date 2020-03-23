@@ -15,7 +15,7 @@ namespace eu.driver.model.core
 	
 	public partial class TopicCreate : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TopicCreate"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Sender Client id"",""type"":""string""},{""name"":""topicName"",""doc"":""The name of the Topic to be created by the admin tool."",""type"":""string""},{""name"":""subscribeAllowed"",""doc"":""Indicates which clients are allowed to connect as subscriber."",""type"":[{""type"":""record"",""name"":""subscribeAllowed"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Sender Client id"",""type"":""string""}]}]},{""name"":""publishedAllowed"",""doc"":""Indicates which clients are allowed to connect as publisher."",""type"":[{""type"":""record"",""name"":""publishedAllowed"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Sender Client id"",""type"":""string""}]}]}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""TopicCreate"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Sender Client id"",""type"":""string""},{""name"":""topicName"",""doc"":""The name of the Topic to be created by the admin tool."",""type"":""string""},{""name"":""standard"",""doc"":""The standard (schema) that should be registered for this topic."",""type"":""string""},{""name"":""version"",""doc"":""The version of the standard (schema) that should be registered for this topic."",""type"":""string""},{""name"":""subscribeAllowed"",""doc"":""Indicates which clients are allowed to connect as subscriber."",""type"":[{""type"":""record"",""name"":""subscribeAllowed"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Sender Client id"",""type"":""string""}]}]},{""name"":""publishedAllowed"",""doc"":""Indicates which clients are allowed to connect as publisher."",""type"":[{""type"":""record"",""name"":""publishedAllowed"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Sender Client id"",""type"":""string""}]}]}]}");
 		/// <summary>
 		/// Sender Client id
 		/// </summary>
@@ -24,6 +24,14 @@ namespace eu.driver.model.core
 		/// The name of the Topic to be created by the admin tool.
 		/// </summary>
 		private string _topicName;
+		/// <summary>
+		/// The standard (schema) that should be registered for this topic.
+		/// </summary>
+		private string _standard;
+		/// <summary>
+		/// The version of the standard (schema) that should be registered for this topic.
+		/// </summary>
+		private string _version;
 		/// <summary>
 		/// Indicates which clients are allowed to connect as subscriber.
 		/// </summary>
@@ -68,6 +76,34 @@ namespace eu.driver.model.core
 			}
 		}
 		/// <summary>
+		/// The standard (schema) that should be registered for this topic.
+		/// </summary>
+		public string standard
+		{
+			get
+			{
+				return this._standard;
+			}
+			set
+			{
+				this._standard = value;
+			}
+		}
+		/// <summary>
+		/// The version of the standard (schema) that should be registered for this topic.
+		/// </summary>
+		public string version
+		{
+			get
+			{
+				return this._version;
+			}
+			set
+			{
+				this._version = value;
+			}
+		}
+		/// <summary>
 		/// Indicates which clients are allowed to connect as subscriber.
 		/// </summary>
 		public object subscribeAllowed
@@ -101,8 +137,10 @@ namespace eu.driver.model.core
 			{
 			case 0: return this.id;
 			case 1: return this.topicName;
-			case 2: return this.subscribeAllowed;
-			case 3: return this.publishedAllowed;
+			case 2: return this.standard;
+			case 3: return this.version;
+			case 4: return this.subscribeAllowed;
+			case 5: return this.publishedAllowed;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
 			};
 		}
@@ -112,8 +150,10 @@ namespace eu.driver.model.core
 			{
 			case 0: this.id = (System.String)fieldValue; break;
 			case 1: this.topicName = (System.String)fieldValue; break;
-			case 2: this.subscribeAllowed = (System.Object)fieldValue; break;
-			case 3: this.publishedAllowed = (System.Object)fieldValue; break;
+			case 2: this.standard = (System.String)fieldValue; break;
+			case 3: this.version = (System.String)fieldValue; break;
+			case 4: this.subscribeAllowed = (System.Object)fieldValue; break;
+			case 5: this.publishedAllowed = (System.Object)fieldValue; break;
 			default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
 			};
 		}

@@ -15,9 +15,9 @@ namespace eu.driver.model.core
 	
 	public partial class Heartbeat : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Heartbeat"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Unique identifier of the connected application sending out this message"",""type"":""string""},{""name"":""alive"",""doc"":""UNIX Epoch time in milliseconds marking the time the connected application was last responding"",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""origin"",""doc"":""Optional identifier from which device or location this message was sent (e.g. IP address, machine name)"",""default"":null,""type"":[""null"",""string""]}]}");
+		public static Schema _SCHEMA = Avro.Schema.Parse(@"{""type"":""record"",""name"":""Heartbeat"",""namespace"":""eu.driver.model.core"",""fields"":[{""name"":""id"",""doc"":""Unique case-insensitive identifier of the connected application sending out this message"",""type"":""string""},{""name"":""alive"",""doc"":""UNIX Epoch time in milliseconds marking the time the connected application was last responding"",""type"":""long"",""logicalType"":""timestamp-millis""},{""name"":""origin"",""doc"":""Optional case-insensitive identifier from which device or location this message was sent (e.g. IP address, machine name)"",""default"":null,""type"":[""null"",""string""]}]}");
 		/// <summary>
-		/// Unique identifier of the connected application sending out this message
+		/// Unique case-insensitive identifier of the connected application sending out this message
 		/// </summary>
 		private string _id;
 		/// <summary>
@@ -25,7 +25,7 @@ namespace eu.driver.model.core
 		/// </summary>
 		private long _alive;
 		/// <summary>
-		/// Optional identifier from which device or location this message was sent (e.g. IP address, machine name)
+		/// Optional case-insensitive identifier from which device or location this message was sent (e.g. IP address, machine name)
 		/// </summary>
 		private string _origin;
 		public virtual Schema Schema
@@ -36,7 +36,7 @@ namespace eu.driver.model.core
 			}
 		}
 		/// <summary>
-		/// Unique identifier of the connected application sending out this message
+		/// Unique case-insensitive identifier of the connected application sending out this message
 		/// </summary>
 		public string id
 		{
@@ -64,7 +64,7 @@ namespace eu.driver.model.core
 			}
 		}
 		/// <summary>
-		/// Optional identifier from which device or location this message was sent (e.g. IP address, machine name)
+		/// Optional case-insensitive identifier from which device or location this message was sent (e.g. IP address, machine name)
 		/// </summary>
 		public string origin
 		{

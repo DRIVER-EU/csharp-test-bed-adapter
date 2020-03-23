@@ -12,7 +12,6 @@
 using System;
 using System.Collections.Generic;
 
-using Confluent.Kafka;
 using log4net.Core;
 
 using eu.driver.CSharpTestBedAdapter;
@@ -102,7 +101,7 @@ namespace CSharpExampleConsumer
         /// </summary>
         private static void Adapter_TimingControl()
         {
-            Console.WriteLine(TestBedAdapter.GetInstance().GetTimeInfo());
+            Console.WriteLine($"Received a Timing control message: {TestBedAdapter.GetInstance().GetTimeInfo()}");
         }
     }
 }
